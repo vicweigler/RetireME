@@ -170,6 +170,13 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .ci-del-btn:active{border-color:#f85149;color:#f85149;}
 .ci-add-btn{width:100%;padding:9px;border-radius:8px;border:1px dashed rgba(0,209,122,0.4);font-size:12px;font-weight:700;background:rgba(0,209,122,0.06);color:#00d17a;cursor:pointer;}
 .restore-btn{background:none;border:1px solid #30363d;border-radius:6px;color:#484f58;font-size:11px;cursor:pointer;padding:5px 10px;white-space:nowrap;font-family:inherit;}
+.ci-name-inp{background:transparent;border:none;border-bottom:1px solid transparent;color:#e6edf3;font-size:14px;font-weight:600;padding:0 0 1px;outline:none;width:100%;font-family:inherit;cursor:text;display:block;}
+.ci-name-inp:focus{border-bottom-color:#00d17a;}
+.ci-type-inp{background:transparent;border:none;border-bottom:1px solid transparent;color:#848d97;font-size:12px;padding:0 0 1px;outline:none;width:100%;font-family:inherit;margin-top:2px;cursor:text;display:block;}
+.ci-type-inp:focus{border-bottom-color:#30363d;}
+.sort-col{display:flex;flex-direction:column;align-items:center;gap:1px;width:20px;flex-shrink:0;}
+.sort-btn{background:none;border:none;color:#484f58;font-size:9px;cursor:pointer;padding:1px 2px;line-height:1.2;width:20px;text-align:center;font-family:inherit;}
+.sort-btn:hover{color:#00d17a;}.sort-dim{opacity:0.2;pointer-events:none;}
 </style>
 </head>
 <body>
@@ -383,7 +390,7 @@ const BONUSES={'2026':0,'2027':125302,'2028':76523,'2029':54241,'2030':38678};
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:"NS&I",val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:"NS&I",val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
-let S={dob:'',retire:'',career:'',hols:25,salary:0,pot:0,contrib:12,growth:5.5,dbPension:43000,drawdown:24000,extra:0,bonuses:null,assets:{},checklist:{},drawdownByYear:{},prior2026Income:0,customItems:{},hiddenAssets:[],assetLabels:{}};
+let S={dob:'',retire:'',career:'',hols:25,salary:0,pot:0,contrib:12,growth:5.5,dbPension:43000,drawdown:24000,extra:0,bonuses:null,assets:{},checklist:{},drawdownByYear:{},prior2026Income:0,customItems:{},hiddenAssets:[],assetLabels:{},assetOrder:[]};
 
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
 
@@ -404,6 +411,8 @@ function load(){
   if(!S.customItems)S.customItems={};
   if(!S.hiddenAssets)S.hiddenAssets=[];
   if(!S.assetLabels)S.assetLabels={};
+  if(!S.assetOrder||!S.assetOrder.length)S.assetOrder=Object.keys(DA);
+  Object.keys(DA).forEach(k=>{if(!S.assetOrder.includes(k))S.assetOrder.push(k);});
   for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
   if(!S.bonuses){S.bonuses={};for(const y in BONUSES)S.bonuses[y]=BONUSES[y];}
   for(const y of ['2026','2027','2028','2029','2030']){if(S.bonuses[y]==null)S.bonuses[y]=BONUSES[y];}
@@ -685,15 +694,17 @@ function showLedger(yr,btn){
   const ciYr=(S.customItems&&S.customItems[yr])||[];
   if(yr==='2026'){
     const base=calcBase();let rows='';
-    for(const k in DA){
-      if(hidden.includes(k))continue;
-      const a=DA[k];const v=getA(k);
-      rows+=`<div class="asset-row" style="grid-template-columns:1fr 100px 34px;gap:6px;"><div><div class="asset-name">${esc(a.label)}</div><div class="asset-sub2">${esc(a.sub)}</div></div><input class="asset-inp" type="number" value="${v}" onchange="updateAsset('${k}',this.value)" style="color:${v<0?'#f85149':'#d29922'};"/><button class="ci-del-btn" title="Hide item" onclick="hideAsset('${k}')">&#215;</button></div>`;
+    const order=(S.assetOrder&&S.assetOrder.length?S.assetOrder:Object.keys(DA)).filter(k=>DA[k]);
+    const visKeys=order.filter(k=>!hidden.includes(k));
+    for(let vi=0;vi<visKeys.length;vi++){
+      const k=visKeys[vi];const a=DA[k];const v=getA(k);
+      rows+=`<div class="asset-row" style="grid-template-columns:20px 1fr 100px 34px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${vi===0?' sort-dim':''}" onclick="moveAsset('${k}','up')">&#9650;</button><button class="sort-btn${vi===visKeys.length-1?' sort-dim':''}" onclick="moveAsset('${k}','down')">&#9660;</button></div><div><div class="asset-name">${esc(a.label)}</div><div class="asset-sub2">${esc(a.sub)}</div></div><input class="asset-inp" type="number" value="${v}" onchange="updateAsset('${k}',this.value)" style="color:${v<0?'#f85149':'#d29922'};"/><button class="ci-del-btn" title="Hide item" onclick="hideAsset('${k}')">&#215;</button></div>`;
     }
-    for(const ci of ciYr){
-      rows+=`<div class="asset-row" style="grid-template-columns:1fr 100px 34px;gap:6px;"><div style="min-width:0;display:flex;flex-direction:column;gap:3px;"><input class="ci-inp" placeholder="Name" value="${esc(ci.name||'')}" oninput="updateCustomItem('2026','${ci.id}','name',this.value)" style="font-weight:600;"/><input class="ci-inp" placeholder="Type / description" value="${esc(ci.type||'')}" oninput="updateCustomItem('2026','${ci.id}','type',this.value)" style="font-size:11px;color:#848d97;"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('2026','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/><button class="ci-del-btn" onclick="deleteCustomItem('2026','${ci.id}')">&#215;</button></div>`;
+    for(let ci_i=0;ci_i<ciYr.length;ci_i++){
+      const ci=ciYr[ci_i];
+      rows+=`<div class="asset-row" style="grid-template-columns:20px 1fr 100px 34px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${ci_i===0?' sort-dim':''}" onclick="moveCustomItem('2026','${ci.id}','up')">&#9650;</button><button class="sort-btn${ci_i===ciYr.length-1?' sort-dim':''}" onclick="moveCustomItem('2026','${ci.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('2026','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('2026','${ci.id}','type',this.value)" placeholder="Type / description"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('2026','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/><button class="ci-del-btn" onclick="deleteCustomItem('2026','${ci.id}')">&#215;</button></div>`;
     }
-    const hiddenDa=hidden.filter(k=>DA[k]);
+    const hiddenDa=order.filter(k=>DA[k]&&hidden.includes(k));
     if(hiddenDa.length>0){
       rows+=`<div style="margin-top:8px;padding-top:8px;border-top:1px solid #21262d;"><div class="ci-add-title">Hidden &#8212; tap Restore to re-include</div>${hiddenDa.map(k=>`<div class="asset-row" style="opacity:0.5;grid-template-columns:1fr auto;gap:6px;align-items:center;"><div><div class="asset-name">${esc(DA[k].label)}</div><div class="asset-sub2">${esc(DA[k].sub)}</div></div><button class="restore-btn" onclick="restoreAsset('${k}')">Restore</button></div>`).join('')}</div>`;
     }
@@ -712,8 +723,9 @@ function showLedger(yr,btn){
     const cTotal=ciYr.reduce((s,i)=>s+(parseFloat(i.value)||0),0);
     const end=prevBal+interest+b+cTotal-draw_yr;
     let ciRows='';
-    for(const ci of ciYr){
-      ciRows+=`<div class="asset-row" style="grid-template-columns:1fr 100px 34px;gap:6px;margin-bottom:6px;"><div style="min-width:0;display:flex;flex-direction:column;gap:3px;"><input class="ci-inp" placeholder="Name" value="${esc(ci.name||'')}" oninput="updateCustomItem('${yr}','${ci.id}','name',this.value)" style="font-weight:600;"/><input class="ci-inp" placeholder="Type / description" value="${esc(ci.type||'')}" oninput="updateCustomItem('${yr}','${ci.id}','type',this.value)" style="font-size:11px;color:#848d97;"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('${yr}','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/><button class="ci-del-btn" onclick="deleteCustomItem('${yr}','${ci.id}')">&#215;</button></div>`;
+    for(let ci_i=0;ci_i<ciYr.length;ci_i++){
+      const ci=ciYr[ci_i];
+      ciRows+=`<div class="asset-row" style="grid-template-columns:20px 1fr 100px 34px;gap:4px;align-items:center;margin-bottom:6px;"><div class="sort-col"><button class="sort-btn${ci_i===0?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','up')">&#9650;</button><button class="sort-btn${ci_i===ciYr.length-1?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('${yr}','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('${yr}','${ci.id}','type',this.value)" placeholder="Type / description"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('${yr}','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/><button class="ci-del-btn" onclick="deleteCustomItem('${yr}','${ci.id}')">&#215;</button></div>`;
     }
     el.innerHTML=`<div class="card"><div class="card-eyebrow">${yr} Asset Summary</div>
       <div class="asset-row"><div><div class="asset-name">Opening Carry-Over</div></div><div class="asset-static">&#163;${fmtN(prevBal)}</div></div>
@@ -775,6 +787,22 @@ function restoreAsset(k){
   S.hiddenAssets=S.hiddenAssets.filter(x=>x!==k);
   save();buildRunway();
   showLedger('2026',document.querySelector('#ledger-yr-tabs .lyt.active'));
+}
+
+function moveAsset(k,dir){
+  if(!S.assetOrder||!S.assetOrder.length)S.assetOrder=Object.keys(DA);
+  const idx=S.assetOrder.indexOf(k);if(idx===-1)return;
+  if(dir==='up'&&idx>0){[S.assetOrder[idx-1],S.assetOrder[idx]]=[S.assetOrder[idx],S.assetOrder[idx-1]];}
+  else if(dir==='down'&&idx<S.assetOrder.length-1){[S.assetOrder[idx],S.assetOrder[idx+1]]=[S.assetOrder[idx+1],S.assetOrder[idx]];}
+  save();showLedger('2026',document.querySelector('#ledger-yr-tabs .lyt.active'));
+}
+
+function moveCustomItem(yr,id,dir){
+  if(!S.customItems||!S.customItems[yr])return;
+  const arr=S.customItems[yr];const idx=arr.findIndex(i=>i.id===id);if(idx===-1)return;
+  if(dir==='up'&&idx>0){[arr[idx-1],arr[idx]]=[arr[idx],arr[idx-1]];}
+  else if(dir==='down'&&idx<arr.length-1){[arr[idx],arr[idx+1]]=[arr[idx+1],arr[idx]];}
+  save();showLedger(yr,document.querySelector('#ledger-yr-tabs .lyt.active'));
 }
 
 function renderAssetsForm(){
