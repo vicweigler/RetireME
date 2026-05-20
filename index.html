@@ -273,23 +273,6 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 
   <!-- CASHFLOW -->
   <div class="tab-panel" id="tab-cashflow">
-    <div class="card" style="padding-bottom:12px;">
-      <div class="card-eyebrow">Bonus Vesting Schedule</div>
-      <div class="bonus-grid">
-        <div class="bonus-hdr">Year</div><div class="bonus-hdr">Vesting (£)</div>
-        <div class="bonus-divider"></div>
-        <div class="bonus-yr-cell">2026</div>
-        <input id="b-2026" class="bonus-inp" type="number" value="0" oninput="saveBonus('2026',this.value)"/>
-        <div class="bonus-yr-cell">2027</div>
-        <input id="b-2027" class="bonus-inp" type="number" value="125302" oninput="saveBonus('2027',this.value)"/>
-        <div class="bonus-yr-cell">2028</div>
-        <input id="b-2028" class="bonus-inp" type="number" value="76523" oninput="saveBonus('2028',this.value)"/>
-        <div class="bonus-yr-cell">2029</div>
-        <input id="b-2029" class="bonus-inp" type="number" value="54241" oninput="saveBonus('2029',this.value)"/>
-        <div class="bonus-yr-cell">2030</div>
-        <input id="b-2030" class="bonus-inp" type="number" value="38678" oninput="saveBonus('2030',this.value)"/>
-      </div>
-    </div>
     <div class="card">
       <div class="slider-label-bar">
         <div class="sim-title">Runway Simulation Drivers</div>
@@ -317,6 +300,23 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 
   <!-- LEDGER -->
   <div class="tab-panel" id="tab-ledger">
+    <div class="card" style="padding-bottom:12px;">
+      <div class="card-eyebrow">Bonus Vesting Schedule</div>
+      <div class="bonus-grid">
+        <div class="bonus-hdr">Year</div><div class="bonus-hdr">Vesting (£)</div>
+        <div class="bonus-divider"></div>
+        <div class="bonus-yr-cell">2026</div>
+        <input id="b-2026" class="bonus-inp" type="number" value="0" oninput="saveBonus('2026',this.value)"/>
+        <div class="bonus-yr-cell">2027</div>
+        <input id="b-2027" class="bonus-inp" type="number" value="125302" oninput="saveBonus('2027',this.value)"/>
+        <div class="bonus-yr-cell">2028</div>
+        <input id="b-2028" class="bonus-inp" type="number" value="76523" oninput="saveBonus('2028',this.value)"/>
+        <div class="bonus-yr-cell">2029</div>
+        <input id="b-2029" class="bonus-inp" type="number" value="54241" oninput="saveBonus('2029',this.value)"/>
+        <div class="bonus-yr-cell">2030</div>
+        <input id="b-2030" class="bonus-inp" type="number" value="38678" oninput="saveBonus('2030',this.value)"/>
+      </div>
+    </div>
     <div class="ledger-yr-tabs" id="ledger-yr-tabs">
       <div class="lyt active" onclick="showLedger('2026',this)">2026</div>
       <div class="lyt" onclick="showLedger('2027',this)">2027</div>
@@ -652,9 +652,9 @@ function buildRunway(){
       <div class="rw-box"><div class="rw-box-lbl">−Drawdown (6mo)</div><div class="rw-box-val red">−£${fmtN(draw2026)}</div></div>
     </div>
     <div class="rw-tax-row">
+      ${prior2026>0?`<div class="rw-tax-line"><span class="lbl">Prior employment income (Apr–Jul, gross):</span><span class="val" style="color:#848d97;">£${fmtN(prior2026)}</span></div>`:''}
       <div class="rw-tax-line"><span class="lbl">DB Pension Gross (6 months from Jul 1st):</span><span class="val">£${fmtN(halfDB)}</span></div>
       ${extra2026>0?`<div class="rw-tax-line"><span class="lbl">Additional Income (6 months):</span><span class="val">£${fmtN(extra2026)}</span></div>`:''}
-      ${prior2026>0?`<div class="rw-tax-line"><span class="lbl">Prior employment income (Apr–Jul, gross):</span><span class="val" style="color:#848d97;">£${fmtN(prior2026)}</span></div>`:''}
       <div class="rw-tax-line"><span class="lbl">Pension Tax (${effRate2026}% — ${rate2026Label}):</span><span class="val red">−£${fmtN(pension2026Tax)}</span></div>
       <div class="rw-tax-line"><span class="lbl">Net Pension (Jul–Dec):</span><span class="val">£${fmtN(net2026DB)}</span></div>
       ${extra2026>0?`<div class="rw-tax-line"><span class="lbl">Net Additional Income (after tax):</span><span class="val green">£${fmtN(netExtra2026)}</span></div>`:''}
