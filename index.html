@@ -118,7 +118,7 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .ms-sub{font-size:11px;color:#484f58;margin-top:2px;}
 .ms-item.achieved{border-color:rgba(0,209,122,0.3);background:rgba(0,209,122,0.04);}
 .ms-item.achieved .ms-title{color:#00d17a;}
-.ck-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:#0d1117;border-radius:10px;margin-bottom:8px;border:1px solid #21262d;cursor:pointer;}
+.ck-item{display:flex;align-items:center;gap:12px;padding:12px;background:#0d1117;border-radius:10px;margin-bottom:8px;border:1px solid #21262d;}.ck-box{cursor:pointer;}
 .ck-box{width:20px;height:20px;border-radius:5px;border:2px solid #30363d;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
 .ck-item.done .ck-box{background:#00d17a;border-color:#00d17a;}
 .ck-check{display:none;color:#0d1117;font-size:12px;font-weight:800;}
@@ -333,6 +333,27 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
     <div class="card"><div class="card-eyebrow">UK Retirement Readiness Checklist</div><div id="checklist-list"></div></div>
   </div>
 
+  <!-- EXPENDITURE -->
+  <div class="tab-panel" id="tab-expenditure">
+    <div class="card">
+      <div class="card-eyebrow">Monthly Summary</div>
+      <div id="exp-summary"><div style="color:#484f58;font-size:13px;padding:8px 0;">No bills added yet. Add your monthly bills below.</div></div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">Bills &amp; Expenditure</div>
+      <div id="exp-list"></div>
+      <div class="ci-add-section" style="margin-top:12px;">
+        <div class="ci-add-title">Add Bill / Expense</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+          <input class="ci-inp" id="exp-new-name" placeholder="Name (e.g. Mortgage)"/>
+          <input class="ci-inp" id="exp-new-cat" placeholder="Category (e.g. Housing)"/>
+        </div>
+        <input class="ci-inp" id="exp-new-amt" type="number" placeholder="Monthly amount (&#163;)" style="margin-bottom:8px;text-align:right;color:#f85149;"/>
+        <button class="ci-add-btn" onclick="submitExpenditure()">+ Add Bill</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SETTINGS -->
   <div class="tab-panel" id="tab-settings">
     <div class="card">
@@ -378,6 +399,9 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
   <button class="tab-btn" onclick="switchTab('milestones',this)">
     <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Milestones
   </button>
+  <button class="tab-btn" onclick="switchTab('expenditure',this)">
+    <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Spend
+  </button>
   <button class="tab-btn" onclick="switchTab('settings',this)">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
   </button>
@@ -390,7 +414,7 @@ const BONUSES={'2026':0,'2027':125302,'2028':76523,'2029':54241,'2030':38678};
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:"NS&I",val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:"NS&I",val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
-let S={dob:'',retire:'',career:'',hols:25,salary:0,pot:0,contrib:12,growth:5.5,dbPension:43000,drawdown:24000,extra:0,bonuses:null,assets:{},checklist:{},drawdownByYear:{},prior2026Income:0,customItems:{},hiddenAssets:[],assetLabels:{},assetOrder:[]};
+let S={dob:'',retire:'',career:'',hols:25,salary:0,pot:0,contrib:12,growth:5.5,dbPension:43000,drawdown:24000,extra:0,bonuses:null,assets:{},checklist:{},drawdownByYear:{},prior2026Income:0,customItems:{},hiddenAssets:[],assetLabels:{},assetOrder:[],checklistItems:[],expenditure:[]};
 
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
 
@@ -413,6 +437,8 @@ function load(){
   if(!S.assetLabels)S.assetLabels={};
   if(!S.assetOrder||!S.assetOrder.length)S.assetOrder=Object.keys(DA);
   Object.keys(DA).forEach(k=>{if(!S.assetOrder.includes(k))S.assetOrder.push(k);});
+  if(!S.checklistItems||!S.checklistItems.length)S.checklistItems=CL.map(i=>({...i}));
+  if(!S.expenditure)S.expenditure=[];
   for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
   if(!S.bonuses){S.bonuses={};for(const y in BONUSES)S.bonuses[y]=BONUSES[y];}
   for(const y of ['2026','2027','2028','2029','2030']){if(S.bonuses[y]==null)S.bonuses[y]=BONUSES[y];}
@@ -494,6 +520,7 @@ function switchTab(n,btn){
   if(n==='cashflow')buildRunway();
   if(n==='ledger')showLedger('2026',document.querySelector('.lyt'));
   if(n==='milestones')renderMilestones();
+  if(n==='expenditure')renderExpenditure();
 }
 function toggleEdit(){const p=document.getElementById('edit-panel');p.style.display=p.style.display==='none'?'block':'none';}
 
@@ -592,6 +619,7 @@ function buildRunway(){
   let bal=calcBase();
   document.getElementById('base-val').textContent='£'+fmtN(bal);
   document.getElementById('liquid-val').textContent='£'+fmtN(bal);
+  const totalExp=totalExpenditure();
   let html='';
   // July 2026 — retirement + half-year income breakdown (Jul–Dec)
   const bonus2026=getA('june_bonus_26'); // display only — already included in calcBase()
@@ -637,6 +665,7 @@ function buildRunway(){
       <div class="rw-net-lbl">NET MONTHLY INCOME</div>
       <div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()} <span class="rw-net-mo">/mo</span></div>
     </div>
+    ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-tax-line"><span class="lbl">Monthly Expenditure:</span><span class="val red">&#8722;&#163;${fmtN(totalExp)}/mo</span></div><div class="rw-net" style="margin-top:4px;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(monthly2026-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly2026-totalExp))} <span class="rw-net-mo">/mo</span></div></div></div>`:''}
   </div></div>`;
   for(let yr=2027;yr<=2030;yr++){
     const draw_yr=getDrawdown(yr);
@@ -678,6 +707,7 @@ function buildRunway(){
         <div class="rw-net-lbl">NET MONTHLY INCOME</div>
         <div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()} <span class="rw-net-mo">/mo</span></div>
       </div>
+      ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-tax-line"><span class="lbl">Monthly Expenditure:</span><span class="val red">&#8722;&#163;${fmtN(totalExp)}/mo</span></div><div class="rw-net" style="margin-top:4px;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(Math.round(monthly)-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly)-totalExp)} <span class="rw-net-mo">/mo</span></div></div></div>`:''}
     </div></div>`;
   }
   document.getElementById('runway-timeline').innerHTML=html;
@@ -837,10 +867,82 @@ function renderMilestones(){
     {icon:'🎉',title:'Retirement Day!',sub:rd?rd.toLocaleDateString('en-GB'):'—',achieved:rd&&now>=rd},
   ];
   document.getElementById('milestones-list').innerHTML=MS.map(m=>`<div class="ms-item ${m.achieved?'achieved':''}"><div class="ms-icon">${m.achieved?'✅':m.icon}</div><div><div class="ms-title">${m.title}</div><div class="ms-sub">${m.sub}</div></div></div>`).join('');
-  document.getElementById('checklist-list').innerHTML=CL.map(item=>`<div class="ck-item ${S.checklist&&S.checklist[item.id]?'done':''}" onclick="toggleCk('${item.id}',this)"><div class="ck-box"><span class="ck-check">✓</span></div><div><div class="ck-text">${item.text}</div><div class="ck-sub">${item.sub}</div></div></div>`).join('');
+  const clItems=S.checklistItems&&S.checklistItems.length?S.checklistItems:CL;
+  document.getElementById('checklist-list').innerHTML=clItems.map(item=>`<div class="ck-item ${S.checklist&&S.checklist[item.id]?'done':''}" id="ck-${item.id}"><div class="ck-box" onclick="toggleCk('${item.id}')"><span class="ck-check">&#10003;</span></div><div style="flex:1;min-width:0;"><input type="text" class="ci-name-inp" style="font-size:13px;" value="${esc(item.text||'')}" onblur="updateChecklistItem('${item.id}','text',this.value)" placeholder="Task"/><input type="text" class="ci-type-inp" value="${esc(item.sub||'')}" onblur="updateChecklistItem('${item.id}','sub',this.value)" placeholder="Description"/></div><button class="ci-del-btn" style="flex-shrink:0;" onclick="deleteChecklistItem('${item.id}')">&#215;</button></div>`).join('')+'<div class="ci-add-section" style="margin-top:8px;"><div class="ci-add-title">Add Checklist Item</div><input class="ci-inp" id="ck-new-text" placeholder="Task (e.g. Review State Pension forecast)" style="margin-bottom:6px;"/><input class="ci-inp" id="ck-new-sub" placeholder="Sub-note (optional)" style="margin-bottom:8px;"/><button class="ci-add-btn" onclick="submitChecklistItem()">+ Add Item</button></div>';
 }
-function toggleCk(id,el){if(!S.checklist)S.checklist={};S.checklist[id]=!S.checklist[id];el.classList.toggle('done',!!S.checklist[id]);save();}
+function toggleCk(id){if(!S.checklist)S.checklist={};S.checklist[id]=!S.checklist[id];const el=document.getElementById('ck-'+id);if(el)el.classList.toggle('done',!!S.checklist[id]);save();}
 
+function submitChecklistItem(){
+  const text=(document.getElementById('ck-new-text')?.value||'').trim();
+  const sub=(document.getElementById('ck-new-sub')?.value||'').trim();
+  if(!text)return;
+  if(!S.checklistItems||!S.checklistItems.length)S.checklistItems=CL.map(i=>({...i}));
+  S.checklistItems.push({id:genId(),text,sub});
+  save();renderMilestones();
+  document.getElementById('ck-new-text').value='';
+  document.getElementById('ck-new-sub').value='';
+}
+function deleteChecklistItem(id){
+  if(!S.checklistItems)return;
+  S.checklistItems=S.checklistItems.filter(i=>i.id!==id);
+  if(S.checklist)delete S.checklist[id];
+  save();renderMilestones();
+}
+function updateChecklistItem(id,field,val){
+  if(!S.checklistItems)return;
+  const item=S.checklistItems.find(i=>i.id===id);if(!item)return;
+  item[field]=val;save();
+}
+
+function totalExpenditure(){return (S.expenditure||[]).reduce((s,e)=>s+(parseFloat(e.amount)||0),0);}
+function renderExpenditure(){
+  const items=S.expenditure||[];
+  const total=totalExpenditure();
+  const sumEl=document.getElementById('exp-summary');
+  if(sumEl){
+    if(items.length===0){sumEl.innerHTML='<div style="color:#484f58;font-size:13px;padding:8px 0;">No bills added yet. Add your monthly bills below to see disposable income in Cashflow.</div>';}
+    else{
+      const byCategory={};
+      items.forEach(e=>{const c=e.category||'Other';byCategory[c]=(byCategory[c]||0)+(parseFloat(e.amount)||0);});
+      let catRows=Object.entries(byCategory).map(([c,v])=>`<div class="rw-tax-line"><span class="lbl">${esc(c)}:</span><span class="val">&#163;${fmtN(v)}/mo</span></div>`).join('');
+      sumEl.innerHTML=`<div class="rw-tax-row">${catRows}<div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl" style="font-weight:700;color:#e6edf3;">Total Monthly Expenditure:</span><span class="val red" style="font-size:15px;">&#163;${fmtN(total)}/mo</span></div></div>`;
+    }
+  }
+  const el=document.getElementById('exp-list');if(!el)return;
+  if(items.length===0){el.innerHTML='';return;}
+  el.innerHTML=items.map((e,idx)=>`<div class="asset-row" style="grid-template-columns:20px 1fr 100px 34px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${idx===0?' sort-dim':''}" onclick="moveExpenditure('${e.id}','up')">&#9650;</button><button class="sort-btn${idx===items.length-1?' sort-dim':''}" onclick="moveExpenditure('${e.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(e.name||'')}" onblur="updateExpenditure('${e.id}','name',this.value)" placeholder="Bill name"/><input type="text" class="ci-type-inp" value="${esc(e.category||'')}" onblur="updateExpenditure('${e.id}','category',this.value)" placeholder="Category"/></div><input class="asset-inp" type="number" value="${e.amount||0}" onchange="updateExpenditure('${e.id}','amount',this.value)" style="color:#f85149;"/><button class="ci-del-btn" onclick="deleteExpenditure('${e.id}')">&#215;</button></div>`).join('');
+}
+function submitExpenditure(){
+  const name=(document.getElementById('exp-new-name')?.value||'').trim();
+  const cat=(document.getElementById('exp-new-cat')?.value||'').trim();
+  const amt=parseFloat(document.getElementById('exp-new-amt')?.value)||0;
+  if(!name)return;
+  if(!S.expenditure)S.expenditure=[];
+  S.expenditure.push({id:genId(),name,category:cat,amount:amt});
+  save();buildRunway();renderExpenditure();
+  document.getElementById('exp-new-name').value='';
+  document.getElementById('exp-new-cat').value='';
+  document.getElementById('exp-new-amt').value='';
+}
+function deleteExpenditure(id){
+  if(!S.expenditure)return;
+  S.expenditure=S.expenditure.filter(e=>e.id!==id);
+  save();buildRunway();renderExpenditure();
+}
+function updateExpenditure(id,field,val){
+  if(!S.expenditure)return;
+  const item=S.expenditure.find(e=>e.id===id);if(!item)return;
+  item[field]=field==='amount'?(parseFloat(val)||0):val;
+  save();
+  if(field==='amount'){buildRunway();renderExpenditure();}
+}
+function moveExpenditure(id,dir){
+  if(!S.expenditure)return;
+  const arr=S.expenditure;const idx=arr.findIndex(e=>e.id===id);if(idx===-1)return;
+  if(dir==='up'&&idx>0){[arr[idx-1],arr[idx]]=[arr[idx],arr[idx-1]];}
+  else if(dir==='down'&&idx<arr.length-1){[arr[idx],arr[idx+1]]=[arr[idx+1],arr[idx]];}
+  save();renderExpenditure();
+}
 
 function fmtN(n){return Math.round(n).toLocaleString('en-GB');}
 
