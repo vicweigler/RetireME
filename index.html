@@ -279,10 +279,10 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
         <div class="live-sync-badge">LIVE SYNC</div>
       </div>
       <div class="slider-grid">
-        <div class="slider-item"><label>Assets Growth Rate <span id="r-gr-v">4.0%</span></label><input type="range" id="r-gr" min="1" max="15" step="0.5" value="4" oninput="document.getElementById('r-gr-v').textContent=parseFloat(this.value).toFixed(1)+'%';buildRunway()"/></div>
-        <div class="slider-item"><label>Annual Drawdown Top-up <span id="r-draw-v">£24,000</span></label><input type="range" id="r-draw" min="0" max="60000" step="500" value="24000" oninput="document.getElementById('r-draw-v').textContent='£'+parseInt(this.value).toLocaleString();buildRunway()"/></div>
-        <div class="slider-item"><label>Gross DB Pension / annum <span id="r-db-v">£43,000</span></label><input type="range" id="r-db" min="10000" max="80000" step="500" value="43000" oninput="document.getElementById('r-db-v').textContent='£'+parseInt(this.value).toLocaleString();buildRunway()"/></div>
-        <div class="slider-item"><label>Target Monthly Net Income <span id="r-tgt-v" style="color:#f85149;">£3,500</span></label><input type="range" id="r-tgt" min="1000" max="8000" step="100" value="3500" oninput="document.getElementById('r-tgt-v').textContent='£'+parseInt(this.value).toLocaleString();buildRunway()"/></div>
+        <div class="slider-item"><label>Assets Growth Rate <span id="r-gr-v">4.0%</span></label><input type="range" id="r-gr" min="1" max="15" step="0.5" value="4" oninput="S.growth=parseFloat(this.value);document.getElementById('r-gr-v').textContent=S.growth.toFixed(1)+'%';save();buildRunway()"/></div>
+        <div class="slider-item"><label>Annual Drawdown Top-up <span id="r-draw-v">£24,000</span></label><input type="range" id="r-draw" min="0" max="60000" step="500" value="24000" oninput="S.drawdown=parseInt(this.value);document.getElementById('r-draw-v').textContent='£'+S.drawdown.toLocaleString();save();buildRunway()"/></div>
+        <div class="slider-item"><label>Gross DB Pension / annum <span id="r-db-v">£43,000</span></label><input type="range" id="r-db" min="10000" max="80000" step="500" value="43000" oninput="S.dbPension=parseInt(this.value);document.getElementById('r-db-v').textContent='£'+S.dbPension.toLocaleString();save();buildRunway()"/></div>
+        <div class="slider-item"><label>Target Monthly Net Income <span id="r-tgt-v" style="color:#f85149;">£3,500</span></label><input type="range" id="r-tgt" min="1000" max="8000" step="100" value="3500" oninput="S.targetIncome=parseInt(this.value);document.getElementById('r-tgt-v').textContent='£'+S.targetIncome.toLocaleString();save();buildRunway()"/></div>
         <div class="slider-item full"><label>Additional Gross Income / annum <span id="r-extra-v" style="color:#00d17a;">£0</span></label><input type="range" id="r-extra" min="0" max="50000" step="500" value="0" oninput="S.extra=parseInt(this.value)||0;document.getElementById('r-extra-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
       </div>
       <div class="form-group" style="margin-top:10px;margin-bottom:0;">
@@ -414,7 +414,7 @@ const BONUSES={'2026':0,'2027':125302,'2028':76523,'2029':54241,'2030':38678};
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:"NS&I",val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:"NS&I",val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
-let S={dob:'',retire:'',career:'',hols:25,salary:0,pot:0,contrib:12,growth:5.5,dbPension:43000,drawdown:24000,extra:0,bonuses:null,assets:{},checklist:{},drawdownByYear:{},prior2026Income:0,customItems:{},hiddenAssets:[],assetLabels:{},assetOrder:[],checklistItems:[],expenditure:[]};
+let S={dob:'',retire:'',career:'',hols:25,salary:0,pot:0,contrib:12,growth:4,targetIncome:3500,dbPension:43000,drawdown:24000,extra:0,bonuses:null,assets:{},checklist:{},drawdownByYear:{},prior2026Income:0,customItems:{},hiddenAssets:[],assetLabels:{},assetOrder:[],checklistItems:[],expenditure:[]};
 
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
 
@@ -491,8 +491,10 @@ function applyDOM(){
   sv('s-dob',S.dob);sv('s-retire',S.retire);sv('s-career',S.career);
   sr('s-hols',S.hols,'s-hols-v',String(S.hols));
   sv('s-salary',S.salary??'');sv('s-pot-n',S.pot??'');sv('s-db',S.dbPension||'');sv('s-draw',S.drawdown||'');
+  sr('r-gr',S.growth||4,'r-gr-v',(S.growth||4).toFixed(1)+'%');
   sr('r-db',S.dbPension||43000,'r-db-v','£'+(S.dbPension||43000).toLocaleString());
   sr('r-draw',S.drawdown||24000,'r-draw-v','£'+(S.drawdown||24000).toLocaleString());
+  sr('r-tgt',S.targetIncome||3500,'r-tgt-v','£'+(S.targetIncome||3500).toLocaleString());
   sr('r-extra',S.extra||0,'r-extra-v','£'+(S.extra||0).toLocaleString());
   for(const y of ['2026','2027','2028','2029','2030']){
     const bv=S.bonuses&&S.bonuses[y]!=null?S.bonuses[y]:BONUSES[y]||0;
