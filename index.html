@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="RetireMe"/>
+<meta name="theme-color" content="#0d1117"/>
+<title>RetireMe</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;overflow:hidden;}
+#app{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top,0px);}
+#header{background:#161b22;border-bottom:1px solid #21262d;padding:12px 18px 10px;flex-shrink:0;}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
+.hdr-eyebrow{font-size:10px;letter-spacing:1.5px;color:#00d17a;text-transform:uppercase;font-weight:600;}
+.hdr-logo{font-size:22px;font-weight:800;color:#e6edf3;letter-spacing:-0.5px;}
+.hdr-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,209,122,0.12);border:1px solid rgba(0,209,122,0.3);border-radius:20px;padding:3px 8px;font-size:10px;color:#00d17a;font-weight:600;vertical-align:middle;}
+.hdr-right{text-align:right;}
+.sync-dot{width:7px;height:7px;background:#00d17a;border-radius:50%;display:inline-block;margin-right:4px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.hdr-id{font-size:10px;color:#484f58;margin-top:2px;}
+#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(72px + env(safe-area-inset-bottom,0px));}
+#tabbar{position:fixed;bottom:0;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:100;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 4px 7px;gap:3px;background:none;border:none;color:#484f58;font-size:10px;font-weight:500;cursor:pointer;transition:color 0.2s;letter-spacing:0.3px;}
+.tab-btn svg{width:20px;height:20px;stroke-width:1.8;fill:none;stroke:currentColor;}
+.tab-btn.active{color:#00d17a;}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.card{background:#161b22;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #21262d;}
+.card-eyebrow{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#484f58;font-weight:600;margin-bottom:10px;}
+.cd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.cd-cell{background:#0d1117;border-radius:10px;padding:14px 8px;text-align:center;border:1px solid #21262d;}
+.cd-num{font-size:30px;font-weight:700;color:#e6edf3;line-height:1;letter-spacing:-1px;}
+.cd-num.green{color:#00d17a;}
+.cd-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#484f58;margin-top:5px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.stat-box{background:#0d1117;border-radius:10px;padding:14px;border:1px solid #21262d;}
+.stat-big{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px;}
+.stat-lbl{font-size:10px;letter-spacing:0.5px;color:#484f58;}
+.stat-sub{font-size:11px;color:#484f58;margin-top:3px;}
+.col-green{color:#00d17a;}.col-purple{color:#a371f7;}.col-blue{color:#58a6ff;}.col-gold{color:#d29922;}.col-red{color:#f85149;}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;}
+.prog-pct{color:#00d17a;font-weight:700;font-size:12px;}
+.prog-track{background:#21262d;border-radius:99px;height:6px;}
+.prog-fill{height:6px;border-radius:99px;background:linear-gradient(90deg,#00d17a,#0af0b0);transition:width 0.6s;}
+.prog-sub{font-size:11px;color:#484f58;margin-top:6px;}
+.liquid-bar{display:flex;align-items:center;justify-content:space-between;margin-top:10px;background:#0d1117;border-radius:10px;padding:12px 14px;border:1px solid #21262d;}
+.liquid-lbl{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;}
+.liquid-val{font-size:22px;font-weight:700;color:#00d17a;margin-top:3px;}
+.liquid-right{text-align:right;}
+.liquid-outlook-lbl{font-size:10px;color:#484f58;}
+.liquid-outlook-val{font-size:13px;font-weight:700;color:#00d17a;background:rgba(0,209,122,0.1);border:1px solid rgba(0,209,122,0.25);border-radius:8px;padding:3px 9px;margin-top:4px;display:inline-block;}
+.seg-ctrl{display:flex;background:#0d1117;border-radius:10px;padding:3px;gap:2px;margin-bottom:14px;border:1px solid #21262d;}
+.seg-btn{flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:#484f58;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.seg-btn svg{width:14px;height:14px;stroke-width:2;fill:none;stroke:currentColor;flex-shrink:0;}
+.seg-btn.active{background:#21262d;color:#e6edf3;}
+.slider-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.slider-item label{font-size:11px;color:#484f58;display:flex;justify-content:space-between;margin-bottom:5px;}
+.slider-item label span{color:#00d17a;font-weight:700;}
+.slider-item input[type=range]{width:100%;accent-color:#00d17a;}
+.slider-label-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.sim-title{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#484f58;font-weight:600;}
+.live-sync-badge{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#484f58;border:1px solid #21262d;border-radius:4px;padding:2px 7px;}
+.runway-base{background:#0d1117;border-radius:10px;padding:14px 16px;margin-bottom:8px;border:1px solid #30363d;display:flex;align-items:center;justify-content:space-between;}
+.runway-base-lbl{font-size:11px;letter-spacing:0.5px;text-transform:uppercase;color:#484f58;font-weight:700;}
+.runway-base-sub{font-size:10px;color:#484f58;margin-top:2px;}
+.runway-base-val{font-size:20px;font-weight:800;color:#e6edf3;}
+.timeline{position:relative;padding-left:20px;}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#00d17a,rgba(0,209,122,0.05));}
+.timeline-item{position:relative;margin-bottom:10px;}
+.timeline-dot{position:absolute;left:-17px;top:14px;width:10px;height:10px;background:#00d17a;border-radius:50%;border:2px solid #0d1117;}
+.rw-card{background:#1c2128;border-radius:12px;padding:14px;border:1px solid #21262d;}
+.rw-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.rw-year{font-size:13px;font-weight:700;color:#00d17a;background:rgba(0,209,122,0.1);border-radius:6px;padding:3px 10px;}
+.rw-carry{text-align:right;}
+.rw-carry-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#484f58;}
+.rw-carry-val{font-size:16px;font-weight:700;color:#e6edf3;margin-top:1px;}
+.rw-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+.rw-box{background:#0d1117;border-radius:8px;padding:8px 6px;}
+.rw-box-lbl{font-size:9px;letter-spacing:0.5px;text-transform:uppercase;color:#484f58;margin-bottom:4px;}
+.rw-box-val{font-size:13px;font-weight:700;color:#e6edf3;}
+.rw-box-val.green{color:#00d17a;}.rw-box-val.red{color:#f85149;}
+.rw-tax-row{background:#0d1117;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.rw-tax-line{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 0;}
+.rw-tax-line .lbl{color:#848d97;}
+.rw-tax-line .val{font-weight:600;color:#e6edf3;}
+.rw-tax-line .val.red{color:#f85149;}.rw-tax-line .val.green{color:#00d17a;}
+.rw-net{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #21262d;margin-top:4px;}
+.rw-net-lbl{font-size:11px;color:#848d97;}
+.rw-net-val{font-size:18px;font-weight:800;color:#f85149;}
+.rw-net-val.good{color:#00d17a;}
+.rw-net-mo{font-size:11px;color:#484f58;font-weight:500;}
+.pot-val{font-size:28px;font-weight:800;color:#00d17a;margin-bottom:4px;}
+.pot-sub{font-size:12px;color:#484f58;line-height:1.5;}
+.pot-sub b{color:#e6edf3;}
+.contrib-bar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:12px;}
+.contrib-bar-row .lbl{color:#848d97;}
+.contrib-bar-row .val{font-weight:600;color:#e6edf3;}
+.bar-track{background:#21262d;border-radius:99px;height:5px;margin-bottom:10px;}
+.bar-fill-green{height:5px;border-radius:99px;background:#00d17a;}
+.bar-fill-gold{height:5px;border-radius:99px;background:#d29922;}
+.bar-fill-blue{height:5px;border-radius:99px;background:#58a6ff;}
+.star-section{background:#0d1117;border-radius:12px;padding:20px 16px;border:1px solid #21262d;margin:14px 0;text-align:center;}
+.star-wrap{position:relative;display:inline-block;width:160px;height:160px;margin:10px auto 0;}
+.star-wrap svg{width:160px;height:160px;}
+.star-lbl-right{position:absolute;right:-85px;top:50%;transform:translateY(-50%);font-size:11px;color:#484f58;text-align:left;width:80px;line-height:1.4;}
+.contrib-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+.contrib-cell{background:#161b22;border-radius:10px;padding:10px 12px;border:1px solid #21262d;text-align:center;}
+.contrib-cell .c-lbl{font-size:10px;color:#484f58;margin-bottom:4px;}
+.contrib-cell .c-val{font-size:18px;font-weight:700;color:#00d17a;}
+.ms-item{display:flex;align-items:center;gap:12px;padding:12px;background:#0d1117;border-radius:10px;margin-bottom:8px;border:1px solid #21262d;}
+.ms-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0;}
+.ms-title{font-size:13px;font-weight:600;color:#e6edf3;}
+.ms-sub{font-size:11px;color:#484f58;margin-top:2px;}
+.ms-item.achieved{border-color:rgba(0,209,122,0.3);background:rgba(0,209,122,0.04);}
+.ms-item.achieved .ms-title{color:#00d17a;}
+.ck-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:#0d1117;border-radius:10px;margin-bottom:8px;border:1px solid #21262d;cursor:pointer;}
+.ck-box{width:20px;height:20px;border-radius:5px;border:2px solid #30363d;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.ck-item.done .ck-box{background:#00d17a;border-color:#00d17a;}
+.ck-check{display:none;color:#0d1117;font-size:12px;font-weight:800;}
+.ck-item.done .ck-check{display:block;}
+.ck-text{font-size:13px;color:#e6edf3;line-height:1.4;}
+.ck-sub{font-size:11px;color:#484f58;margin-top:2px;}
+.form-group{margin-bottom:14px;}
+.form-group label{font-size:12px;color:#848d97;display:flex;justify-content:space-between;margin-bottom:5px;align-items:center;}
+.form-group label span{color:#00d17a;font-weight:700;}
+.form-group input,.form-group select{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:11px 13px;color:#e6edf3;font-size:15px;outline:none;-webkit-appearance:none;}
+.form-group input:focus{border-color:#00d17a;}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(1);}
+input[type=range]{padding:4px 0;accent-color:#00d17a;}
+.section-title{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#484f58;font-weight:600;margin:16px 0 10px;}
+.asset-row{display:grid;grid-template-columns:1fr 130px;align-items:center;gap:8px;padding:10px 12px;background:#0d1117;border-radius:10px;margin-bottom:6px;border:1px solid #21262d;}
+.asset-row.total{border-color:rgba(0,209,122,0.3);}
+.asset-name{font-size:13px;color:#e6edf3;}.asset-sub2{font-size:11px;color:#484f58;margin-top:1px;}
+.asset-inp{background:#161b22;border:1px solid #30363d;border-radius:8px;color:#d29922;font-size:14px;font-weight:700;padding:6px 8px;width:100%;text-align:right;outline:none;}
+.asset-inp:focus{border-color:#d29922;}
+.asset-static{font-size:14px;font-weight:700;text-align:right;}
+.ledger-yr-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;}
+.ledger-yr-tabs::-webkit-scrollbar{display:none;}
+.lyt{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid #21262d;background:#0d1117;color:#484f58;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.lyt.active{background:#00d17a;border-color:#00d17a;color:#0d1117;}
+.paste-area{width:100%;min-height:90px;background:#0d1117;border:1px solid #30363d;border-radius:10px;color:#e6edf3;font-size:12px;padding:10px;outline:none;resize:vertical;font-family:monospace;}
+.paste-area:focus{border-color:#00d17a;}
+.btn-primary{width:100%;padding:13px;border-radius:11px;border:none;font-size:14px;font-weight:700;background:linear-gradient(135deg,#00d17a,#00a85e);color:#0d1117;cursor:pointer;margin-top:10px;}
+.btn-danger{width:100%;padding:11px;border-radius:11px;border:1px solid #30363d;font-size:13px;font-weight:600;background:transparent;color:#848d97;cursor:pointer;margin-top:6px;}
+.edit-panel{background:#0d1117;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #30363d;}
+.edit-toggle{background:rgba(0,209,122,0.08);border:1px solid rgba(0,209,122,0.2);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;color:#00d17a;cursor:pointer;}
+.install-step{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid #21262d;align-items:flex-start;}
+.install-step:last-child{border-bottom:none;}
+.step-num{background:#00d17a;color:#0d1117;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.step-txt{font-size:13px;color:#848d97;line-height:1.5;}
+.step-txt b{color:#e6edf3;}
+.bonus-grid{display:grid;grid-template-columns:50px 1fr;gap:6px 8px;align-items:center;}
+.bonus-hdr{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;padding-bottom:4px;}
+.bonus-yr-cell{font-size:13px;font-weight:700;color:#00d17a;}
+.bonus-inp{background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#e6edf3;padding:6px 8px;font-size:13px;width:100%;text-align:right;-moz-appearance:textfield;box-sizing:border-box;}
+.bonus-inp::-webkit-outer-spin-button,.bonus-inp::-webkit-inner-spin-button{-webkit-appearance:none;}
+.bonus-total-val{font-size:13px;color:#d29922;font-weight:600;text-align:right;}
+.bonus-divider{grid-column:1/-1;height:1px;background:#21262d;margin:2px 0;}
+.slider-item.full{grid-column:1/-1;}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="header">
+  <div class="hdr-top">
+    <div>
+      <div class="hdr-eyebrow">Personal Wealth Vault</div>
+      <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
+    </div>
+    <div class="hdr-right">
+      <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
+      <div class="hdr-id" id="device-id">ID: —</div>
+    </div>
+  </div>
+</div>
+
+<div id="content">
+
+  <!-- COUNTDOWN -->
+  <div class="tab-panel active" id="tab-countdown">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="card-eyebrow" style="margin:0;">Countdown to Retirement</div>
+        <button class="edit-toggle" onclick="toggleEdit()">Edit Target</button>
+      </div>
+      <div id="edit-panel" class="edit-panel" style="display:none;">
+        <div class="form-group"><label>Date of Birth</label><input type="date" id="e-dob" oninput="fromEdit()"/></div>
+        <div class="form-group"><label>Retirement Date</label><input type="date" id="e-retire" oninput="fromEdit()"/></div>
+        <div class="form-group"><label>Career Start Date</label><input type="date" id="e-career" oninput="fromEdit()"/></div>
+        <div class="form-group"><label>Annual Paid Holidays <span id="e-hols-v">25</span> days</label><input type="range" id="e-hols" min="0" max="35" oninput="document.getElementById('e-hols-v').textContent=this.value;fromEdit()"/></div>
+        <button class="btn-primary" style="margin-top:4px;" onclick="toggleEdit()">Done ✓</button>
+      </div>
+      <div class="cd-grid">
+        <div class="cd-cell"><div class="cd-num" id="cd-y">0</div><div class="cd-lbl">Years</div></div>
+        <div class="cd-cell"><div class="cd-num" id="cd-mo">1</div><div class="cd-lbl">Months</div></div>
+        <div class="cd-cell"><div class="cd-num" id="cd-d">14</div><div class="cd-lbl">Days</div></div>
+        <div class="cd-cell"><div class="cd-num green" id="cd-h">07</div><div class="cd-lbl">Hours</div></div>
+        <div class="cd-cell"><div class="cd-num green" id="cd-mi">17</div><div class="cd-lbl">Mins</div></div>
+        <div class="cd-cell"><div class="cd-num green" id="cd-s">51</div><div class="cd-lbl">Secs</div></div>
+      </div>
+      <div id="retire-lbl" style="font-size:12px;color:#484f58;margin-top:8px;text-align:center;"></div>
+    </div>
+    <div class="card" id="career-card">
+      <div class="prog-row">
+        <span style="font-size:11px;color:#484f58;" id="career-start-lbl">Career Started</span>
+        <span class="prog-pct" id="career-pct">0.00% Done</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="career-bar" style="width:0%"></div></div>
+      <div class="prog-sub" id="career-sub"></div>
+    </div>
+    <div class="stat-grid" style="margin-bottom:12px;">
+      <div class="stat-box">
+        <div class="card-eyebrow">Total Calendar Days</div>
+        <div class="stat-big col-blue" id="cal-days">—</div>
+        <div class="stat-sub">Every calendar day left</div>
+      </div>
+      <div class="stat-box">
+        <div class="card-eyebrow">Working Days Left</div>
+        <div class="stat-big col-green" id="work-days">—</div>
+        <div class="stat-sub" id="work-sub">Excl. bank holidays</div>
+      </div>
+    </div>
+    <div class="stat-grid" style="margin-bottom:12px;">
+      <div class="stat-box">
+        <div class="card-eyebrow">Mondays Remaining</div>
+        <div class="stat-big col-purple" id="mondays">—</div>
+        <div class="stat-sub">Remaining Mondays</div>
+      </div>
+      <div class="stat-box">
+        <div class="card-eyebrow">Weeks Left</div>
+        <div class="stat-big col-purple" id="weeks-left">—</div>
+        <div class="stat-sub" id="weeks-sub">Set retirement date</div>
+      </div>
+    </div>
+    <div class="liquid-bar">
+      <div>
+        <div class="liquid-lbl">Liquid Assets Post-Refinance</div>
+        <div class="liquid-val" id="liquid-val">£521,622</div>
+      </div>
+      <div class="liquid-right">
+        <div class="liquid-outlook-lbl">2030 Growth Outlook</div>
+        <div class="liquid-outlook-val" id="outlook-val">£827,112</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px;">
+      <div class="card-eyebrow">📱 Add to iPhone Home Screen</div>
+      <div class="install-step"><div class="step-num">1</div><div class="step-txt">Open this page in <b>Safari</b> on your iPhone</div></div>
+      <div class="install-step"><div class="step-num">2</div><div class="step-txt">Tap the <b>Share button</b> (square with arrow) at the bottom</div></div>
+      <div class="install-step"><div class="step-num">3</div><div class="step-txt">Scroll down and tap <b>"Add to Home Screen"</b></div></div>
+      <div class="install-step"><div class="step-num">4</div><div class="step-txt">Name it <b>RetireMe</b> and tap <b>Add</b></div></div>
+    </div>
+  </div>
+
+  <!-- CASHFLOW -->
+  <div class="tab-panel" id="tab-cashflow">
+    <div class="card" style="padding-bottom:12px;">
+      <div class="card-eyebrow">Bonus Vesting Schedule</div>
+      <div class="bonus-grid">
+        <div class="bonus-hdr">Year</div><div class="bonus-hdr">Vesting (£)</div>
+        <div class="bonus-divider"></div>
+        <div class="bonus-yr-cell">2026</div>
+        <input id="b-2026" class="bonus-inp" type="number" value="0" oninput="saveBonus('2026',this.value)"/>
+        <div class="bonus-yr-cell">2027</div>
+        <input id="b-2027" class="bonus-inp" type="number" value="125302" oninput="saveBonus('2027',this.value)"/>
+        <div class="bonus-yr-cell">2028</div>
+        <input id="b-2028" class="bonus-inp" type="number" value="76523" oninput="saveBonus('2028',this.value)"/>
+        <div class="bonus-yr-cell">2029</div>
+        <input id="b-2029" class="bonus-inp" type="number" value="54241" oninput="saveBonus('2029',this.value)"/>
+        <div class="bonus-yr-cell">2030</div>
+        <input id="b-2030" class="bonus-inp" type="number" value="38678" oninput="saveBonus('2030',this.value)"/>
+      </div>
+    </div>
+    <div class="card">
+      <div class="slider-label-bar">
+        <div class="sim-title">Runway Simulation Drivers</div>
+        <div class="live-sync-badge">LIVE SYNC</div>
+      </div>
+      <div class="slider-grid">
+        <div class="slider-item"><label>Assets Growth Rate <span id="r-gr-v">4.0%</span></label><input type="range" id="r-gr" min="1" max="15" step="0.5" value="4" oninput="document.getElementById('r-gr-v').textContent=parseFloat(this.value).toFixed(1)+'%';buildRunway()"/></div>
+        <div class="slider-item"><label>Annual Drawdown Top-up <span id="r-draw-v">£24,000</span></label><input type="range" id="r-draw" min="0" max="60000" step="500" value="24000" oninput="document.getElementById('r-draw-v').textContent='£'+parseInt(this.value).toLocaleString();buildRunway()"/></div>
+        <div class="slider-item"><label>Gross DB Pension / annum <span id="r-db-v">£43,000</span></label><input type="range" id="r-db" min="10000" max="80000" step="500" value="43000" oninput="document.getElementById('r-db-v').textContent='£'+parseInt(this.value).toLocaleString();buildRunway()"/></div>
+        <div class="slider-item"><label>Target Monthly Net Income <span id="r-tgt-v" style="color:#f85149;">£3,500</span></label><input type="range" id="r-tgt" min="1000" max="8000" step="100" value="3500" oninput="document.getElementById('r-tgt-v').textContent='£'+parseInt(this.value).toLocaleString();buildRunway()"/></div>
+        <div class="slider-item full"><label>Additional Gross Income / annum <span id="r-extra-v" style="color:#00d17a;">£0</span></label><input type="range" id="r-extra" min="0" max="50000" step="500" value="0" oninput="S.extra=parseInt(this.value)||0;document.getElementById('r-extra-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
+      </div>
+    </div>
+    <div class="card-eyebrow" style="padding:0 4px;margin-bottom:8px;">2026 - 2030 Capital Escalator Flowsheet</div>
+    <div class="runway-base">
+      <div><div class="runway-base-lbl">July 2026 Base Balance</div><div class="runway-base-sub">Your starting nest-egg</div></div>
+      <div class="runway-base-val" id="base-val">£0</div>
+    </div>
+    <div class="timeline" id="runway-timeline"></div>
+  </div>
+
+  <!-- LEDGER -->
+  <div class="tab-panel" id="tab-ledger">
+    <div class="ledger-yr-tabs" id="ledger-yr-tabs">
+      <div class="lyt active" onclick="showLedger('2026',this)">2026</div>
+      <div class="lyt" onclick="showLedger('2027',this)">2027</div>
+      <div class="lyt" onclick="showLedger('2028',this)">2028</div>
+      <div class="lyt" onclick="showLedger('2029',this)">2029</div>
+      <div class="lyt" onclick="showLedger('2030',this)">2030</div>
+    </div>
+    <div id="ledger-content"></div>
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="tab-panel" id="tab-milestones">
+    <div class="card"><div class="card-eyebrow">Career Milestones</div><div id="milestones-list"></div></div>
+    <div class="card"><div class="card-eyebrow">UK Retirement Readiness Checklist</div><div id="checklist-list"></div></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="tab-panel" id="tab-settings">
+    <div class="card">
+      <div class="section-title">Personal Details</div>
+      <div class="form-group"><label>Date of Birth</label><input type="date" id="s-dob" oninput="fs('dob',this.value)"/></div>
+      <div class="form-group"><label>Retirement Date</label><input type="date" id="s-retire" oninput="fs('retire',this.value)"/></div>
+      <div class="form-group"><label>Career Start Date</label><input type="date" id="s-career" oninput="fs('career',this.value)"/></div>
+      <div class="form-group"><label>Annual Paid Holidays <span id="s-hols-v">25</span> days</label><input type="range" id="s-hols" min="0" max="35" oninput="document.getElementById('s-hols-v').textContent=this.value;fs('hols',+this.value)"/></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Pension &amp; Income</div>
+      <div class="form-group"><label>Annual Salary (£)</label><input type="number" id="s-salary" placeholder="0" oninput="fs('salary',+this.value)"/></div>
+      <div class="form-group"><label>Current Pension Pot (£)</label><input type="number" id="s-pot-n" placeholder="0" oninput="fs('pot',+this.value)"/></div>
+      <div class="form-group"><label>DB Pension Annual Income (£)</label><input type="number" id="s-db" placeholder="43000" oninput="fs('dbPension',+this.value)"/></div>
+      <div class="form-group"><label>Annual Savings Drawdown (£)</label><input type="number" id="s-draw" placeholder="24000" oninput="fs('drawdown',+this.value)"/></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Asset Balances (2026 Base)</div>
+      <div id="s-assets-form"></div>
+    </div>
+    <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
+      <div class="card-eyebrow">Data &amp; Backup</div>
+      <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:12px;">✅ All values are <strong style="color:#e6edf3;">automatically saved</strong> locally and restored every time you open the app.<br/><br/><strong style="color:#e6edf3;">Export</strong> downloads a backup file you can save anywhere. <strong style="color:#e6edf3;">Import</strong> restores from any previous backup.</div>
+      <input type="file" id="rm-import" accept=".json" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" onchange="importData(this)"/>
+      <button class="btn-primary" style="margin-top:0;background:linear-gradient(135deg,#2ea043,#238636);" onclick="exportData()">⬇ Save Backup File</button>
+      <button class="btn-primary" style="margin-top:8px;background:linear-gradient(135deg,#1f6feb,#1158c7);" onclick="document.getElementById('rm-import').click()">⬆ Import Backup from File</button>
+      <button class="btn-danger" onclick="clearData()">🗑 Clear All Saved Data</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="tabbar">
+  <button class="tab-btn active" onclick="switchTab('countdown',this)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Countdown
+  </button>
+  <button class="tab-btn" onclick="switchTab('cashflow',this)">
+    <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>Cashflow
+  </button>
+  <button class="tab-btn" onclick="switchTab('ledger',this)">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Ledger
+  </button>
+  <button class="tab-btn" onclick="switchTab('milestones',this)">
+    <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Milestones
+  </button>
+  <button class="tab-btn" onclick="switchTab('settings',this)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
+  </button>
+</div>
+</div>
+
+<script>
+const UK_BH=['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-08-31','2026-12-25','2026-12-28','2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-08-30','2027-12-27','2027-12-28'];
+const BONUSES={'2026':0,'2027':125302,'2028':76523,'2029':54241,'2030':38678};
+const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:"NS&I",val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:"NS&I",val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
+const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
+
+let S={dob:'',retire:'',career:'',hols:25,salary:0,pot:0,contrib:12,growth:5.5,dbPension:43000,drawdown:24000,extra:0,bonuses:null,assets:{},checklist:{},drawdownByYear:{}};
+
+function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
+
+function load(){
+  // Check for data restore via URL hash (transfer from VS Code browser)
+  try{
+    const h=location.hash;
+    if(h.startsWith('#restore=')){
+      const encoded=h.slice(9);
+      const json=decodeURIComponent(escape(atob(encoded)));
+      const imported=JSON.parse(json);
+      if(imported&&typeof imported==='object'){S={...S,...imported};localStorage.setItem('retireme_v3',JSON.stringify(S));}
+      history.replaceState(null,'',location.pathname+location.search);
+    }
+  }catch(e){}
+  try{const r=localStorage.getItem('retireme_v3');if(r){const p=JSON.parse(r);S={...S,...p};}}catch(e){}
+  if(!S.assets)S.assets={};
+  for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
+  if(!S.bonuses){S.bonuses={};for(const y in BONUSES)S.bonuses[y]=BONUSES[y];}
+  for(const y of ['2026','2027','2028','2029','2030']){if(S.bonuses[y]==null)S.bonuses[y]=BONUSES[y];}
+  applyDOM();
+}
+let _st;
+function save(){clearTimeout(_st);_st=setTimeout(()=>{try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}},500);}
+function clearData(){if(!confirm('Clear all saved data?'))return;localStorage.removeItem('retireme_v3');location.reload();}
+function exportData(){
+  const date=new Date().toISOString().slice(0,10);
+  const filename='retireme-backup-'+date+'.json';
+  const data=JSON.stringify(S,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const u=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=u;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const imported=JSON.parse(e.target.result);
+      if(typeof imported!=='object'||imported===null)throw new Error('Not an object');
+      // Migrate old bonus format {mrt,yt} → single number
+      if(imported.bonuses){
+        for(const y in imported.bonuses){
+          const bv=imported.bonuses[y];
+          if(bv!==null&&typeof bv==='object'){imported.bonuses[y]=(bv.mrt||0)+(bv.yt||0);}
+        }
+      }
+      S={...S,...imported};
+      localStorage.setItem('retireme_v3',JSON.stringify(S));
+      input.value='';
+      applyDOM();recalc();
+      alert('✅ Backup restored successfully!');
+    }catch(err){
+      console.error('Import error:',err);
+      alert('❌ Import failed: '+err.message);
+    }
+  };
+  reader.onerror=function(){alert('❌ Could not read the file. Please try again.');};
+  reader.readAsText(file);
+}
+
+function applyDOM(){
+  sv('e-dob',S.dob);sv('e-retire',S.retire);sv('e-career',S.career);
+  sr('e-hols',S.hols,'e-hols-v',String(S.hols));
+  sv('s-dob',S.dob);sv('s-retire',S.retire);sv('s-career',S.career);
+  sr('s-hols',S.hols,'s-hols-v',String(S.hols));
+  sv('s-salary',S.salary??'');sv('s-pot-n',S.pot??'');sv('s-db',S.dbPension||'');sv('s-draw',S.drawdown||'');
+  sr('r-db',S.dbPension||43000,'r-db-v','£'+(S.dbPension||43000).toLocaleString());
+  sr('r-draw',S.drawdown||24000,'r-draw-v','£'+(S.drawdown||24000).toLocaleString());
+  sr('r-extra',S.extra||0,'r-extra-v','£'+(S.extra||0).toLocaleString());
+  for(const y of ['2026','2027','2028','2029','2030']){
+    const bv=S.bonuses&&S.bonuses[y]!=null?S.bonuses[y]:BONUSES[y]||0;
+    sv('b-'+y,bv);
+  }
+  document.getElementById('device-id').textContent=devId();
+  renderAssetsForm();
+}
+function sv(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
+function sr(id,v,lbl,txt){const e=document.getElementById(id);if(e)e.value=v;const l=document.getElementById(lbl);if(l)l.textContent=txt!==undefined?txt:v;}
+
+function fs(key,val){S[key]=val;save();recalc();}
+function fromEdit(){S.dob=gv('e-dob');S.retire=gv('e-retire');S.career=gv('e-career');S.hols=+gv('e-hols');sv('s-dob',S.dob);sv('s-retire',S.retire);sv('s-career',S.career);sr('s-hols',S.hols,'s-hols-v',String(S.hols));save();recalc();}
+function gv(id){const e=document.getElementById(id);return e?e.value:'';}
+function recalc(){buildRunway();renderMilestones();updateCountdown();}
+
+function switchTab(n,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  btn.classList.add('active');
+  if(n==='cashflow')buildRunway();
+  if(n==='ledger')showLedger('2026',document.querySelector('.lyt'));
+  if(n==='milestones')renderMilestones();
+}
+function toggleEdit(){const p=document.getElementById('edit-panel');p.style.display=p.style.display==='none'?'block':'none';}
+
+function updateCountdown(){
+  const now=new Date();
+  const rd=S.retire?new Date(S.retire+'T00:00:00'):null;
+  if(!rd||isNaN(rd)){document.getElementById('retire-lbl').textContent='Set your retirement date in Settings';return;}
+  const diff=Math.max(0,rd-now);
+  const ts=Math.floor(diff/1000);
+  document.getElementById('cd-s').textContent=String(ts%60).padStart(2,'0');
+  document.getElementById('cd-mi').textContent=String(Math.floor(ts/60)%60).padStart(2,'0');
+  document.getElementById('cd-h').textContent=String(Math.floor(ts/3600)%24).padStart(2,'0');
+  const days=Math.floor(diff/86400000);
+  const mos=Math.floor(days/30.4375);
+  document.getElementById('cd-y').textContent=Math.floor(mos/12);
+  document.getElementById('cd-mo').textContent=mos%12;
+  document.getElementById('cd-d').textContent=days%30;
+  document.getElementById('cal-days').textContent=days.toLocaleString();
+  const wks=Math.floor(days/7);
+  document.getElementById('weeks-left').textContent=wks;
+  document.getElementById('weeks-sub').textContent='Roughly '+(wks/52).toFixed(1)+' years';
+  document.getElementById('work-days').textContent=calcWD(now,rd,S.hols||0);
+  document.getElementById('work-sub').textContent='Incl. '+(S.hols||0)+' days/yr annual leave';
+  let mon=0;let c=new Date(now);while(c<rd){if(c.getDay()===1)mon++;c.setDate(c.getDate()+1);}
+  document.getElementById('mondays').textContent=mon;
+  const opts={weekday:'long',year:'numeric',month:'long',day:'numeric'};
+  document.getElementById('retire-lbl').textContent='Target: '+rd.toLocaleDateString('en-GB',opts);
+  if(S.career){
+    const cs=new Date(S.career+'T00:00:00');
+    const tot=rd-cs;const el=now-cs;
+    const pct=Math.min(100,Math.max(0,el/tot*100));
+    document.getElementById('career-bar').style.width=pct.toFixed(1)+'%';
+    document.getElementById('career-pct').textContent=pct.toFixed(2)+'% Done';
+    document.getElementById('career-start-lbl').textContent='Career Started ('+cs.getFullYear()+')';
+    document.getElementById('career-sub').textContent=Math.floor(el/(365.25*86400000))+' yrs in · '+Math.ceil(diff/(365.25*86400000)).toFixed(1)+' yrs to go';
+  }
+  const base=calcBase();
+  document.getElementById('liquid-val').textContent='£'+fmtN(base);
+  document.getElementById('base-val').textContent='£'+fmtN(base);
+  document.getElementById('outlook-val').textContent='£'+fmtN(calcRunwayEnd());
+}
+
+function calcWD(from,to,hols){
+  let cnt=0;let c=new Date(from);c.setHours(0,0,0,0);
+  const e=new Date(to);e.setHours(0,0,0,0);
+  while(c<e){const d=c.getDay(),ds=c.toISOString().slice(0,10);if(d!==0&&d!==6&&!UK_BH.includes(ds))cnt++;c.setDate(c.getDate()+1);}
+  const yrs=(to-from)/(365.25*86400000);
+  return Math.max(0,cnt-Math.round(hols*yrs));
+}
+
+function getA(k){return S.assets&&S.assets[k]!==undefined?S.assets[k]:(DA[k]?.val||0);}
+function getBonus(yr){const y=String(yr);return S.bonuses&&S.bonuses[y]!=null?S.bonuses[y]:(BONUSES[y]||0);}
+function saveBonus(yr,v){
+  if(!S.bonuses)S.bonuses={};
+  S.bonuses[yr]=parseFloat(v)||0;
+  save();buildRunway();
+  const activeYrBtn=document.querySelector('#ledger-yr-tabs .lyt.active');
+  if(activeYrBtn)showLedger(yr,activeYrBtn);
+}
+function getDrawdown(yr){const y=String(yr);return S.drawdownByYear&&S.drawdownByYear[y]!=null?S.drawdownByYear[y]:parseInt(document.getElementById('r-draw')?.value||24000);}
+function saveDrawdown(yr,v){if(!S.drawdownByYear)S.drawdownByYear={};S.drawdownByYear[String(yr)]=parseFloat(v)||0;save();buildRunway();const activeYrBtn=document.querySelector('#ledger-yr-tabs .lyt.active');if(activeYrBtn)showLedger(yr,activeYrBtn);}
+// UK income tax 2025/26 (frozen thresholds)
+function ukTax(income){
+  if(income<=0)return 0;
+  const pa=income>100000?Math.max(0,12570-Math.floor((income-100000)/2)):12570;
+  const taxable=Math.max(0,income-pa);
+  let tax=Math.min(taxable,37700)*0.20;
+  if(taxable>37700)tax+=Math.min(taxable-37700,Math.max(0,125140-pa-37700))*0.40;
+  if(income>125140)tax+=(income-125140)*0.45;
+  return tax;
+}
+function calcBase(){return Object.keys(DA).reduce((s,k)=>s+getA(k),0);}
+function calcRunwayEnd(){
+  const gr=parseFloat(document.getElementById('r-gr')?.value||4)/100;
+  const draw=parseInt(document.getElementById('r-draw')?.value||24000);
+  let b=calcBase()-Math.round(draw/2); // end-2026: june bonus already in base
+  for(let y=2027;y<=2030;y++){b=b*(1+gr)+getBonus(y)-getDrawdown(y);}
+  return b;
+}
+
+function buildRunway(){
+  const gr=parseFloat(document.getElementById('r-gr').value||4)/100;
+  const draw=parseInt(document.getElementById('r-draw').value||24000);
+  const db=parseInt(document.getElementById('r-db').value||43000);
+  const tgt=parseInt(document.getElementById('r-tgt').value||3500);
+  let bal=calcBase();
+  document.getElementById('base-val').textContent='£'+fmtN(bal);
+  document.getElementById('liquid-val').textContent='£'+fmtN(bal);
+  let html='';
+  // July 2026 — retirement + half-year income breakdown (Jul–Dec)
+  const bonus2026=getA('june_bonus_26'); // display only — already included in calcBase()
+  const draw2026=Math.round(draw/2); // 6 months @ £2,000/mo
+  const halfDB=Math.round(db/2);
+  const extra2026=Math.round((parseInt(document.getElementById('r-extra').value||0))/2);
+  const pension2026Tax=Math.round(ukTax(db)/2);
+  const net2026DB=halfDB-pension2026Tax;
+  const extraTax2026=Math.round(ukTax(extra2026*2)/2);
+  const netExtra2026=extra2026-extraTax2026;
+  const combined2026=net2026DB+netExtra2026+draw2026;
+  const monthly2026=Math.round(combined2026/6);
+  const met2026=monthly2026>=tgt;
+  const effRate2026=halfDB>0?Math.round(pension2026Tax/halfDB*100):0;
+  const base2026=bal;
+  const end2026=base2026-draw2026; // june bonus already in base
+  bal=end2026;
+  html+=`<div class="timeline-item"><div class="timeline-dot"></div><div class="rw-card">
+    <div class="rw-header">
+      <div class="rw-year">July 2026 🎉</div>
+      <div class="rw-carry"><div class="rw-carry-lbl">End 2026 Balance</div><div class="rw-carry-val">£${fmtN(end2026)}</div></div>
+    </div>
+    <div class="rw-boxes">
+      <div class="rw-box"><div class="rw-box-lbl">Liquid Base</div><div class="rw-box-val">£${fmtN(base2026)}</div></div>
+      <div class="rw-box"><div class="rw-box-lbl">+Interest</div><div class="rw-box-val" style="color:#484f58">£0</div></div>
+      ${bonus2026>0?`<div class="rw-box"><div class="rw-box-lbl">+Jun Bonus</div><div class="rw-box-val green">+£${fmtN(bonus2026)}</div></div>`:''}
+      <div class="rw-box"><div class="rw-box-lbl">−Drawdown (6mo)</div><div class="rw-box-val red">−£${fmtN(draw2026)}</div></div>
+    </div>
+    <div class="rw-tax-row">
+      <div class="rw-tax-line"><span class="lbl">DB Pension Gross (6 months from Jul 1st):</span><span class="val">£${fmtN(halfDB)}</span></div>
+      ${extra2026>0?`<div class="rw-tax-line"><span class="lbl">Additional Income (6 months):</span><span class="val">£${fmtN(extra2026)}</span></div>`:''}
+      <div class="rw-tax-line"><span class="lbl">Pension Tax (${effRate2026}% effective):</span><span class="val red">−£${fmtN(pension2026Tax)}</span></div>
+      <div class="rw-tax-line"><span class="lbl">Net Pension (Jul–Dec):</span><span class="val">£${fmtN(net2026DB)}</span></div>
+      ${extra2026>0?`<div class="rw-tax-line"><span class="lbl">Net Additional Income (after tax):</span><span class="val green">£${fmtN(netExtra2026)}</span></div>`:''}
+      <div class="rw-tax-line"><span class="lbl">Drawdown: £2,000/mo × 6 months (Tax-free capital):</span><span class="val green">£${fmtN(draw2026)}</span></div>
+      <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income (Jul–Dec):</span><span class="val">£${fmtN(combined2026)} /6mo</span></div>
+    </div>
+    <div class="rw-net">
+      <div class="rw-net-lbl">NET MONTHLY INCOME</div>
+      <div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()} <span class="rw-net-mo">/mo</span></div>
+    </div>
+  </div></div>`;
+  for(let yr=2027;yr<=2030;yr++){
+    const draw_yr=getDrawdown(yr);
+    const start=bal;const interest=start*gr;
+    const bonusT=getBonus(yr);
+    const extra=parseInt(document.getElementById('r-extra').value||0);
+    const end=start+interest+bonusT-draw_yr;bal=end;
+    const pensionTax=Math.round(ukTax(bonusT+extra+db)-ukTax(bonusT+extra));
+    const extraTax=Math.round(ukTax(bonusT+extra)-ukTax(bonusT));
+    const netDB=db-pensionTax;const netExtra=extra-extraTax;
+    const combined=netDB+netExtra+draw_yr;const monthly=combined/12;const met=monthly>=tgt;
+    const effRate=db>0?Math.round(pensionTax/db*100):0;
+    const ti=bonusT+extra+db;const bonusOnly=bonusT+extra;
+    const hrLbl=ti>125140?'Additional Rate':ti>100000?'PA Taper band':bonusOnly>=50270?'Higher Rate':ti>50270?'Basic/Higher Rate':'Basic Rate';
+    html+=`<div class="timeline-item"><div class="timeline-dot"></div><div class="rw-card">
+      <div class="rw-header">
+        <div class="rw-year">March ${yr}</div>
+        <div class="rw-carry"><div class="rw-carry-lbl">Rolling Carry-Over Balance</div><div class="rw-carry-val">£${fmtN(end)}</div></div>
+      </div>
+      <div class="rw-boxes">
+        <div class="rw-box"><div class="rw-box-lbl">Start Balance</div><div class="rw-box-val">£${fmtN(start)}</div></div>
+        <div class="rw-box"><div class="rw-box-lbl">+${(gr*100).toFixed(0)}% Interest</div><div class="rw-box-val green">+£${fmtN(interest)}</div></div>
+        ${bonusT>0?`<div class="rw-box"><div class="rw-box-lbl">+Bonus Vesting</div><div class="rw-box-val green">+£${fmtN(bonusT)}</div></div>`:`<div class="rw-box"><div class="rw-box-lbl">+Bonus</div><div class="rw-box-val" style="color:#484f58">—</div></div>`}
+        <div class="rw-box"><div class="rw-box-lbl">−Top-Up Drawdown</div><div class="rw-box-val red">−£${fmtN(draw_yr)}</div></div>
+      </div>
+      <div class="rw-tax-row">
+        <div class="rw-tax-line"><span class="lbl">DB Pension Gross:</span><span class="val">£${fmtN(db)}</span></div>
+        ${extra>0?`<div class="rw-tax-line"><span class="lbl">Additional Gross Income:</span><span class="val">£${fmtN(extra)}</span></div>`:''}
+        <div class="rw-tax-line"><span class="lbl">Pension Tax (${effRate}% — ${hrLbl}):</span><span class="val red">−£${fmtN(pensionTax)}</span></div>
+        <div class="rw-tax-line"><span class="lbl">Net Pension:</span><span class="val">£${fmtN(netDB)}</span></div>
+        ${extra>0?`<div class="rw-tax-line"><span class="lbl">Net Additional Income (after tax):</span><span class="val green">£${fmtN(netExtra)}</span></div>`:''}
+        <div class="rw-tax-line"><span class="lbl">Drawdown: £${fmtN(draw_yr)} (Tax-free capital)</span><span class="val green">£${fmtN(draw_yr)}</span></div>
+        <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income:</span><span class="val">£${fmtN(combined)} /yr</span></div>
+      </div>
+      <div class="rw-net">
+        <div class="rw-net-lbl">NET MONTHLY INCOME</div>
+        <div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()} <span class="rw-net-mo">/mo</span></div>
+      </div>
+    </div></div>`;
+  }
+  document.getElementById('runway-timeline').innerHTML=html;
+  document.getElementById('outlook-val').textContent='£'+fmtN(bal);
+}
+
+function showLedger(yr,btn){
+  document.querySelectorAll('.lyt').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const el=document.getElementById('ledger-content');if(!el)return;
+  const gr=parseFloat(document.getElementById('r-gr')?.value||4)/100;
+  const draw=parseInt(document.getElementById('r-draw')?.value||24000);
+  if(yr==='2026'){
+    const base=calcBase();let rows='';
+    for(const k in DA){const a=DA[k];const v=getA(k);
+      rows+=`<div class="asset-row"><div><div class="asset-name">${a.label}</div><div class="asset-sub2">${a.sub}</div></div><input class="asset-inp" type="number" value="${v}" onchange="updateAsset('${k}',this.value)" style="color:${v<0?'#f85149':'#d29922'};"/></div>`;}
+    rows+=`<div class="asset-row total"><div><div class="asset-name" style="font-weight:700;color:#00d17a;">💰 July 2026 Liquid Base</div></div><div class="asset-static col-green">£${fmtN(base)}</div></div>`;
+    el.innerHTML=`<div class="card">${rows}</div>`;
+  } else {
+    let prevBal=calcBase()-Math.round(draw/2); // end-2026: june bonus already in base
+    for(let y=2027;y<parseInt(yr);y++){const b=getBonus(y);prevBal=prevBal*(1+gr)+b-getDrawdown(y);}
+    const draw_yr=getDrawdown(parseInt(yr));
+    const b=getBonus(yr);const interest=prevBal*gr;const bonus=b;const end=prevBal+interest+bonus-draw_yr;
+    el.innerHTML=`<div class="card"><div class="card-eyebrow">${yr} Asset Summary</div>
+      <div class="asset-row"><div><div class="asset-name">Opening Carry-Over</div></div><div class="asset-static">£${fmtN(prevBal)}</div></div>
+      <div class="asset-row"><div><div class="asset-name">+ ${(gr*100).toFixed(0)}% Growth / Interest</div></div><div class="asset-static col-green">+£${fmtN(interest)}</div></div>
+      <div class="asset-row"><div><div class="asset-name">+ March Bonus Vesting</div></div><input class="asset-inp" type="number" value="${bonus}" onchange="saveBonus('${yr}',this.value)" style="color:#00d17a;"/></div>
+      <div class="asset-row"><div><div class="asset-name">− Annual Drawdown</div></div><input class="asset-inp" type="number" value="${draw_yr}" onchange="saveDrawdown('${yr}',this.value)" style="color:#f85149;"/></div>
+      <div class="asset-row total"><div><div class="asset-name" style="font-weight:700;color:#00d17a;">End of ${yr} Balance</div></div><div class="asset-static col-green">£${fmtN(end)}</div></div>
+    </div>`;
+  }
+}
+
+function updateAsset(k,v){if(!S.assets)S.assets={};S.assets[k]=parseFloat(v)||0;save();buildRunway();const b=calcBase();document.getElementById('liquid-val').textContent='£'+fmtN(b);document.getElementById('base-val').textContent='£'+fmtN(b);}
+
+function renderAssetsForm(){
+  const el=document.getElementById('s-assets-form');if(!el)return;let h='';
+  for(const k in DA){const a=DA[k];const v=getA(k);
+    h+=`<div class="form-group"><label>${a.label} — <span style="color:#484f58;font-weight:400;">${a.sub}</span></label><input type="number" value="${v}" onchange="updateAsset('${k}',this.value)"/></div>`;}
+  el.innerHTML=h;
+}
+
+function setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function pbar(id,v){const e=document.getElementById(id);if(e)e.style.width=Math.min(100,Math.max(2,v))+'%';}
+
+function renderMilestones(){
+  const now=new Date();
+  const rd=S.retire?new Date(S.retire+'T00:00:00'):null;
+  const cs=S.career?new Date(S.career+'T00:00:00'):null;
+  const dob=S.dob?new Date(S.dob+'T00:00:00'):null;
+  const days=rd?Math.max(0,Math.floor((rd-now)/86400000)):9999;
+  let mon=0;if(rd){let c=new Date(now);while(c<rd){if(c.getDay()===1)mon++;c.setDate(c.getDate()+1);}}
+  const pct=(rd&&cs)?Math.min(100,(now-cs)/(rd-cs)*100):0;
+  const age=dob?(now-dob)/(365.25*86400000):0;
+  const MS=[
+    {icon:'🏆',title:'Single-Digit Years Left',sub:rd?Math.floor(days/365)+' years remaining':'Set retirement date',achieved:rd&&(rd-now)<(10*365.25*86400000)},
+    {icon:'📅',title:'Under 1,000 Days',sub:days.toLocaleString()+' days left',achieved:days<1000},
+    {icon:'📅',title:'Under 500 Days',sub:days+' days left',achieved:days<500},
+    {icon:'📅',title:'Under 100 Days',sub:days+' days left',achieved:days<100},
+    {icon:'📆',title:'Under 100 Mondays',sub:mon+' Mondays remaining',achieved:mon<100},
+    {icon:'📆',title:'Under 50 Mondays',sub:mon+' Mondays remaining',achieved:mon<50},
+    {icon:'🚀',title:'Career 75% Complete',sub:pct.toFixed(1)+'% done',achieved:pct>=75},
+    {icon:'🎯',title:'Career 90% Complete',sub:pct.toFixed(1)+'% done',achieved:pct>=90},
+    {icon:'🎂',title:'Age 50+',sub:dob?'Born '+S.dob:'Set your DOB',achieved:age>=50},
+    {icon:'🎉',title:'Retirement Day!',sub:rd?rd.toLocaleDateString('en-GB'):'—',achieved:rd&&now>=rd},
+  ];
+  document.getElementById('milestones-list').innerHTML=MS.map(m=>`<div class="ms-item ${m.achieved?'achieved':''}"><div class="ms-icon">${m.achieved?'✅':m.icon}</div><div><div class="ms-title">${m.title}</div><div class="ms-sub">${m.sub}</div></div></div>`).join('');
+  document.getElementById('checklist-list').innerHTML=CL.map(item=>`<div class="ck-item ${S.checklist&&S.checklist[item.id]?'done':''}" onclick="toggleCk('${item.id}',this)"><div class="ck-box"><span class="ck-check">✓</span></div><div><div class="ck-text">${item.text}</div><div class="ck-sub">${item.sub}</div></div></div>`).join('');
+}
+function toggleCk(id,el){if(!S.checklist)S.checklist={};S.checklist[id]=!S.checklist[id];el.classList.toggle('done',!!S.checklist[id]);save();}
+
+
+function fmtN(n){return Math.round(n).toLocaleString('en-GB');}
+
+load();recalc();
+setInterval(updateCountdown,1000);
+</script>
+</body>
+</html>
