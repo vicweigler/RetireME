@@ -177,6 +177,13 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .sort-col{display:flex;flex-direction:column;align-items:center;gap:1px;width:20px;flex-shrink:0;}
 .sort-btn{background:none;border:none;color:#484f58;font-size:9px;cursor:pointer;padding:1px 2px;line-height:1.2;width:20px;text-align:center;font-family:inherit;}
 .sort-btn:hover{color:#00d17a;}.sort-dim{opacity:0.2;pointer-events:none;}
+.swipe-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px;}
+.swipe-wrap.ck-wrap{margin-bottom:8px;}
+.swipe-wrap .asset-row{margin-bottom:0;border-radius:0;}
+.swipe-wrap .ck-item{margin-bottom:0;border-radius:0;}
+.swipe-del-reveal{position:absolute;right:0;top:0;bottom:0;width:80px;background:#f85149;display:flex;align-items:center;justify-content:center;}
+.swipe-del-btn{background:none;border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:8px;letter-spacing:0.5px;text-transform:uppercase;}
+.swipe-row-content{position:relative;z-index:1;will-change:transform;}
 </style>
 </head>
 <body>
@@ -207,7 +214,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
         <div class="form-group"><label>Date of Birth</label><input type="date" id="e-dob" oninput="fromEdit()"/></div>
         <div class="form-group"><label>Retirement Date</label><input type="date" id="e-retire" oninput="fromEdit()"/></div>
         <div class="form-group"><label>Career Start Date</label><input type="date" id="e-career" oninput="fromEdit()"/></div>
-        <div class="form-group"><label>Annual Paid Holidays <span id="e-hols-v">25</span> days</label><input type="range" id="e-hols" min="0" max="35" oninput="document.getElementById('e-hols-v').textContent=this.value;fromEdit()"/></div>
+        <div class="form-group"><label>Holiday Days Remaining <span id="e-hols-v">25</span> days</label><input type="range" id="e-hols" min="0" max="60" oninput="document.getElementById('e-hols-v').textContent=this.value;fromEdit()"/></div>
         <button class="btn-primary" style="margin-top:4px;" onclick="toggleEdit()">Done ✓</button>
       </div>
       <div class="cd-grid">
@@ -279,15 +286,15 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
         <div class="live-sync-badge">LIVE SYNC</div>
       </div>
       <div class="slider-grid">
-        <div class="slider-item"><label>Assets Growth Rate <span id="r-gr-v">4.0%</span></label><input type="range" id="r-gr" min="1" max="15" step="0.5" value="4" oninput="S.growth=parseFloat(this.value);document.getElementById('r-gr-v').textContent=S.growth.toFixed(1)+'%';save();buildRunway()"/></div>
-        <div class="slider-item"><label>Annual Drawdown Top-up <span id="r-draw-v">£24,000</span></label><input type="range" id="r-draw" min="0" max="60000" step="500" value="24000" oninput="S.drawdown=parseInt(this.value);document.getElementById('r-draw-v').textContent='£'+S.drawdown.toLocaleString();save();buildRunway()"/></div>
-        <div class="slider-item"><label>Gross DB Pension / annum <span id="r-db-v">£43,000</span></label><input type="range" id="r-db" min="10000" max="80000" step="500" value="43000" oninput="S.dbPension=parseInt(this.value);document.getElementById('r-db-v').textContent='£'+S.dbPension.toLocaleString();save();buildRunway()"/></div>
-        <div class="slider-item"><label>Target Monthly Net Income <span id="r-tgt-v" style="color:#f85149;">£3,500</span></label><input type="range" id="r-tgt" min="1000" max="8000" step="100" value="3500" oninput="S.targetIncome=parseInt(this.value);document.getElementById('r-tgt-v').textContent='£'+S.targetIncome.toLocaleString();save();buildRunway()"/></div>
-        <div class="slider-item full"><label>Additional Gross Income / annum <span id="r-extra-v" style="color:#00d17a;">£0</span></label><input type="range" id="r-extra" min="0" max="50000" step="500" value="0" oninput="S.extra=parseInt(this.value)||0;document.getElementById('r-extra-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
+        <div class="slider-item"><label>Growth Rate <span id="r-gr-v">4.0%</span></label><input type="range" id="r-gr" min="1" max="15" step="0.5" value="4" oninput="S.growth=parseFloat(this.value);document.getElementById('r-gr-v').textContent=S.growth.toFixed(1)+'%';save();buildRunway()"/></div>
+        <div class="slider-item"><label>Drawdown Top-up <span id="r-draw-v">£24,000</span></label><input type="range" id="r-draw" min="0" max="60000" step="500" value="24000" oninput="S.drawdown=parseInt(this.value);document.getElementById('r-draw-v').textContent='£'+S.drawdown.toLocaleString();save();buildRunway()"/></div>
+        <div class="slider-item"><label>DB Pension / yr <span id="r-db-v">£43,000</span></label><input type="range" id="r-db" min="10000" max="80000" step="500" value="43000" oninput="S.dbPension=parseInt(this.value);document.getElementById('r-db-v').textContent='£'+S.dbPension.toLocaleString();save();buildRunway()"/></div>
+        <div class="slider-item"><label>Target Net /mo <span id="r-tgt-v" style="color:#f85149;">£3,500</span></label><input type="range" id="r-tgt" min="1000" max="8000" step="100" value="3500" oninput="S.targetIncome=parseInt(this.value);document.getElementById('r-tgt-v').textContent='£'+S.targetIncome.toLocaleString();save();buildRunway()"/></div>
+        <div class="slider-item full"><label>Extra Income / yr <span id="r-extra-v" style="color:#00d17a;">£0</span></label><input type="range" id="r-extra" min="0" max="50000" step="500" value="0" oninput="S.extra=parseInt(this.value)||0;document.getElementById('r-extra-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
       </div>
       <div class="form-group" style="margin-top:10px;margin-bottom:0;">
-        <label style="flex-direction:column;align-items:flex-start;gap:3px;">Pre-retirement 2026/27 gross income (£) <span id="r-prior26-v" style="color:#f85149;font-weight:700;">£0</span><small style="font-size:10px;color:#484f58;font-weight:400;">Employment &amp; bonuses received Apr 6 – Jul 2026 — sets pension marginal tax rate for July 2026</small></label>
-        <input type="number" id="r-prior26" min="0" step="1000" value="0" placeholder="e.g. 150000" oninput="S.prior2026Income=parseInt(this.value)||0;document.getElementById('r-prior26-v').textContent='£'+(parseInt(this.value)||0).toLocaleString();save();buildRunway()"/>
+        <label style="flex-direction:column;align-items:flex-start;gap:3px;">Pre-retirement 2026/27 gross income (£)<small style="font-size:10px;color:#484f58;font-weight:400;">Employment &amp; bonuses received Apr 6 – Jul 2026 — sets pension marginal tax rate for July 2026</small></label>
+        <input type="number" id="r-prior26" min="0" step="1000" value="0" placeholder="e.g. 150000" oninput="S.prior2026Income=parseInt(this.value)||0;save();buildRunway()"/>
       </div>
     </div>
     <div class="card-eyebrow" style="padding:0 4px;margin-bottom:8px;">2026 - 2030 Capital Escalator Flowsheet</div>
@@ -361,7 +368,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
       <div class="form-group"><label>Date of Birth</label><input type="date" id="s-dob" oninput="fs('dob',this.value)"/></div>
       <div class="form-group"><label>Retirement Date</label><input type="date" id="s-retire" oninput="fs('retire',this.value)"/></div>
       <div class="form-group"><label>Career Start Date</label><input type="date" id="s-career" oninput="fs('career',this.value)"/></div>
-      <div class="form-group"><label>Annual Paid Holidays <span id="s-hols-v">25</span> days</label><input type="range" id="s-hols" min="0" max="35" oninput="document.getElementById('s-hols-v').textContent=this.value;fs('hols',+this.value)"/></div>
+      <div class="form-group"><label>Holiday Days Remaining <span id="s-hols-v">25</span> days</label><input type="range" id="s-hols" min="0" max="60" oninput="document.getElementById('s-hols-v').textContent=this.value;fs('hols',+this.value)"/></div>
     </div>
     <div class="card">
       <div class="section-title">Pension &amp; Income</div>
@@ -437,6 +444,7 @@ function load(){
   if(!S.assetLabels)S.assetLabels={};
   if(!S.assetOrder||!S.assetOrder.length)S.assetOrder=Object.keys(DA);
   Object.keys(DA).forEach(k=>{if(!S.assetOrder.includes(k))S.assetOrder.push(k);});
+  if(S.customItems&&S.customItems['2026']){S.customItems['2026'].forEach(ci=>{if(!S.assetOrder.includes(ci.id))S.assetOrder.push(ci.id);});}
   if(!S.checklistItems||!S.checklistItems.length)S.checklistItems=CL.map(i=>({...i}));
   if(!S.expenditure)S.expenditure=[];
   for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
@@ -545,7 +553,7 @@ function updateCountdown(){
   document.getElementById('weeks-left').textContent=wks;
   document.getElementById('weeks-sub').textContent='Roughly '+(wks/52).toFixed(1)+' years';
   document.getElementById('work-days').textContent=calcWD(now,rd,S.hols||0);
-  document.getElementById('work-sub').textContent='Incl. '+(S.hols||0)+' days/yr annual leave';
+  document.getElementById('work-sub').textContent=(S.hols||0)+' holiday days deducted';
   let mon=0;let c=new Date(now);while(c<rd){if(c.getDay()===1)mon++;c.setDate(c.getDate()+1);}
   document.getElementById('mondays').textContent=mon;
   const opts={weekday:'long',year:'numeric',month:'long',day:'numeric'};
@@ -560,8 +568,8 @@ function updateCountdown(){
     document.getElementById('career-sub').textContent=Math.floor(el/(365.25*86400000))+' yrs in · '+Math.ceil(diff/(365.25*86400000)).toFixed(1)+' yrs to go';
   }
   const base=calcBase();
-  document.getElementById('liquid-val').textContent='£'+fmtN(base);
-  document.getElementById('base-val').textContent='£'+fmtN(base);
+  document.getElementById('liquid-val').textContent='£'+fmtN(base-getA('june_bonus_26'));
+  document.getElementById('base-val').textContent='£'+fmtN(base-getA('june_bonus_26'));
   document.getElementById('outlook-val').textContent='£'+fmtN(calcRunwayEnd());
 }
 
@@ -569,8 +577,7 @@ function calcWD(from,to,hols){
   let cnt=0;let c=new Date(from);c.setHours(0,0,0,0);
   const e=new Date(to);e.setHours(0,0,0,0);
   while(c<e){const d=c.getDay(),ds=c.toISOString().slice(0,10);if(d!==0&&d!==6&&!UK_BH.includes(ds))cnt++;c.setDate(c.getDate()+1);}
-  const yrs=(to-from)/(365.25*86400000);
-  return Math.max(0,cnt-Math.round(hols*yrs));
+  return Math.max(0,cnt-Math.round(hols));
 }
 
 function getA(k){return S.assets&&S.assets[k]!==undefined?S.assets[k]:(DA[k]?.val||0);}
@@ -619,12 +626,12 @@ function buildRunway(){
   const db=parseInt(document.getElementById('r-db').value||43000);
   const tgt=parseInt(document.getElementById('r-tgt').value||3500);
   let bal=calcBase();
-  document.getElementById('base-val').textContent='£'+fmtN(bal);
-  document.getElementById('liquid-val').textContent='£'+fmtN(bal);
+  const bonus2026=getA('june_bonus_26');
+  document.getElementById('base-val').textContent='£'+fmtN(bal-bonus2026);
+  document.getElementById('liquid-val').textContent='£'+fmtN(bal-bonus2026);
   const totalExp=totalExpenditure();
   let html='';
   // July 2026 — retirement + half-year income breakdown (Jul–Dec)
-  const bonus2026=getA('june_bonus_26'); // display only — already included in calcBase()
   const draw2026=Math.round(draw/2); // 6 months @ £2,000/mo
   const halfDB=Math.round(db/2);
   const extra2026=Math.round((parseInt(document.getElementById('r-extra').value||0))/2);
@@ -639,8 +646,8 @@ function buildRunway(){
   const met2026=monthly2026>=tgt;
   const effRate2026=halfDB>0?Math.round(pension2026Tax/halfDB*100):0;
   const rate2026Label=(prior2026+db)>125140?'Additional Rate':(prior2026+db)>100000?'PA Taper':(prior2026+db)>50270?'Higher Rate':'Basic Rate';
-  const base2026=bal;
-  const end2026=base2026-draw2026; // june bonus already in base
+  const liquidBase2026=bal-bonus2026;
+  const end2026=liquidBase2026+bonus2026-draw2026;
   bal=end2026;
   html+=`<div class="timeline-item"><div class="timeline-dot"></div><div class="rw-card">
     <div class="rw-header">
@@ -648,7 +655,7 @@ function buildRunway(){
       <div class="rw-carry"><div class="rw-carry-lbl">End 2026 Balance</div><div class="rw-carry-val">£${fmtN(end2026)}</div></div>
     </div>
     <div class="rw-boxes">
-      <div class="rw-box"><div class="rw-box-lbl">Liquid Base</div><div class="rw-box-val">£${fmtN(base2026)}</div></div>
+      <div class="rw-box"><div class="rw-box-lbl">Liquid Base</div><div class="rw-box-val">£${fmtN(liquidBase2026)}</div></div>
       <div class="rw-box"><div class="rw-box-lbl">+Interest</div><div class="rw-box-val" style="color:#484f58">£0</div></div>
       ${bonus2026>0?`<div class="rw-box"><div class="rw-box-lbl">+Jun Bonus</div><div class="rw-box-val green">+£${fmtN(bonus2026)}</div></div>`:''}
       <div class="rw-box"><div class="rw-box-lbl">−Drawdown (6mo)</div><div class="rw-box-val red">−£${fmtN(draw2026)}</div></div>
@@ -726,23 +733,26 @@ function showLedger(yr,btn){
   const ciYr=(S.customItems&&S.customItems[yr])||[];
   if(yr==='2026'){
     const base=calcBase();let rows='';
-    const order=(S.assetOrder&&S.assetOrder.length?S.assetOrder:Object.keys(DA)).filter(k=>DA[k]);
-    const visKeys=order.filter(k=>!hidden.includes(k));
-    for(let vi=0;vi<visKeys.length;vi++){
-      const k=visKeys[vi];const a=DA[k];const v=getA(k);
-      rows+=`<div class="asset-row" style="grid-template-columns:20px 1fr 100px 34px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${vi===0?' sort-dim':''}" onclick="moveAsset('${k}','up')">&#9650;</button><button class="sort-btn${vi===visKeys.length-1?' sort-dim':''}" onclick="moveAsset('${k}','down')">&#9660;</button></div><div><div class="asset-name">${esc(a.label)}</div><div class="asset-sub2">${esc(a.sub)}</div></div><input class="asset-inp" type="number" value="${v}" onchange="updateAsset('${k}',this.value)" style="color:${v<0?'#f85149':'#d29922'};"/><button class="ci-del-btn" title="Hide item" onclick="hideAsset('${k}')">&#215;</button></div>`;
+    const order=(S.assetOrder&&S.assetOrder.length?S.assetOrder:Object.keys(DA));
+    const ciMap={};ciYr.forEach(ci=>ciMap[ci.id]=ci);
+    const allItems=order.filter(k=>(DA[k]&&!hidden.includes(k))||!!ciMap[k]);
+    for(let i=0;i<allItems.length;i++){
+      const k=allItems[i];const isFirst=i===0;const isLast=i===allItems.length-1;
+      if(DA[k]){const a=DA[k];const v=getA(k);
+        rows+=`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="hideAsset('${k}')">Hide</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${isFirst?' sort-dim':''}" onclick="moveAsset('${k}','up')">&#9650;</button><button class="sort-btn${isLast?' sort-dim':''}" onclick="moveAsset('${k}','down')">&#9660;</button></div><div><div class="asset-name">${esc(a.label)}</div><div class="asset-sub2">${esc(a.sub)}</div></div><input class="asset-inp" type="number" value="${v}" onchange="updateAsset('${k}',this.value)" style="color:${v<0?'#f85149':'#d29922'};"/></div></div>`;
+      } else if(ciMap[k]){const ci=ciMap[k];
+        rows+=`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteCustomItem('2026','${ci.id}')">Delete</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${isFirst?' sort-dim':''}" onclick="moveAsset('${k}','up')">&#9650;</button><button class="sort-btn${isLast?' sort-dim':''}" onclick="moveAsset('${k}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('2026','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('2026','${ci.id}','type',this.value)" placeholder="Type / description"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('2026','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/></div></div>`;
+      }
     }
-    for(let ci_i=0;ci_i<ciYr.length;ci_i++){
-      const ci=ciYr[ci_i];
-      rows+=`<div class="asset-row" style="grid-template-columns:20px 1fr 100px 34px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${ci_i===0?' sort-dim':''}" onclick="moveCustomItem('2026','${ci.id}','up')">&#9650;</button><button class="sort-btn${ci_i===ciYr.length-1?' sort-dim':''}" onclick="moveCustomItem('2026','${ci.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('2026','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('2026','${ci.id}','type',this.value)" placeholder="Type / description"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('2026','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/><button class="ci-del-btn" onclick="deleteCustomItem('2026','${ci.id}')">&#215;</button></div>`;
-    }
-    const hiddenDa=order.filter(k=>DA[k]&&hidden.includes(k));
+    const hiddenDa=Object.keys(DA).filter(k=>hidden.includes(k));
     if(hiddenDa.length>0){
       rows+=`<div style="margin-top:8px;padding-top:8px;border-top:1px solid #21262d;"><div class="ci-add-title">Hidden &#8212; tap Restore to re-include</div>${hiddenDa.map(k=>`<div class="asset-row" style="opacity:0.5;grid-template-columns:1fr auto;gap:6px;align-items:center;"><div><div class="asset-name">${esc(DA[k].label)}</div><div class="asset-sub2">${esc(DA[k].sub)}</div></div><button class="restore-btn" onclick="restoreAsset('${k}')">Restore</button></div>`).join('')}</div>`;
     }
-    rows+=`<div class="asset-row total"><div><div class="asset-name" style="font-weight:700;color:#00d17a;">&#128176; July 2026 Liquid Base</div></div><div class="asset-static col-green" id="ldgr-base-2026">&#163;${fmtN(base)}</div></div>`;
+    const juneB=getA('june_bonus_26');
+    rows+=`<div class="asset-row total"><div><div class="asset-name" style="font-weight:700;color:#00d17a;">&#128176; July 2026 Liquid Base</div></div><div class="asset-static col-green" id="ldgr-base-2026">&#163;${fmtN(base-juneB)}</div></div>`;
     rows+=`<div class="ci-add-section"><div class="ci-add-title">Add Savings / Investment</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;"><input class="ci-inp" id="ci-new-name-2026" placeholder="Name (e.g. Chip ISA)"/><input class="ci-inp" id="ci-new-type-2026" placeholder="Type (e.g. Cash ISA)"/></div><input class="ci-inp" id="ci-new-val-2026" type="number" placeholder="Value (&#163;)" style="margin-bottom:8px;text-align:right;color:#d29922;"/><button class="ci-add-btn" onclick="submitNewItem('2026')">+ Add Item</button></div>`;
     el.innerHTML=`<div class="card">${rows}</div>`;
+    setupSwipes(el);
   } else {
     let prevBal=calcBase()-Math.round(draw/2);
     for(let y=2027;y<parseInt(yr);y++){
@@ -757,7 +767,7 @@ function showLedger(yr,btn){
     let ciRows='';
     for(let ci_i=0;ci_i<ciYr.length;ci_i++){
       const ci=ciYr[ci_i];
-      ciRows+=`<div class="asset-row" style="grid-template-columns:20px 1fr 100px 34px;gap:4px;align-items:center;margin-bottom:6px;"><div class="sort-col"><button class="sort-btn${ci_i===0?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','up')">&#9650;</button><button class="sort-btn${ci_i===ciYr.length-1?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('${yr}','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('${yr}','${ci.id}','type',this.value)" placeholder="Type / description"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('${yr}','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/><button class="ci-del-btn" onclick="deleteCustomItem('${yr}','${ci.id}')">&#215;</button></div>`;
+      ciRows+=`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteCustomItem('${yr}','${ci.id}')">Delete</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${ci_i===0?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','up')">&#9650;</button><button class="sort-btn${ci_i===ciYr.length-1?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('${yr}','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('${yr}','${ci.id}','type',this.value)" placeholder="Type / description"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('${yr}','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/></div></div>`;
     }
     el.innerHTML=`<div class="card"><div class="card-eyebrow">${yr} Asset Summary</div>
       <div class="asset-row"><div><div class="asset-name">Opening Carry-Over</div></div><div class="asset-static">&#163;${fmtN(prevBal)}</div></div>
@@ -771,10 +781,11 @@ function showLedger(yr,btn){
         <div class="ci-add-section"><div class="ci-add-title">Add Savings / Investment</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;"><input class="ci-inp" id="ci-new-name-${yr}" placeholder="Name (e.g. Property Sale)"/><input class="ci-inp" id="ci-new-type-${yr}" placeholder="Type (e.g. Cash ISA)"/></div><input class="ci-inp" id="ci-new-val-${yr}" type="number" placeholder="Value (&#163;)" style="margin-bottom:8px;text-align:right;color:#d29922;"/><button class="ci-add-btn" onclick="submitNewItem('${yr}')">+ Add Item</button></div>
       </div>
     </div>`;
+    setupSwipes(el);
   }
 }
 
-function updateAsset(k,v){if(!S.assets)S.assets={};S.assets[k]=parseFloat(v)||0;save();buildRunway();const b=calcBase();document.getElementById('liquid-val').textContent='£'+fmtN(b);document.getElementById('base-val').textContent='£'+fmtN(b);const te=document.getElementById('ldgr-base-2026');if(te)te.textContent='£'+fmtN(b);}
+function updateAsset(k,v){if(!S.assets)S.assets={};S.assets[k]=parseFloat(v)||0;save();buildRunway();const b=calcBase();const jb=getA('june_bonus_26');document.getElementById('liquid-val').textContent='£'+fmtN(b-jb);document.getElementById('base-val').textContent='£'+fmtN(b-jb);const te=document.getElementById('ldgr-base-2026');if(te)te.textContent='£'+fmtN(b-jb);}
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function genId(){return 'ci'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
@@ -786,7 +797,9 @@ function submitNewItem(yr){
   if(!name)return;
   if(!S.customItems)S.customItems={};
   if(!S.customItems[yr])S.customItems[yr]=[];
-  S.customItems[yr].push({id:genId(),name,type,value:val});
+  const newId=genId();
+  S.customItems[yr].push({id:newId,name,type,value:val});
+  if(yr==='2026'){if(!S.assetOrder||!S.assetOrder.length)S.assetOrder=Object.keys(DA);S.assetOrder.push(newId);}
   save();buildRunway();
   showLedger(yr,document.querySelector('#ledger-yr-tabs .lyt.active'));
 }
@@ -794,6 +807,7 @@ function submitNewItem(yr){
 function deleteCustomItem(yr,id){
   if(!S.customItems||!S.customItems[yr])return;
   S.customItems[yr]=S.customItems[yr].filter(i=>i.id!==id);
+  if(yr==='2026'&&S.assetOrder)S.assetOrder=S.assetOrder.filter(k=>k!==id);
   save();buildRunway();
   showLedger(yr,document.querySelector('#ledger-yr-tabs .lyt.active'));
 }
@@ -823,9 +837,14 @@ function restoreAsset(k){
 
 function moveAsset(k,dir){
   if(!S.assetOrder||!S.assetOrder.length)S.assetOrder=Object.keys(DA);
-  const idx=S.assetOrder.indexOf(k);if(idx===-1)return;
-  if(dir==='up'&&idx>0){[S.assetOrder[idx-1],S.assetOrder[idx]]=[S.assetOrder[idx],S.assetOrder[idx-1]];}
-  else if(dir==='down'&&idx<S.assetOrder.length-1){[S.assetOrder[idx],S.assetOrder[idx+1]]=[S.assetOrder[idx+1],S.assetOrder[idx]];}
+  const _hidden=S.hiddenAssets||[];
+  const _ciIds=new Set(((S.customItems&&S.customItems['2026'])||[]).map(ci=>ci.id));
+  const visible=S.assetOrder.filter(key=>(DA[key]&&!_hidden.includes(key))||_ciIds.has(key));
+  const vi=visible.indexOf(k);if(vi===-1)return;
+  const swapWith=dir==='up'&&vi>0?visible[vi-1]:dir==='down'&&vi<visible.length-1?visible[vi+1]:null;
+  if(swapWith===null)return;
+  const ai=S.assetOrder.indexOf(k);const bi=S.assetOrder.indexOf(swapWith);
+  [S.assetOrder[ai],S.assetOrder[bi]]=[S.assetOrder[bi],S.assetOrder[ai]];
   save();showLedger('2026',document.querySelector('#ledger-yr-tabs .lyt.active'));
 }
 
@@ -870,7 +889,8 @@ function renderMilestones(){
   ];
   document.getElementById('milestones-list').innerHTML=MS.map(m=>`<div class="ms-item ${m.achieved?'achieved':''}"><div class="ms-icon">${m.achieved?'✅':m.icon}</div><div><div class="ms-title">${m.title}</div><div class="ms-sub">${m.sub}</div></div></div>`).join('');
   const clItems=S.checklistItems&&S.checklistItems.length?S.checklistItems:CL;
-  document.getElementById('checklist-list').innerHTML=clItems.map(item=>`<div class="ck-item ${S.checklist&&S.checklist[item.id]?'done':''}" id="ck-${item.id}"><div class="ck-box" onclick="toggleCk('${item.id}')"><span class="ck-check">&#10003;</span></div><div style="flex:1;min-width:0;"><input type="text" class="ci-name-inp" style="font-size:13px;" value="${esc(item.text||'')}" onblur="updateChecklistItem('${item.id}','text',this.value)" placeholder="Task"/><input type="text" class="ci-type-inp" value="${esc(item.sub||'')}" onblur="updateChecklistItem('${item.id}','sub',this.value)" placeholder="Description"/></div><button class="ci-del-btn" style="flex-shrink:0;" onclick="deleteChecklistItem('${item.id}')">&#215;</button></div>`).join('')+'<div class="ci-add-section" style="margin-top:8px;"><div class="ci-add-title">Add Checklist Item</div><input class="ci-inp" id="ck-new-text" placeholder="Task (e.g. Review State Pension forecast)" style="margin-bottom:6px;"/><input class="ci-inp" id="ck-new-sub" placeholder="Sub-note (optional)" style="margin-bottom:8px;"/><button class="ci-add-btn" onclick="submitChecklistItem()">+ Add Item</button></div>';
+  document.getElementById('checklist-list').innerHTML=clItems.map(item=>`<div class="swipe-wrap ck-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteChecklistItem('${item.id}')">Delete</button></div><div class="ck-item swipe-row-content ${S.checklist&&S.checklist[item.id]?'done':''}" id="ck-${item.id}"><div class="ck-box" onclick="toggleCk('${item.id}')"><span class="ck-check">&#10003;</span></div><div style="flex:1;min-width:0;"><input type="text" class="ci-name-inp" style="font-size:13px;" value="${esc(item.text||'')}" onblur="updateChecklistItem('${item.id}','text',this.value)" placeholder="Task"/><input type="text" class="ci-type-inp" value="${esc(item.sub||'')}" onblur="updateChecklistItem('${item.id}','sub',this.value)" placeholder="Description"/></div></div></div>`).join('')+'<div class="ci-add-section" style="margin-top:8px;"><div class="ci-add-title">Add Checklist Item</div><input class="ci-inp" id="ck-new-text" placeholder="Task (e.g. Review State Pension forecast)" style="margin-bottom:6px;"/><input class="ci-inp" id="ck-new-sub" placeholder="Sub-note (optional)" style="margin-bottom:8px;"/><button class="ci-add-btn" onclick="submitChecklistItem()">+ Add Item</button></div>';
+  setupSwipes(document.getElementById('checklist-list'));
 }
 function toggleCk(id){if(!S.checklist)S.checklist={};S.checklist[id]=!S.checklist[id];const el=document.getElementById('ck-'+id);if(el)el.classList.toggle('done',!!S.checklist[id]);save();}
 
@@ -947,6 +967,42 @@ function moveExpenditure(id,dir){
 }
 
 function fmtN(n){return Math.round(n).toLocaleString('en-GB');}
+
+let _openSwipe=null,_swipeListenerAdded=false;
+function closeOpenSwipe(){if(_openSwipe){_openSwipe.style.transition='transform 0.25s ease';_openSwipe.style.transform='translateX(0)';_openSwipe=null;}}
+function setupSwipes(el){
+  _openSwipe=null;
+  if(!_swipeListenerAdded){
+    document.addEventListener('touchstart',e=>{if(_openSwipe&&_openSwipe.parentElement&&!_openSwipe.parentElement.contains(e.target))closeOpenSwipe();},{passive:true});
+    _swipeListenerAdded=true;
+  }
+  el.querySelectorAll('.swipe-wrap').forEach(wrap=>{
+    const row=wrap.querySelector('.swipe-row-content');
+    if(!row||wrap._swipeInit)return;
+    wrap._swipeInit=true;
+    let sx=0,sy=0,dx=0,active=false,opened=false;
+    const MAX=80;
+    row.addEventListener('touchstart',e=>{
+      if(_openSwipe&&_openSwipe!==row)closeOpenSwipe();
+      sx=e.touches[0].clientX;sy=e.touches[0].clientY;dx=opened?-MAX:0;active=true;
+      row.style.transition='none';
+    },{passive:true});
+    row.addEventListener('touchmove',e=>{
+      if(!active)return;
+      const mx=e.touches[0].clientX-sx;const my=e.touches[0].clientY-sy;
+      if(Math.abs(my)>Math.abs(mx)+5&&!opened){active=false;return;}
+      dx=Math.max(-MAX,Math.min(0,(opened?-MAX:0)+mx));
+      row.style.transform=`translateX(${dx}px)`;
+    },{passive:true});
+    row.addEventListener('touchend',()=>{
+      if(!active)return;active=false;
+      row.style.transition='transform 0.25s ease';
+      opened=dx<-MAX/2;
+      row.style.transform=opened?`translateX(-${MAX}px)`:'translateX(0)';
+      if(opened)_openSwipe=row;else if(_openSwipe===row)_openSwipe=null;
+    });
+  });
+}
 
 load();recalc();
 setInterval(updateCountdown,1000);
