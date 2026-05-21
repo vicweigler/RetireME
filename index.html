@@ -80,9 +80,9 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .rw-carry-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#484f58;}
 .rw-carry-val{font-size:16px;font-weight:700;color:#e6edf3;margin-top:1px;}
 .rw-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
-.rw-box{background:#0d1117;border-radius:8px;padding:8px 6px;}
+.rw-box{background:#0d1117;border-radius:8px;padding:8px 6px;display:flex;flex-direction:column;justify-content:space-between;}
 .rw-box-lbl{font-size:9px;letter-spacing:0.5px;text-transform:uppercase;color:#484f58;margin-bottom:4px;}
-.rw-box-val{font-size:13px;font-weight:700;color:#e6edf3;}
+.rw-box-val{font-size:13px;font-weight:700;color:#e6edf3;margin-top:auto;}
 .rw-box-val.green{color:#00d17a;}.rw-box-val.red{color:#f85149;}
 .rw-tax-row{background:#0d1117;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
 .rw-tax-line{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 0;}
@@ -663,23 +663,23 @@ function buildRunway(){
       <div class="rw-box"><div class="rw-box-lbl">Liquid Base</div><div class="rw-box-val">£${fmtN(liquidBase2026)}</div></div>
       <div class="rw-box"><div class="rw-box-lbl">+Interest</div><div class="rw-box-val" style="color:#484f58">£0</div></div>
       ${bonus2026>0?`<div class="rw-box"><div class="rw-box-lbl">+Jun Bonus</div><div class="rw-box-val green">+£${fmtN(bonus2026)}</div></div>`:''}
-      <div class="rw-box"><div class="rw-box-lbl">−Drawdown (6mo)</div><div class="rw-box-val red">−£${fmtN(draw2026)}</div></div>
+      <div class="rw-box"><div class="rw-box-lbl">−Drawdown</div><div class="rw-box-val red">−£${fmtN(draw2026)}</div></div>
     </div>
     <div class="rw-tax-row">
-      ${prior2026>0?`<div class="rw-tax-line"><span class="lbl">Prior employment income (Apr–Jul, gross):</span><span class="val" style="color:#848d97;">£${fmtN(prior2026)}</span></div>`:''}
-      <div class="rw-tax-line"><span class="lbl">DB Pension Gross (6 months from Jul 1st):</span><span class="val">£${fmtN(halfDB)}</span></div>
-      ${extra2026>0?`<div class="rw-tax-line"><span class="lbl">Additional Income (6 months):</span><span class="val">£${fmtN(extra2026)}</span></div>`:''}
+      ${prior2026>0?`<div class="rw-tax-line"><span class="lbl">Prior Employment (Apr–Jul):</span><span class="val" style="color:#848d97;">£${fmtN(prior2026)}</span></div>`:''}
+      <div class="rw-tax-line"><span class="lbl">DB Pension Gross (6mo):</span><span class="val">£${fmtN(halfDB)}</span></div>
+      ${extra2026>0?`<div class="rw-tax-line"><span class="lbl">Extra Income (6mo):</span><span class="val">£${fmtN(extra2026)}</span></div>`:''}
       <div class="rw-tax-line"><span class="lbl">Pension Tax (${effRate2026}% — ${rate2026Label}):</span><span class="val red">−£${fmtN(pension2026Tax)}</span></div>
       <div class="rw-tax-line"><span class="lbl">Net Pension (Jul–Dec):</span><span class="val">£${fmtN(net2026DB)}</span></div>
-      ${extra2026>0?`<div class="rw-tax-line"><span class="lbl">Net Additional Income (after tax):</span><span class="val green">£${fmtN(netExtra2026)}</span></div>`:''}
-      <div class="rw-tax-line"><span class="lbl">Drawdown: £2,000/mo × 6 months (Tax-free capital):</span><span class="val green">£${fmtN(draw2026)}</span></div>
+      ${extra2026>0?`<div class="rw-tax-line"><span class="lbl">Net Extra Income:</span><span class="val green">£${fmtN(netExtra2026)}</span></div>`:''}
+      <div class="rw-tax-line"><span class="lbl">Drawdown (tax-free):</span><span class="val green">£${fmtN(draw2026)}</span></div>
       <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income (Jul–Dec):</span><span class="val">£${fmtN(combined2026)} /6mo</span></div>
     </div>
     <div class="rw-net">
       <div class="rw-net-lbl">NET MONTHLY INCOME</div>
-      <div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()} <span class="rw-net-mo">/mo</span></div>
+      <div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()}</div>
     </div>
-    ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-net" style="margin-bottom:6px;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)} <span class="rw-net-mo">/mo</span></div></div><div class="rw-net" style="margin-top:0;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(monthly2026-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly2026-totalExp))} <span class="rw-net-mo">/mo</span></div></div></div>`:''}
+    ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-net" style="margin-bottom:6px;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="margin-top:0;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(monthly2026-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly2026-totalExp))}</div></div></div>`:''}
   </div></div>`;
   for(let yr=2027;yr<=2030;yr++){
     const draw_yr=getDrawdown(yr);
@@ -704,24 +704,24 @@ function buildRunway(){
       <div class="rw-boxes">
         <div class="rw-box"><div class="rw-box-lbl">Start Balance</div><div class="rw-box-val">£${fmtN(start)}</div></div>
         <div class="rw-box"><div class="rw-box-lbl">+${(gr*100).toFixed(0)}% Interest</div><div class="rw-box-val green">+£${fmtN(interest)}</div></div>
-        ${bonusT>0?`<div class="rw-box"><div class="rw-box-lbl">+Bonus Vesting</div><div class="rw-box-val green">+£${fmtN(bonusT)}</div></div>`:`<div class="rw-box"><div class="rw-box-lbl">+Bonus</div><div class="rw-box-val" style="color:#484f58">—</div></div>`}
-        <div class="rw-box"><div class="rw-box-lbl">−Top-Up Drawdown</div><div class="rw-box-val red">−£${fmtN(draw_yr)}</div></div>
+        ${bonusT>0?`<div class="rw-box"><div class="rw-box-lbl">+Bonus</div><div class="rw-box-val green">+£${fmtN(bonusT)}</div></div>`:`<div class="rw-box"><div class="rw-box-lbl">+Bonus</div><div class="rw-box-val" style="color:#484f58">—</div></div>`}
+        <div class="rw-box"><div class="rw-box-lbl">−Drawdown</div><div class="rw-box-val red">−£${fmtN(draw_yr)}</div></div>
       </div>
       <div class="rw-tax-row">
         <div class="rw-tax-line"><span class="lbl">DB Pension Gross:</span><span class="val">£${fmtN(db)}</span></div>
-        ${extra>0?`<div class="rw-tax-line"><span class="lbl">Additional Gross Income:</span><span class="val">£${fmtN(extra)}</span></div>`:''}
+        ${extra>0?`<div class="rw-tax-line"><span class="lbl">Extra Income:</span><span class="val">£${fmtN(extra)}</span></div>`:''}
         <div class="rw-tax-line"><span class="lbl">Pension Tax (${effRate}% — ${hrLbl}):</span><span class="val red">−£${fmtN(pensionTax)}</span></div>
         <div class="rw-tax-line"><span class="lbl">Net Pension:</span><span class="val">£${fmtN(netDB)}</span></div>
-        ${extra>0?`<div class="rw-tax-line"><span class="lbl">Net Additional Income (after tax):</span><span class="val green">£${fmtN(netExtra)}</span></div>`:''}
-        <div class="rw-tax-line"><span class="lbl">Drawdown: £${fmtN(draw_yr)} (Tax-free capital)</span><span class="val green">£${fmtN(draw_yr)}</span></div>
+        ${extra>0?`<div class="rw-tax-line"><span class="lbl">Net Extra Income:</span><span class="val green">£${fmtN(netExtra)}</span></div>`:''}
+        <div class="rw-tax-line"><span class="lbl">Drawdown (tax-free):</span><span class="val green">£${fmtN(draw_yr)}</span></div>
         ${customTotal>0?`<div class="rw-tax-line"><span class="lbl">Additional Items:</span><span class="val green">+£${fmtN(customTotal)}</span></div>`:''}
         <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income:</span><span class="val">£${fmtN(combined)} /yr</span></div>
       </div>
       <div class="rw-net">
         <div class="rw-net-lbl">NET MONTHLY INCOME</div>
-        <div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()} <span class="rw-net-mo">/mo</span></div>
+        <div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()}</div>
       </div>
-      ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-net" style="margin-bottom:6px;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)} <span class="rw-net-mo">/mo</span></div></div><div class="rw-net" style="margin-top:0;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(Math.round(monthly)-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly)-totalExp)} <span class="rw-net-mo">/mo</span></div></div></div>`:''}
+      ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-net" style="margin-bottom:6px;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="margin-top:0;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(Math.round(monthly)-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly)-totalExp)}</div></div></div>`:''}
     </div></div>`;
   }
   document.getElementById('runway-timeline').innerHTML=html;
