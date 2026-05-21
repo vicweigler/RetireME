@@ -86,8 +86,8 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .rw-box-val.green{color:#00d17a;}.rw-box-val.red{color:#f85149;}
 .rw-tax-row{background:#0d1117;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
 .rw-tax-line{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 0;}
-.rw-tax-line .lbl{color:#848d97;}
-.rw-tax-line .val{font-weight:600;color:#e6edf3;}
+.rw-tax-line .lbl{color:#848d97;flex:1;min-width:0;}
+.rw-tax-line .val{font-size:12px;font-weight:600;color:#e6edf3;flex-shrink:0;white-space:nowrap;padding-left:8px;}
 .rw-tax-line .val.red{color:#f85149;}.rw-tax-line .val.green{color:#00d17a;}
 .rw-net{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #21262d;margin-top:4px;}
 .rw-net-lbl{font-size:11px;color:#848d97;}
@@ -308,20 +308,25 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
   <!-- LEDGER -->
   <div class="tab-panel" id="tab-ledger">
     <div class="card" style="padding-bottom:12px;">
-      <div class="card-eyebrow">Bonus Vesting Schedule</div>
-      <div class="bonus-grid">
-        <div class="bonus-hdr">Year</div><div class="bonus-hdr">Vesting (£)</div>
-        <div class="bonus-divider"></div>
-        <div class="bonus-yr-cell">2026</div>
-        <input id="b-2026" class="bonus-inp" type="number" value="0" oninput="saveBonus('2026',this.value)"/>
-        <div class="bonus-yr-cell">2027</div>
-        <input id="b-2027" class="bonus-inp" type="number" value="125302" oninput="saveBonus('2027',this.value)"/>
-        <div class="bonus-yr-cell">2028</div>
-        <input id="b-2028" class="bonus-inp" type="number" value="76523" oninput="saveBonus('2028',this.value)"/>
-        <div class="bonus-yr-cell">2029</div>
-        <input id="b-2029" class="bonus-inp" type="number" value="54241" oninput="saveBonus('2029',this.value)"/>
-        <div class="bonus-yr-cell">2030</div>
-        <input id="b-2030" class="bonus-inp" type="number" value="38678" oninput="saveBonus('2030',this.value)"/>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+        <div class="card-eyebrow" style="margin:0;">Bonus Vesting Schedule</div>
+        <button class="edit-toggle" onclick="const p=document.getElementById('bonus-panel');const b=this;const open=p.style.display!=='none';p.style.display=open?'none':'block';b.textContent=open?'See Bonuses':'Hide Bonuses';">See Bonuses</button>
+      </div>
+      <div id="bonus-panel" style="display:none;">
+        <div class="bonus-grid" style="margin-top:10px;">
+          <div class="bonus-hdr">Year</div><div class="bonus-hdr">Vesting (£)</div>
+          <div class="bonus-divider"></div>
+          <div class="bonus-yr-cell">2026</div>
+          <input id="b-2026" class="bonus-inp" type="number" value="0" oninput="saveBonus('2026',this.value)"/>
+          <div class="bonus-yr-cell">2027</div>
+          <input id="b-2027" class="bonus-inp" type="number" value="125302" oninput="saveBonus('2027',this.value)"/>
+          <div class="bonus-yr-cell">2028</div>
+          <input id="b-2028" class="bonus-inp" type="number" value="76523" oninput="saveBonus('2028',this.value)"/>
+          <div class="bonus-yr-cell">2029</div>
+          <input id="b-2029" class="bonus-inp" type="number" value="54241" oninput="saveBonus('2029',this.value)"/>
+          <div class="bonus-yr-cell">2030</div>
+          <input id="b-2030" class="bonus-inp" type="number" value="38678" oninput="saveBonus('2030',this.value)"/>
+        </div>
       </div>
     </div>
     <div class="ledger-yr-tabs" id="ledger-yr-tabs">
@@ -674,7 +679,7 @@ function buildRunway(){
       <div class="rw-net-lbl">NET MONTHLY INCOME</div>
       <div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()} <span class="rw-net-mo">/mo</span></div>
     </div>
-    ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-tax-line"><span class="lbl">Monthly Expenditure:</span><span class="val red">&#8722;&#163;${fmtN(totalExp)}/mo</span></div><div class="rw-net" style="margin-top:4px;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(monthly2026-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly2026-totalExp))} <span class="rw-net-mo">/mo</span></div></div></div>`:''}
+    ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-net" style="margin-bottom:6px;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)} <span class="rw-net-mo">/mo</span></div></div><div class="rw-net" style="margin-top:0;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(monthly2026-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly2026-totalExp))} <span class="rw-net-mo">/mo</span></div></div></div>`:''}
   </div></div>`;
   for(let yr=2027;yr<=2030;yr++){
     const draw_yr=getDrawdown(yr);
@@ -716,7 +721,7 @@ function buildRunway(){
         <div class="rw-net-lbl">NET MONTHLY INCOME</div>
         <div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()} <span class="rw-net-mo">/mo</span></div>
       </div>
-      ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-tax-line"><span class="lbl">Monthly Expenditure:</span><span class="val red">&#8722;&#163;${fmtN(totalExp)}/mo</span></div><div class="rw-net" style="margin-top:4px;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(Math.round(monthly)-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly)-totalExp)} <span class="rw-net-mo">/mo</span></div></div></div>`:''}
+      ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-net" style="margin-bottom:6px;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)} <span class="rw-net-mo">/mo</span></div></div><div class="rw-net" style="margin-top:0;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(Math.round(monthly)-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly)-totalExp)} <span class="rw-net-mo">/mo</span></div></div></div>`:''}
     </div></div>`;
   }
   document.getElementById('runway-timeline').innerHTML=html;
@@ -932,7 +937,8 @@ function renderExpenditure(){
   }
   const el=document.getElementById('exp-list');if(!el)return;
   if(items.length===0){el.innerHTML='';return;}
-  el.innerHTML=items.map((e,idx)=>`<div class="asset-row" style="grid-template-columns:20px 1fr 100px 34px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${idx===0?' sort-dim':''}" onclick="moveExpenditure('${e.id}','up')">&#9650;</button><button class="sort-btn${idx===items.length-1?' sort-dim':''}" onclick="moveExpenditure('${e.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(e.name||'')}" onblur="updateExpenditure('${e.id}','name',this.value)" placeholder="Bill name"/><input type="text" class="ci-type-inp" value="${esc(e.category||'')}" onblur="updateExpenditure('${e.id}','category',this.value)" placeholder="Category"/></div><input class="asset-inp" type="number" value="${e.amount||0}" onchange="updateExpenditure('${e.id}','amount',this.value)" style="color:#f85149;"/><button class="ci-del-btn" onclick="deleteExpenditure('${e.id}')">&#215;</button></div>`).join('');
+  el.innerHTML=items.map((e,idx)=>`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteExpenditure('${e.id}')">Delete</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${idx===0?' sort-dim':''}" onclick="moveExpenditure('${e.id}','up')">&#9650;</button><button class="sort-btn${idx===items.length-1?' sort-dim':''}" onclick="moveExpenditure('${e.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(e.name||'')}" onblur="updateExpenditure('${e.id}','name',this.value)" placeholder="Bill name"/><input type="text" class="ci-type-inp" value="${esc(e.category||'')}" onblur="updateExpenditure('${e.id}','category',this.value)" placeholder="Category"/></div><input class="asset-inp" type="number" value="${e.amount||0}" onchange="updateExpenditure('${e.id}','amount',this.value)" style="color:#f85149;"/></div></div>`).join('');
+  setupSwipes(el);
 }
 function submitExpenditure(){
   const name=(document.getElementById('exp-new-name')?.value||'').trim();
@@ -974,6 +980,7 @@ function setupSwipes(el){
   _openSwipe=null;
   if(!_swipeListenerAdded){
     document.addEventListener('touchstart',e=>{if(_openSwipe&&_openSwipe.parentElement&&!_openSwipe.parentElement.contains(e.target))closeOpenSwipe();},{passive:true});
+    document.addEventListener('mousedown',e=>{if(_openSwipe&&_openSwipe.parentElement&&!_openSwipe.parentElement.contains(e.target))closeOpenSwipe();});
     _swipeListenerAdded=true;
   }
   el.querySelectorAll('.swipe-wrap').forEach(wrap=>{
@@ -982,6 +989,8 @@ function setupSwipes(el){
     wrap._swipeInit=true;
     let sx=0,sy=0,dx=0,active=false,opened=false;
     const MAX=80;
+
+    /* ── touch ── */
     row.addEventListener('touchstart',e=>{
       if(_openSwipe&&_openSwipe!==row)closeOpenSwipe();
       sx=e.touches[0].clientX;sy=e.touches[0].clientY;dx=opened?-MAX:0;active=true;
@@ -996,6 +1005,29 @@ function setupSwipes(el){
     },{passive:true});
     row.addEventListener('touchend',()=>{
       if(!active)return;active=false;
+      row.style.transition='transform 0.25s ease';
+      opened=dx<-MAX/2;
+      row.style.transform=opened?`translateX(-${MAX}px)`:'translateX(0)';
+      if(opened)_openSwipe=row;else if(_openSwipe===row)_openSwipe=null;
+    });
+
+    /* ── mouse (desktop) ── */
+    row.addEventListener('mousedown',e=>{
+      if(_openSwipe&&_openSwipe!==row)closeOpenSwipe();
+      sx=e.clientX;sy=e.clientY;dx=opened?-MAX:0;active=true;
+      row.style.transition='none';
+      row.style.userSelect='none';
+    });
+    document.addEventListener('mousemove',e=>{
+      if(!active)return;
+      const mx=e.clientX-sx;const my=e.clientY-sy;
+      if(Math.abs(my)>Math.abs(mx)+5&&!opened){active=false;return;}
+      dx=Math.max(-MAX,Math.min(0,(opened?-MAX:0)+mx));
+      row.style.transform=`translateX(${dx}px)`;
+    });
+    document.addEventListener('mouseup',()=>{
+      if(!active)return;active=false;
+      row.style.userSelect='';
       row.style.transition='transform 0.25s ease';
       opened=dx<-MAX/2;
       row.style.transform=opened?`translateX(-${MAX}px)`:'translateX(0)';
