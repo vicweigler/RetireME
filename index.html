@@ -84,7 +84,7 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .rw-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
 .rw-box{background:#0d1117;border-radius:8px;padding:8px 6px;display:flex;flex-direction:column;justify-content:space-between;}
 .rw-box-lbl{font-size:9px;letter-spacing:0.5px;text-transform:uppercase;color:#484f58;margin-bottom:4px;}
-.rw-box-val{font-size:13px;font-weight:700;color:#e6edf3;margin-top:auto;}
+.rw-box-val{font-size:13px;font-weight:700;color:#e6edf3;margin-top:auto;text-align:right;}
 .rw-box-val.green{color:#00d17a;}.rw-box-val.red{color:#f85149;}
 .rw-tax-row{background:#0d1117;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
 .rw-tax-line{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 0;}
@@ -432,10 +432,6 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
         <div class="slider-item"><label>Target Net /mo <span id="r-tgt-v" style="color:#f85149;">£0</span></label><input type="range" id="r-tgt" min="0" max="8000" step="100" value="0" oninput="S.targetIncome=parseInt(this.value);document.getElementById('r-tgt-v').textContent='£'+S.targetIncome.toLocaleString();save();buildRunway()"/></div>
         <div class="slider-item full"><label>Extra Income / yr <span id="r-extra-v" style="color:#00d17a;">£0</span></label><input type="range" id="r-extra" min="0" max="50000" step="500" value="0" oninput="S.extra=parseInt(this.value)||0;document.getElementById('r-extra-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
       </div>
-      <div class="form-group" style="margin-top:10px;margin-bottom:0;">
-        <label style="flex-direction:column;align-items:flex-start;gap:3px;">Pre-retirement 2026/27 gross income (£)<small style="font-size:10px;color:#484f58;font-weight:400;">Employment &amp; bonuses received Apr 6 – Jul 2026 — sets pension marginal tax rate for July 2026</small></label>
-        <input type="number" id="r-prior26" min="0" step="1000" value="0" placeholder="e.g. 150000" oninput="S.prior2026Income=parseInt(this.value)||0;save();buildRunway()"/>
-      </div>
     </div>
     <div class="card-eyebrow" style="padding:0 4px;margin-bottom:8px;">2026 - 2030 Capital Escalator Flowsheet</div>
     <div class="runway-base">
@@ -521,6 +517,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
       <div class="form-group"><label>Current Pension Pot (£)</label><div class="pound-wrap"><input type="number" id="s-pot-n" placeholder="e.g. 50000" oninput="fs('pot',+this.value)"/></div></div>
       <div class="form-group"><label>DB Pension Annual Income (£)</label><div class="pound-wrap"><input type="number" id="s-db" placeholder="e.g. 20000" oninput="fs('dbPension',+this.value)"/></div></div>
       <div class="form-group"><label>Annual Savings Drawdown (£)</label><div class="pound-wrap"><input type="number" id="s-draw" placeholder="e.g. 24000" oninput="fs('drawdown',+this.value)"/></div></div>
+      <div class="form-group"><label style="flex-direction:column;align-items:flex-start;gap:3px;">Pre-retirement 2026/27 gross income (£)<small style="font-size:10px;color:#484f58;font-weight:400;">Employment &amp; bonuses Apr 6 – Jul 2026 — sets pension tax rate</small></label><div class="pound-wrap"><input type="number" id="r-prior26" min="0" step="1000" placeholder="e.g. 150000" oninput="fs('prior2026Income',parseInt(this.value)||0)"/></div></div>
     </div>
     <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
       <div class="card-eyebrow">Data &amp; Backup</div>
@@ -814,11 +811,7 @@ function buildRunway(){
       <div class="rw-tax-line"><span class="lbl">Drawdown (tax-free):</span><span class="val green">£${fmtN(draw2026)}</span></div>
       <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income (Jul–Dec):</span><span class="val">£${fmtN(combined2026)}</span></div>
     </div>
-    <div class="rw-net">
-      <div class="rw-net-lbl">NET MONTHLY INCOME</div>
-      <div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()}</div>
-    </div>
-    ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-net" style="margin-bottom:6px;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="margin-top:0;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(monthly2026-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly2026-totalExp))}</div></div></div>`:''}
+    ${totalExp>0?`<div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #21262d;margin-top:4px;"><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()}</div></div><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(monthly2026-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly2026-totalExp))}</div></div></div>`:`<div class="rw-net"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()}</div></div>`}
   </div></div>`;
   for(let yr=2027;yr<=2030;yr++){
     const draw_yr=getDrawdown(yr);
@@ -856,11 +849,7 @@ function buildRunway(){
         ${customTotal>0?`<div class="rw-tax-line"><span class="lbl">Additional Items:</span><span class="val green">+£${fmtN(customTotal)}</span></div>`:''}
         <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income:</span><span class="val">£${fmtN(combined)}</span></div>
       </div>
-      <div class="rw-net">
-        <div class="rw-net-lbl">NET MONTHLY INCOME</div>
-        <div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()}</div>
-      </div>
-      ${totalExp>0?`<div style="padding:8px 0 0;border-top:1px solid #21262d;margin-top:8px;"><div class="rw-net" style="margin-bottom:6px;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="margin-top:0;padding-top:0;border-top:none;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(Math.round(monthly)-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly)-totalExp)}</div></div></div>`:''}
+      ${totalExp>0?`<div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #21262d;margin-top:4px;"><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()}</div></div><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(Math.round(monthly)-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly)-totalExp)}</div></div></div>`:`<div class="rw-net"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()}</div></div>`}
     </div></div>`;
   }
   document.getElementById('runway-timeline').innerHTML=html;
