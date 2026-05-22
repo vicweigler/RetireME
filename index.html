@@ -82,7 +82,7 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .rw-carry-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#484f58;}
 .rw-carry-val{font-size:13px;font-weight:700;color:#e6edf3;margin-top:1px;}
 .rw-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
-.rw-box{background:#0d1117;border-radius:8px;padding:8px 6px;display:flex;flex-direction:column;justify-content:space-between;}
+.rw-box{background:#0d1117;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between;}
 .rw-box-lbl{font-size:9px;letter-spacing:0.5px;text-transform:uppercase;color:#484f58;margin-bottom:4px;}
 .rw-box-val{font-size:13px;font-weight:700;color:#e6edf3;margin-top:auto;text-align:right;}
 .rw-box-val.green{color:#00d17a;}.rw-box-val.red{color:#f85149;}
@@ -91,7 +91,7 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .rw-tax-line .lbl{color:#848d97;flex:1;min-width:0;}
 .rw-tax-line .val{font-size:13px;font-weight:600;color:#e6edf3;flex-shrink:0;white-space:nowrap;padding-left:8px;}
 .rw-tax-line .val.red{color:#f85149;}.rw-tax-line .val.green{color:#00d17a;}
-.rw-net{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #21262d;margin-top:4px;}
+.rw-net{display:flex;justify-content:space-between;align-items:center;padding-top:8px;padding-right:12px;border-top:1px solid #21262d;margin-top:4px;}
 .rw-net-lbl{font-size:11px;color:#848d97;}
 .rw-net-val{font-size:13px;font-weight:800;color:#f85149;}
 .rw-net-val.good{color:#00d17a;}
@@ -811,7 +811,7 @@ function buildRunway(){
       <div class="rw-tax-line"><span class="lbl">Drawdown (tax-free):</span><span class="val green">£${fmtN(draw2026)}</span></div>
       <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income (Jul–Dec):</span><span class="val">£${fmtN(combined2026)}</span></div>
     </div>
-    ${totalExp>0?`<div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #21262d;margin-top:4px;"><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()}</div></div><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(monthly2026-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly2026-totalExp))}</div></div></div>`:`<div class="rw-net"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()}</div></div>`}
+    ${totalExp>0?`<div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #21262d;margin-top:4px;"><div class="rw-net" style="padding:0 10px;border:none;margin:0;"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()}</div></div><div class="rw-net" style="padding:0 10px;border:none;margin:0;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="padding:0 10px;border:none;margin:0;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(monthly2026-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly2026-totalExp))}</div></div></div>`:`<div class="rw-net"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met2026?'good':''}">£${monthly2026.toLocaleString()}</div></div>`}
   </div></div>`;
   for(let yr=2027;yr<=2030;yr++){
     const draw_yr=getDrawdown(yr);
@@ -849,7 +849,7 @@ function buildRunway(){
         ${customTotal>0?`<div class="rw-tax-line"><span class="lbl">Additional Items:</span><span class="val green">+£${fmtN(customTotal)}</span></div>`:''}
         <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income:</span><span class="val">£${fmtN(combined)}</span></div>
       </div>
-      ${totalExp>0?`<div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #21262d;margin-top:4px;"><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()}</div></div><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="padding:0;border:none;margin:0;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(Math.round(monthly)-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly)-totalExp)}</div></div></div>`:`<div class="rw-net"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()}</div></div>`}
+      ${totalExp>0?`<div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #21262d;margin-top:4px;"><div class="rw-net" style="padding:0 10px;border:none;margin:0;"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()}</div></div><div class="rw-net" style="padding:0 10px;border:none;margin:0;"><div class="rw-net-lbl">MONTHLY EXPENDITURE</div><div class="rw-net-val" style="color:#f85149;">&#8722;&#163;${fmtN(totalExp)}</div></div><div class="rw-net" style="padding:0 10px;border:none;margin:0;"><div class="rw-net-lbl">DISPOSABLE INCOME</div><div class="rw-net-val ${(Math.round(monthly)-totalExp)>=0?'good':''}">&#163;${fmtN(Math.round(monthly)-totalExp)}</div></div></div>`:`<div class="rw-net"><div class="rw-net-lbl">NET MONTHLY INCOME</div><div class="rw-net-val ${met?'good':''}">£${Math.round(monthly).toLocaleString()}</div></div>`}
     </div></div>`;
   }
   document.getElementById('runway-timeline').innerHTML=html;
