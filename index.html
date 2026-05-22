@@ -161,6 +161,12 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .bonus-yr-cell{font-size:13px;font-weight:700;color:#00d17a;}
 .bonus-inp{background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#e6edf3;padding:6px 8px;font-size:13px;width:100%;text-align:right;-moz-appearance:textfield;box-sizing:border-box;}
 .bonus-inp::-webkit-outer-spin-button,.bonus-inp::-webkit-inner-spin-button{-webkit-appearance:none;}
+.pound-wrap{position:relative;display:block;}
+.pound-wrap::before{content:'£';position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#8b949e;font-size:15px;pointer-events:none;z-index:1;}
+.pound-wrap input{padding-left:26px!important;text-align:right!important;}
+.pound-wrap-sm{position:relative;display:block;width:100%;}
+.pound-wrap-sm::before{content:'£';position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#8b949e;font-size:12px;pointer-events:none;z-index:1;}
+.pound-wrap-sm input{padding-left:20px!important;text-align:right!important;}
 .bonus-total-val{font-size:13px;color:#d29922;font-weight:600;text-align:right;}
 .bonus-divider{grid-column:1/-1;height:1px;background:#21262d;margin:2px 0;}
 .slider-item.full{grid-column:1/-1;}
@@ -451,15 +457,15 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
           <div class="bonus-hdr">Year</div><div class="bonus-hdr">Vesting (£)</div>
           <div class="bonus-divider"></div>
           <div class="bonus-yr-cell">2026</div>
-          <input id="b-2026" class="bonus-inp" type="number" value="0" oninput="saveBonus('2026',this.value)"/>
+          <div class="pound-wrap-sm"><input id="b-2026" class="bonus-inp" type="number" value="0" oninput="saveBonus('2026',this.value)"/></div>
           <div class="bonus-yr-cell">2027</div>
-          <input id="b-2027" class="bonus-inp" type="number" value="0" oninput="saveBonus('2027',this.value)"/>
+          <div class="pound-wrap-sm"><input id="b-2027" class="bonus-inp" type="number" value="0" oninput="saveBonus('2027',this.value)"/></div>
           <div class="bonus-yr-cell">2028</div>
-          <input id="b-2028" class="bonus-inp" type="number" value="0" oninput="saveBonus('2028',this.value)"/>
+          <div class="pound-wrap-sm"><input id="b-2028" class="bonus-inp" type="number" value="0" oninput="saveBonus('2028',this.value)"/></div>
           <div class="bonus-yr-cell">2029</div>
-          <input id="b-2029" class="bonus-inp" type="number" value="0" oninput="saveBonus('2029',this.value)"/>
+          <div class="pound-wrap-sm"><input id="b-2029" class="bonus-inp" type="number" value="0" oninput="saveBonus('2029',this.value)"/></div>
           <div class="bonus-yr-cell">2030</div>
-          <input id="b-2030" class="bonus-inp" type="number" value="0" oninput="saveBonus('2030',this.value)"/>
+          <div class="pound-wrap-sm"><input id="b-2030" class="bonus-inp" type="number" value="0" oninput="saveBonus('2030',this.value)"/></div>
         </div>
       </div>
     </div>
@@ -494,7 +500,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
           <input class="ci-inp" id="exp-new-name" placeholder="Name (e.g. Mortgage)"/>
           <input class="ci-inp" id="exp-new-cat" placeholder="Category (e.g. Housing)"/>
         </div>
-        <input class="ci-inp" id="exp-new-amt" type="number" placeholder="Monthly amount (&#163;)" style="margin-bottom:8px;text-align:right;color:#f85149;"/>
+        <div class="pound-wrap-sm" style="margin-bottom:8px;"><input class="ci-inp" id="exp-new-amt" type="number" placeholder="Monthly amount" style="text-align:right;color:#f85149;"/></div>
         <button class="ci-add-btn" onclick="submitExpenditure()">+ Add Bill</button>
       </div>
     </div>
@@ -511,10 +517,10 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
     </div>
     <div class="card">
       <div class="section-title">Pension &amp; Income</div>
-      <div class="form-group"><label>Annual Salary (£)</label><input type="number" id="s-salary" placeholder="e.g. 60000" oninput="fs('salary',+this.value)"/></div>
-      <div class="form-group"><label>Current Pension Pot (£)</label><input type="number" id="s-pot-n" placeholder="e.g. 50000" oninput="fs('pot',+this.value)"/></div>
-      <div class="form-group"><label>DB Pension Annual Income (£)</label><input type="number" id="s-db" placeholder="e.g. 20000" oninput="fs('dbPension',+this.value)"/></div>
-      <div class="form-group"><label>Annual Savings Drawdown (£)</label><input type="number" id="s-draw" placeholder="e.g. 24000" oninput="fs('drawdown',+this.value)"/></div>
+      <div class="form-group"><label>Annual Salary (£)</label><div class="pound-wrap"><input type="number" id="s-salary" placeholder="e.g. 60000" oninput="fs('salary',+this.value)"/></div></div>
+      <div class="form-group"><label>Current Pension Pot (£)</label><div class="pound-wrap"><input type="number" id="s-pot-n" placeholder="e.g. 50000" oninput="fs('pot',+this.value)"/></div></div>
+      <div class="form-group"><label>DB Pension Annual Income (£)</label><div class="pound-wrap"><input type="number" id="s-db" placeholder="e.g. 20000" oninput="fs('dbPension',+this.value)"/></div></div>
+      <div class="form-group"><label>Annual Savings Drawdown (£)</label><div class="pound-wrap"><input type="number" id="s-draw" placeholder="e.g. 24000" oninput="fs('drawdown',+this.value)"/></div></div>
     </div>
     <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
       <div class="card-eyebrow">Data &amp; Backup</div>
@@ -877,9 +883,9 @@ function showLedger(yr,btn){
     for(let i=0;i<allItems.length;i++){
       const k=allItems[i];const isFirst=i===0;const isLast=i===allItems.length-1;
       if(DA[k]){const a=DA[k];const v=getA(k);
-        rows+=`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="hideAsset('${k}')">Hide</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${isFirst?' sort-dim':''}" onclick="moveAsset('${k}','up')">&#9650;</button><button class="sort-btn${isLast?' sort-dim':''}" onclick="moveAsset('${k}','down')">&#9660;</button></div><div><div class="asset-name">${esc(a.label)}</div><div class="asset-sub2">${esc(a.sub)}</div></div><input class="asset-inp" type="number" value="${v}" onchange="updateAsset('${k}',this.value)" style="color:${v<0?'#f85149':'#d29922'};"/></div></div>`;
+        rows+=`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="hideAsset('${k}')">Hide</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${isFirst?' sort-dim':''}" onclick="moveAsset('${k}','up')">&#9650;</button><button class="sort-btn${isLast?' sort-dim':''}" onclick="moveAsset('${k}','down')">&#9660;</button></div><div><div class="asset-name">${esc(a.label)}</div><div class="asset-sub2">${esc(a.sub)}</div></div><div class=\"pound-wrap-sm\"><input class=\"asset-inp\" type=\"number\" value=\"${v}\" onchange=\"updateAsset('${k}',this.value)\" style=\"color:${v<0?'#f85149':'#d29922'};\"/></div></div></div>`;
       } else if(ciMap[k]){const ci=ciMap[k];
-        rows+=`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteCustomItem('2026','${ci.id}')">Delete</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${isFirst?' sort-dim':''}" onclick="moveAsset('${k}','up')">&#9650;</button><button class="sort-btn${isLast?' sort-dim':''}" onclick="moveAsset('${k}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('2026','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('2026','${ci.id}','type',this.value)" placeholder="Type / description"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('2026','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/></div></div>`;
+        rows+=`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteCustomItem('2026','${ci.id}')">Delete</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${isFirst?' sort-dim':''}" onclick="moveAsset('${k}','up')">&#9650;</button><button class="sort-btn${isLast?' sort-dim':''}" onclick="moveAsset('${k}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('2026','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('2026','${ci.id}','type',this.value)" placeholder="Type / description"/></div><div class=\"pound-wrap-sm\"><input class=\"asset-inp\" type=\"number\" value=\"${ci.value||0}\" onchange=\"updateCustomItem('2026','${ci.id}','value',this.value)\" style=\"color:${(ci.value||0)<0?'#f85149':'#d29922'};\"/></div></div></div>`;
       }
     }
     const hiddenDa=Object.keys(DA).filter(k=>hidden.includes(k));
@@ -888,7 +894,7 @@ function showLedger(yr,btn){
     }
     const juneB=getA('june_bonus_26');
     rows+=`<div class="asset-row total"><div><div class="asset-name" style="font-weight:700;color:#00d17a;">&#128176; July 2026 Liquid Base</div></div><div class="asset-static col-green" id="ldgr-base-2026">&#163;${fmtN(base-juneB)}</div></div>`;
-    rows+=`<div class="ci-add-section"><div class="ci-add-title">Add Savings / Investment</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;"><input class="ci-inp" id="ci-new-name-2026" placeholder="Name (e.g. Chip ISA)"/><input class="ci-inp" id="ci-new-type-2026" placeholder="Type (e.g. Cash ISA)"/></div><input class="ci-inp" id="ci-new-val-2026" type="number" placeholder="Value (&#163;)" style="margin-bottom:8px;text-align:right;color:#d29922;"/><button class="ci-add-btn" onclick="submitNewItem('2026')">+ Add Item</button></div>`;
+    rows+=`<div class="ci-add-section"><div class="ci-add-title">Add Savings / Investment</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;"><input class="ci-inp" id="ci-new-name-2026" placeholder="Name (e.g. Chip ISA)"/><input class="ci-inp" id="ci-new-type-2026" placeholder="Type (e.g. Cash ISA)"/></div><div class=\"pound-wrap-sm\" style=\"margin-bottom:8px;\"><input class=\"ci-inp\" id=\"ci-new-val-2026\" type=\"number\" placeholder=\"Amount\" style=\"text-align:right;color:#d29922;\"/></div><button class="ci-add-btn" onclick="submitNewItem('2026')">+ Add Item</button></div>`;
     el.innerHTML=`<div class="card">${rows}</div>`;
     setupSwipes(el);
   } else {
@@ -905,18 +911,18 @@ function showLedger(yr,btn){
     let ciRows='';
     for(let ci_i=0;ci_i<ciYr.length;ci_i++){
       const ci=ciYr[ci_i];
-      ciRows+=`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteCustomItem('${yr}','${ci.id}')">Delete</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${ci_i===0?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','up')">&#9650;</button><button class="sort-btn${ci_i===ciYr.length-1?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('${yr}','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('${yr}','${ci.id}','type',this.value)" placeholder="Type / description"/></div><input class="asset-inp" type="number" value="${ci.value||0}" onchange="updateCustomItem('${yr}','${ci.id}','value',this.value)" style="color:${(ci.value||0)<0?'#f85149':'#d29922'};"/></div></div>`;
+      ciRows+=`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteCustomItem('${yr}','${ci.id}')">Delete</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${ci_i===0?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','up')">&#9650;</button><button class="sort-btn${ci_i===ciYr.length-1?' sort-dim':''}" onclick="moveCustomItem('${yr}','${ci.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(ci.name||'')}" onblur="updateCustomItem('${yr}','${ci.id}','name',this.value)" placeholder="Name"/><input type="text" class="ci-type-inp" value="${esc(ci.type||'')}" onblur="updateCustomItem('${yr}','${ci.id}','type',this.value)" placeholder="Type / description"/></div><div class=\"pound-wrap-sm\"><input class=\"asset-inp\" type=\"number\" value=\"${ci.value||0}\" onchange=\"updateCustomItem('${yr}','${ci.id}','value',this.value)\" style=\"color:${(ci.value||0)<0?'#f85149':'#d29922'};\"/></div></div></div>`;
     }
     el.innerHTML=`<div class="card"><div class="card-eyebrow">${yr} Asset Summary</div>
       <div class="asset-row"><div><div class="asset-name">Opening Carry-Over</div></div><div class="asset-static">&#163;${fmtN(prevBal)}</div></div>
       <div class="asset-row"><div><div class="asset-name">+ ${(gr*100).toFixed(0)}% Growth / Interest</div></div><div class="asset-static col-green">+&#163;${fmtN(interest)}</div></div>
-      <div class="asset-row"><div><div class="asset-name">+ March Bonus Vesting</div></div><input class="asset-inp" type="number" value="${b}" onchange="saveBonus('${yr}',this.value)" style="color:#00d17a;"/></div>
+      <div class="asset-row"><div><div class="asset-name">+ March Bonus Vesting</div></div><div class=\"pound-wrap-sm\"><input class=\"asset-inp\" type=\"number\" value=\"${b}\" onchange=\"saveBonus('${yr}',this.value)\" style=\"color:#00d17a;\"/></div></div>
       ${cTotal>0?`<div class="asset-row"><div><div class="asset-name">+ Additional Items</div></div><div class="asset-static col-green">+&#163;${fmtN(cTotal)}</div></div>`:''}
-      <div class="asset-row"><div><div class="asset-name">&#8722; Annual Drawdown</div></div><input class="asset-inp" type="number" value="${draw_yr}" onchange="saveDrawdown('${yr}',this.value)" style="color:#f85149;"/></div>
+      <div class="asset-row"><div><div class="asset-name">&#8722; Annual Drawdown</div></div><div class=\"pound-wrap-sm\"><input class=\"asset-inp\" type=\"number\" value=\"${draw_yr}\" onchange=\"saveDrawdown('${yr}',this.value)\" style=\"color:#f85149;\"/></div></div>
       <div class="asset-row total"><div><div class="asset-name" style="font-weight:700;color:#00d17a;">End of ${yr} Balance</div></div><div class="asset-static col-green">&#163;${fmtN(end)}</div></div>
       <div style="margin-top:10px;border-top:1px solid #21262d;padding-top:10px;">
         ${ciYr.length>0?`<div class="ci-add-title" style="margin-bottom:8px;">Additional Items</div>${ciRows}`:''}
-        <div class="ci-add-section"><div class="ci-add-title">Add Savings / Investment</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;"><input class="ci-inp" id="ci-new-name-${yr}" placeholder="Name (e.g. Property Sale)"/><input class="ci-inp" id="ci-new-type-${yr}" placeholder="Type (e.g. Cash ISA)"/></div><input class="ci-inp" id="ci-new-val-${yr}" type="number" placeholder="Value (&#163;)" style="margin-bottom:8px;text-align:right;color:#d29922;"/><button class="ci-add-btn" onclick="submitNewItem('${yr}')">+ Add Item</button></div>
+        <div class="ci-add-section"><div class="ci-add-title">Add Savings / Investment</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;"><input class="ci-inp" id="ci-new-name-${yr}" placeholder="Name (e.g. Property Sale)"/><input class="ci-inp" id="ci-new-type-${yr}" placeholder="Type (e.g. Cash ISA)"/></div><div class=\"pound-wrap-sm\" style=\"margin-bottom:8px;\"><input class=\"ci-inp\" id=\"ci-new-val-${yr}\" type=\"number\" placeholder=\"Amount\" style=\"text-align:right;color:#d29922;\"/></div><button class="ci-add-btn" onclick="submitNewItem('${yr}')">+ Add Item</button></div>
       </div>
     </div>`;
     setupSwipes(el);
@@ -1063,7 +1069,7 @@ function renderExpenditure(){
   }
   const el=document.getElementById('exp-list');if(!el)return;
   if(items.length===0){el.innerHTML='';return;}
-  el.innerHTML=items.map((e,idx)=>`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteExpenditure('${e.id}')">Delete</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${idx===0?' sort-dim':''}" onclick="moveExpenditure('${e.id}','up')">&#9650;</button><button class="sort-btn${idx===items.length-1?' sort-dim':''}" onclick="moveExpenditure('${e.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(e.name||'')}" onblur="updateExpenditure('${e.id}','name',this.value)" placeholder="Bill name"/><input type="text" class="ci-type-inp" value="${esc(e.category||'')}" onblur="updateExpenditure('${e.id}','category',this.value)" placeholder="Category"/></div><input class="asset-inp" type="number" value="${e.amount||0}" onchange="updateExpenditure('${e.id}','amount',this.value)" style="color:#f85149;"/></div></div>`).join('');
+  el.innerHTML=items.map((e,idx)=>`<div class="swipe-wrap"><div class="swipe-del-reveal"><button class="swipe-del-btn" onclick="deleteExpenditure('${e.id}')">Delete</button></div><div class="asset-row swipe-row-content" style="grid-template-columns:20px 1fr 100px;gap:4px;align-items:center;"><div class="sort-col"><button class="sort-btn${idx===0?' sort-dim':''}" onclick="moveExpenditure('${e.id}','up')">&#9650;</button><button class="sort-btn${idx===items.length-1?' sort-dim':''}" onclick="moveExpenditure('${e.id}','down')">&#9660;</button></div><div style="min-width:0;"><input type="text" class="ci-name-inp" value="${esc(e.name||'')}" onblur="updateExpenditure('${e.id}','name',this.value)" placeholder="Bill name"/><input type="text" class="ci-type-inp" value="${esc(e.category||'')}" onblur="updateExpenditure('${e.id}','category',this.value)" placeholder="Category"/></div><div class="pound-wrap-sm"><input class="asset-inp" type="number" value="${e.amount||0}" onchange="updateExpenditure('${e.id}','amount',this.value)" style="color:#f85149;"/></div></div></div>`).join('');
   setupSwipes(el);
 }
 function submitExpenditure(){
