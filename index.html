@@ -515,10 +515,12 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
     </div>
     <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
       <div class="card-eyebrow">Data &amp; Backup</div>
-      <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:12px;">✅ All values are <strong style="color:#e6edf3;">automatically saved</strong> locally and restored every time you open the app.<br/><br/><strong style="color:#e6edf3;">Export</strong> downloads a backup file you can save anywhere. <strong style="color:#e6edf3;">Import</strong> restores from any previous backup.</div>
-      <input type="file" id="rm-import" accept=".json" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" onchange="importData(this)"/>
-      <button class="btn-primary" style="margin-top:0;background:linear-gradient(135deg,#2ea043,#238636);" onclick="exportData()">⬇ Save Backup File</button>
-      <button class="btn-primary" style="margin-top:8px;background:linear-gradient(135deg,#1f6feb,#1158c7);" onclick="document.getElementById('rm-import').click()">⬆ Import Backup from File</button>
+      <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:12px;">✅ All values are <strong style="color:#e6edf3;">automatically saved</strong> locally and restored every time you open the app.<br/><br/><strong style="color:#e6edf3;">Save</strong> exports an encrypted backup only this app can read. <strong style="color:#e6edf3;">Import</strong> restores from any previous backup.</div>
+      <input type="file" id="rm-import" accept=".rme" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" onchange="importData(this)"/>
+      <div style="display:flex;gap:8px;margin-top:0;">
+        <button style="flex:1;padding:10px 8px;font-size:12px;font-weight:600;background:linear-gradient(135deg,#2ea043,#238636);color:#e6edf3;border:none;border-radius:8px;cursor:pointer;font-family:inherit;" onclick="exportData()">⬇ Save Backup</button>
+        <button style="flex:1;padding:10px 8px;font-size:12px;font-weight:600;background:linear-gradient(135deg,#1f6feb,#1158c7);color:#e6edf3;border:none;border-radius:8px;cursor:pointer;font-family:inherit;" onclick="document.getElementById('rm-import').click()">⬆ Import Backup</button>
+      </div>
       <button class="btn-danger" onclick="clearData()">🗑 Clear All Saved Data</button>
     </div>
   </div>
@@ -588,42 +590,43 @@ function load(){
 let _st;
 function save(){clearTimeout(_st);_st=setTimeout(()=>{try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}},500);}
 function clearData(){if(!confirm('Clear all saved data?'))return;localStorage.removeItem('retireme_v3');location.reload();}
-function exportData(){
-  const date=new Date().toISOString().slice(0,10);
-  const filename='retireme-backup-'+date+'.json';
-  const data=JSON.stringify(S,null,2);
-  const blob=new Blob([data],{type:'application/json'});
-  const u=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=u;a.download=filename;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(u),1000);
+const _EPASS='RetireMe.Vault.Export.2026.XK9mVz';const _ESALT=new TextEncoder().encode('RetireMe.Export.Salt.2026');
+async function _exportKey(usage){const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(_EPASS),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:_ESALT,iterations:100000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,[usage]);}
+async function exportData(){
+  try{
+    const key=await _exportKey('encrypt');
+    const iv=crypto.getRandomValues(new Uint8Array(12));
+    const enc=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(S)));
+    const out=new Uint8Array(12+enc.byteLength);out.set(iv,0);out.set(new Uint8Array(enc),12);
+    const blob=new Blob([out],{type:'application/octet-stream'});
+    const u=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=u;a.download='RetireMe-'+new Date().toISOString().slice(0,10)+'.rme';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(u),1000);
+  }catch(err){alert('❌ Export failed: '+err.message);}
 }
-function importData(input){
+async function importData(input){
   const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      const imported=JSON.parse(e.target.result);
-      if(typeof imported!=='object'||imported===null)throw new Error('Not an object');
-      // Migrate old bonus format {mrt,yt} → single number
-      if(imported.bonuses){
-        for(const y in imported.bonuses){
-          const bv=imported.bonuses[y];
-          if(bv!==null&&typeof bv==='object'){imported.bonuses[y]=(bv.mrt||0)+(bv.yt||0);}
-        }
-      }
-      S={...S,...imported};
-      localStorage.setItem('retireme_v3',JSON.stringify(S));
-      input.value='';
-      applyDOM();recalc();
-      alert('✅ Backup restored successfully!');
-    }catch(err){
-      console.error('Import error:',err);
-      alert('❌ Import failed: '+err.message);
-    }
-  };
-  reader.onerror=function(){alert('❌ Could not read the file. Please try again.');};
-  reader.readAsText(file);
+  try{
+    const buf=await file.arrayBuffer();
+    const iv=new Uint8Array(buf,0,12);
+    const ct=buf.slice(12);
+    const key=await _exportKey('decrypt');
+    const dec=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);
+    const imported=JSON.parse(new TextDecoder().decode(dec));
+    if(typeof imported!=='object'||imported===null)throw new Error('Invalid data');
+    // Migrate old bonus format {mrt,yt} → single number
+    if(imported.bonuses){for(const y in imported.bonuses){const bv=imported.bonuses[y];if(bv!==null&&typeof bv==='object'){imported.bonuses[y]=(bv.mrt||0)+(bv.yt||0);}}}
+    S={...S,...imported};
+    localStorage.setItem('retireme_v3',JSON.stringify(S));
+    input.value='';
+    applyDOM();recalc();
+    alert('✅ Backup restored successfully!');
+  }catch(err){
+    console.error('Import error:',err);
+    alert('❌ Import failed: invalid or corrupted backup file.');
+    input.value='';
+  }
 }
 
 function applyDOM(){
