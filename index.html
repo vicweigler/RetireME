@@ -227,6 +227,11 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
 .auth-fld label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);font-weight:600;display:block;margin-bottom:5px;}
 .auth-fld input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:13px 14px;color:var(--text);font-size:15px;outline:none;-webkit-appearance:none;font-family:inherit;}
 .auth-fld input:focus{border-color:var(--green);}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:42px;}
+.pw-eye{position:absolute;right:0;top:0;bottom:0;width:42px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;}
+.pw-eye:hover{color:var(--text);}
+.pw-eye svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
 .auth-mb{width:100%;padding:14px;border-radius:12px;border:none;font-size:14px;font-weight:700;background:linear-gradient(135deg,#00d17a,#00a85e);color:#0d1117;cursor:pointer;margin-top:6px;font-family:inherit;}
 .auth-mb:active{opacity:0.85;}
 .auth-div{display:flex;align-items:center;gap:10px;margin:14px 0;}
@@ -289,7 +294,7 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
         <div class="auth-vh">Welcome back</div>
         <div class="auth-vs">Sign in to your vault</div>
         <div class="auth-fld"><label>Username</label><input type="text" id="aln-u" placeholder="Your username" autocomplete="username" autocapitalize="none" spellcheck="false"/></div>
-        <div class="auth-fld"><label>Password</label><input type="password" id="aln-p" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()"/></div>
+        <div class="auth-fld"><label>Password</label><div class="pw-wrap"><input type="password" id="aln-p" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()"/><button class="pw-eye" type="button" onclick="pwToggle('aln-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
         <button class="auth-mb" onclick="authLogin()">Sign In</button>
         <div id="auth-bio-row">
           <div class="auth-div"><span>or</span></div>
@@ -308,8 +313,8 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
         <div class="auth-vh">Create account</div>
         <div class="auth-vs">Set up your RetireMe vault</div>
         <div class="auth-fld"><label>Username</label><input type="text" id="arg-u" placeholder="Choose a username" autocomplete="username" autocapitalize="none" spellcheck="false"/></div>
-        <div class="auth-fld"><label>Password</label><input type="password" id="arg-p" placeholder="At least 4 characters" autocomplete="new-password"/></div>
-        <div class="auth-fld"><label>Confirm Password</label><input type="password" id="arg-p2" placeholder="Repeat your password" autocomplete="new-password" onkeydown="if(event.key==='Enter')authReg()"/></div>
+        <div class="auth-fld"><label>Password</label><div class="pw-wrap"><input type="password" id="arg-p" placeholder="At least 4 characters" autocomplete="new-password"/><button class="pw-eye" type="button" onclick="pwToggle('arg-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <div class="auth-fld"><label>Confirm Password</label><div class="pw-wrap"><input type="password" id="arg-p2" placeholder="Repeat your password" autocomplete="new-password" onkeydown="if(event.key==='Enter')authReg()"/><button class="pw-eye" type="button" onclick="pwToggle('arg-p2',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
         <button class="auth-mb" onclick="authReg()">Create Account</button>
         <div id="arg-msg" class="auth-msg"></div>
       </div>
@@ -599,6 +604,15 @@ const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/che
 let S={dob:'',retire:'',career:'',hols:25,salary:0,pot:0,contrib:12,growth:4,targetIncome:0,dbPension:0,drawdown:0,extra:0,bonuses:null,assets:{},checklist:{},drawdownByYear:{},prior2026Income:0,customItems:{'2026':[{id:'demo1',name:'Example: Chip Cash ISA',type:'Cash ISA',value:0}]},hiddenAssets:[],assetLabels:{},assetOrder:[],checklistItems:[],expenditure:[{id:'example1',name:'Mortgage / Rent',category:'Housing',amount:0},{id:'example2',name:'Utilities (Gas, Electric, Water)',category:'Bills',amount:0}]};
 
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
+
+function pwToggle(id,btn){
+  const inp=document.getElementById(id);
+  const show=inp.type==='password';
+  inp.type=show?'text':'password';
+  btn.innerHTML=show
+    ?'<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    :'<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
 
 function toggleTheme(isLight){
   document.body.classList.toggle('light-mode',isLight);
