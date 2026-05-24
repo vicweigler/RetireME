@@ -313,7 +313,7 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
         <div class="auth-vh">Create account</div>
         <div class="auth-vs">Set up your RetireMe vault</div>
         <div class="auth-fld"><label>Username</label><input type="text" id="arg-u" placeholder="Choose a username" autocomplete="username" autocapitalize="none" spellcheck="false"/></div>
-        <div class="auth-fld"><label>Password</label><div class="pw-wrap"><input type="password" id="arg-p" placeholder="At least 4 characters" autocomplete="new-password"/><button class="pw-eye" type="button" onclick="pwToggle('arg-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <div class="auth-fld"><label>Password</label><div class="pw-wrap"><input type="password" id="arg-p" placeholder="At least 6 characters" autocomplete="new-password"/><button class="pw-eye" type="button" onclick="pwToggle('arg-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
         <div class="auth-fld"><label>Confirm Password</label><div class="pw-wrap"><input type="password" id="arg-p2" placeholder="Repeat your password" autocomplete="new-password" onkeydown="if(event.key==='Enter')authReg()"/><button class="pw-eye" type="button" onclick="pwToggle('arg-p2',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
         <button class="auth-mb" onclick="authReg()">Create Account</button>
         <div id="arg-msg" class="auth-msg"></div>
@@ -1249,11 +1249,14 @@ async function authLogin(){
   const u=(document.getElementById('aln-u').value||'').trim();
   const p=document.getElementById('aln-p').value||'';
   if(!u||!p){_aMsg('aln-msg','Enter your username and password.');return;}
-  const store=_aLoad();
-  if(!store[u]){_aMsg('aln-msg','No account found for that username.');return;}
-  const hash=await _aHash(u,p);
-  if(store[u].hash!==hash){_aMsg('aln-msg','Incorrect password. Try again.');return;}
-  authOpen(u);
+  if(!window.isSecureContext){_aMsg('aln-msg','A secure (HTTPS) connection is required. Please reload over https://');return;}
+  try{
+    const store=_aLoad();
+    if(!store[u]){_aMsg('aln-msg','No account found for that username.');return;}
+    const hash=await _aHash(u,p);
+    if(store[u].hash!==hash){_aMsg('aln-msg','Incorrect password. Try again.');return;}
+    authOpen(u);
+  }catch(e){_aMsg('aln-msg','Sign in failed: '+e.message);}
 }
 async function authReg(){
   const u=(document.getElementById('arg-u').value||'').trim();
@@ -1262,6 +1265,8 @@ async function authReg(){
   if(u.length<4){_aMsg('arg-msg','Username must be at least 4 characters.');return;}
   if(p.length<6){_aMsg('arg-msg','Password must be at least 6 characters.');return;}
   if(p!==p2){_aMsg('arg-msg','Passwords do not match.');return;}
+  if(!window.isSecureContext){_aMsg('arg-msg','A secure (HTTPS) connection is required. Please reload over https://');return;}
+  try{
   const store=_aLoad();
   if(store[u]){_aMsg('arg-msg','That username is already taken.');return;}
   const hash=await _aHash(u,p);
@@ -1271,6 +1276,7 @@ async function authReg(){
     document.getElementById('auth-reg-view').style.display='none';
     document.getElementById('auth-bio-setup-view').style.display='';
   }else{authOpen(u);}
+  }catch(e){_aMsg('arg-msg','Registration failed: '+e.message);}
 }
 async function authSetupBio(){
   if(!_authU)return;
