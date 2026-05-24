@@ -1281,7 +1281,6 @@ async function authLogin(){
   const u=(document.getElementById('aln-u').value||'').trim();
   const p=document.getElementById('aln-p').value||'';
   if(!u||!p){_aMsg('aln-msg','Enter your username and password.');return;}
-  if(!window.isSecureContext){_aMsg('aln-msg','A secure (HTTPS) connection is required. Please reload over https://');return;}
   try{
     const store=_aLoad();
     if(!store[u]){_aMsg('aln-msg','No account found for that username.');return;}
@@ -1297,7 +1296,6 @@ async function authReg(){
   if(u.length<4){_aMsg('arg-msg','Username must be at least 4 characters.');return;}
   if(p.length<6){_aMsg('arg-msg','Password must be at least 6 characters.');return;}
   if(p!==p2){_aMsg('arg-msg','Passwords do not match.');return;}
-  if(!window.isSecureContext){_aMsg('arg-msg','A secure (HTTPS) connection is required. Please reload over https://');return;}
   try{
   const store=_aLoad();
   if(store[u]){_aMsg('arg-msg','That username is already taken.');return;}
