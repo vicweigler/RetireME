@@ -655,11 +655,7 @@ const _EPASS='RetireMe.Vault.Export.2026.XK9mVz';const _ESALT=new TextEncoder().
 async function _exportKey(usage){const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(_EPASS),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:_ESALT,iterations:100000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,[usage]);}
 async function exportData(){
   try{
-    const key=await _exportKey('encrypt');
-    const iv=crypto.getRandomValues(new Uint8Array(12));
-    const enc=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(S)));
-    const out=new Uint8Array(12+enc.byteLength);out.set(iv,0);out.set(new Uint8Array(enc),12);
-    const blob=new Blob([out],{type:'application/octet-stream'});
+    const blob=new Blob([JSON.stringify({v:2,data:S})],{type:'application/json'});
     const u=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=u;a.download='RetireMe-'+new Date().toISOString().slice(0,10)+'.rme';
     document.body.appendChild(a);a.click();document.body.removeChild(a);
@@ -669,14 +665,22 @@ async function exportData(){
 async function importData(input){
   const file=input.files[0];if(!file)return;
   try{
-    const buf=await file.arrayBuffer();
-    const iv=new Uint8Array(buf,0,12);
-    const ct=buf.slice(12);
-    const key=await _exportKey('decrypt');
-    const dec=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);
-    const imported=JSON.parse(new TextDecoder().decode(dec));
+    const text=await file.text();
+    let imported;
+    try{
+      const parsed=JSON.parse(text);
+      imported=parsed.v===2?parsed.data:parsed;
+    }catch(jsonErr){
+      // Legacy encrypted format — requires HTTPS
+      if(!window.crypto||!window.crypto.subtle)throw new Error('Encrypted backup requires HTTPS. Please access the site via https://');
+      const buf=await file.arrayBuffer();
+      const iv=new Uint8Array(buf,0,12);
+      const ct=buf.slice(12);
+      const key=await _exportKey('decrypt');
+      const dec=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);
+      imported=JSON.parse(new TextDecoder().decode(dec));
+    }
     if(typeof imported!=='object'||imported===null)throw new Error('Invalid data');
-    // Migrate old bonus format {mrt,yt} → single number
     if(imported.bonuses){for(const y in imported.bonuses){const bv=imported.bonuses[y];if(bv!==null&&typeof bv==='object'){imported.bonuses[y]=(bv.mrt||0)+(bv.yt||0);}}}
     S={...S,...imported};
     localStorage.setItem('retireme_v3',JSON.stringify(S));
@@ -685,7 +689,7 @@ async function importData(input){
     alert('✅ Backup restored successfully!');
   }catch(err){
     console.error('Import error:',err);
-    alert('❌ Import failed: invalid or corrupted backup file.');
+    alert('❌ Import failed: '+(err.message||'invalid or corrupted backup file.'));
     input.value='';
   }
 }
