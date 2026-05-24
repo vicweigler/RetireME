@@ -1,5 +1,5 @@
-const CACHE = 'retireme-v1';
-const ASSETS = ['./', './index.html', './icon.png', './manifest.json'];
+const CACHE = 'retireme-v2';
+const ASSETS = ['./', './index.html', './icon.png', './apple-touch-icon.png', './manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
