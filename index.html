@@ -218,34 +218,36 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
 .swipe-row-content{position:relative;z-index:1;will-change:transform;}
 /* ── Auth Screen ── */
 #auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:24px;padding-top:max(env(safe-area-inset-top,0px),24px);overflow-y:auto;}
-.auth-wrap{width:100%;max-width:340px;}
-.auth-brand{text-align:center;margin-bottom:28px;}
-.auth-brand-icon{width:80px;height:80px;border-radius:20px;margin:0 auto 14px;overflow:hidden;box-shadow:0 0 40px rgba(0,209,122,0.25);}
-.auth-brand-name{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-0.5px;}
-.auth-brand-tag{font-size:12px;color:var(--text3);margin-top:4px;}
-.auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:22px 20px;}
-.auth-vh{font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.auth-vs{font-size:12px;color:var(--text3);margin-bottom:20px;}
-.auth-fld{margin-bottom:12px;}
-.auth-fld label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);font-weight:600;display:block;margin-bottom:5px;}
-.auth-fld input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:13px 14px;color:var(--text);font-size:16px;outline:none;-webkit-appearance:none;font-family:inherit;}
-.auth-fld input:focus{border-color:var(--green);}
-.pw-wrap{position:relative;}
-.pw-wrap input{padding-right:42px;}
-.pw-eye{position:absolute;right:0;top:0;bottom:0;width:42px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;}
+.auth-wrap{width:100%;max-width:360px;}
+.auth-brand{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:32px;}
+.auth-brand-icon{width:52px;height:52px;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,209,122,0.3);flex-shrink:0;}
+.auth-brand-name{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-0.5px;}
+.auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px 22px;}
+.auth-vh{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.auth-vs{font-size:13px;color:var(--text3);margin-bottom:22px;line-height:1.5;}
+.auth-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:15px 16px;color:var(--text);font-size:16px;outline:none;-webkit-appearance:none;font-family:inherit;margin-bottom:10px;display:block;box-sizing:border-box;}
+.auth-inp::placeholder{color:var(--text3);}
+.auth-inp:focus{border-color:#6366f1;}
+.pw-wrap{position:relative;margin-bottom:10px;}
+.pw-wrap .auth-inp{margin-bottom:0;padding-right:48px;}
+.pw-eye{position:absolute;right:0;top:0;bottom:0;width:48px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text3);cursor:pointer;padding:0;}
 .pw-eye:hover{color:var(--text);}
 .pw-eye svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
-.auth-mb{width:100%;padding:14px;border-radius:12px;border:none;font-size:14px;font-weight:700;background:linear-gradient(135deg,#00d17a,#00a85e);color:#0d1117;cursor:pointer;margin-top:6px;font-family:inherit;}
+.auth-google-btn{width:100%;padding:15px;border-radius:50px;border:none;font-size:15px;font-weight:700;background:#ffffff;color:#1a1a2e;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;}
+.auth-google-btn:active{opacity:0.9;}
+body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--border2);}
+.auth-mb{width:100%;padding:15px;border-radius:50px;border:none;font-size:15px;font-weight:700;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#ffffff;cursor:pointer;margin-top:4px;font-family:inherit;display:block;}
 .auth-mb:active{opacity:0.85;}
-.auth-div{display:flex;align-items:center;gap:10px;margin:14px 0;}
+.auth-div{display:flex;align-items:center;gap:10px;margin:16px 0;}
 .auth-div::before,.auth-div::after{content:'';flex:1;height:1px;background:var(--border);}
 .auth-div span{font-size:11px;color:var(--text3);}
 .auth-bb{width:100%;padding:13px;border-radius:12px;border:1px solid var(--border2);font-size:13px;font-weight:600;background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;font-family:inherit;}
 .auth-bb:active,.auth-bb:hover{background:var(--bg3);}
 .auth-bb svg{width:20px;height:20px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-.auth-gb{width:100%;padding:13px;border-radius:12px;border:1px solid var(--border);font-size:13px;font-weight:600;background:transparent;color:var(--text3);cursor:pointer;margin-top:10px;font-family:inherit;}
+.auth-gb{width:100%;padding:13px;border-radius:50px;border:1px solid var(--border);font-size:14px;font-weight:600;background:transparent;color:var(--text3);cursor:pointer;margin-top:10px;font-family:inherit;}
 .auth-sw{text-align:center;margin-top:16px;font-size:13px;color:var(--text3);}
-.auth-sw a{color:var(--green);font-weight:600;cursor:pointer;}
+.auth-sw a{color:#6366f1;font-weight:600;cursor:pointer;}
+.auth-disclaimer{text-align:center;margin-top:10px;font-size:11px;color:var(--text3);}
 .auth-msg{font-size:12px;text-align:center;margin-top:10px;min-height:16px;}
 .auth-msg.err{color:#f85149;}.auth-msg.ok{color:var(--green);}
 .hdr-logout{background:none;border:1px solid var(--border);border-radius:7px;color:var(--text3);font-size:10px;font-weight:600;cursor:pointer;padding:3px 8px;font-family:inherit;}
@@ -289,15 +291,22 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
     <div class="auth-brand">
       <div class="auth-brand-icon"><img src="apple-touch-icon.png" alt="RetireMe" style="width:100%;height:100%;display:block;"/></div>
       <div class="auth-brand-name">RetireMe</div>
-      <div class="auth-brand-tag">Your personal retirement vault</div>
     </div>
     <!-- Login View -->
     <div id="auth-login-view">
       <div class="auth-card">
         <div class="auth-vh">Welcome back</div>
-        <div class="auth-vs">Sign in to your vault</div>
-        <div class="auth-fld"><label>Email</label><input type="email" id="aln-u" placeholder="your@email.com" autocomplete="email" autocapitalize="none" spellcheck="false"/></div>
-        <div class="auth-fld"><label>Password</label><div class="pw-wrap"><input type="password" id="aln-p" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()"/><button class="pw-eye" type="button" onclick="pwToggle('aln-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <div class="auth-vs">Sign in to your retirement vault</div>
+        <button class="auth-google-btn" onclick="authGoogleLogin()">
+          <svg viewBox="0 0 48 48" width="20" height="20" style="flex-shrink:0"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-div"><span>or</span></div>
+        <input class="auth-inp" type="email" id="aln-u" placeholder="Email address" autocomplete="email" autocapitalize="none" spellcheck="false"/>
+        <div class="pw-wrap">
+          <input class="auth-inp" type="password" id="aln-p" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()"/>
+          <button class="pw-eye" type="button" onclick="pwToggle('aln-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
         <button class="auth-mb" onclick="authLogin()">Sign In</button>
         <div id="auth-bio-row">
           <div class="auth-div"><span>or</span></div>
@@ -306,29 +315,31 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
             Use Face ID / Fingerprint
           </button>
         </div>
-        <div class="auth-div"><span>or</span></div>
-        <button class="auth-bb" onclick="authGoogleLogin()">
-          <svg viewBox="0 0 48 48" width="20" height="20" style="flex-shrink:0"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
-          Sign in with Google
-        </button>
         <div id="aln-msg" class="auth-msg"></div>
       </div>
-      <div class="auth-sw">No account? <a onclick="authShowReg()">Create one</a></div>
+      <div class="auth-sw">Don't have an account? <a onclick="authShowReg()">Register</a></div>
+      <div class="auth-disclaimer">For your eyes only. All data encrypted.</div>
     </div>
     <!-- Register View -->
     <div id="auth-reg-view" style="display:none">
       <div class="auth-card">
         <div class="auth-vh">Create account</div>
         <div class="auth-vs">Set up your RetireMe vault</div>
-        <div class="auth-fld"><label>Email</label><input type="email" id="arg-u" placeholder="your@email.com" autocomplete="email" autocapitalize="none" spellcheck="false"/></div>
-        <div class="auth-fld"><label>Password</label><div class="pw-wrap"><input type="password" id="arg-p" placeholder="At least 6 characters" autocomplete="new-password"/><button class="pw-eye" type="button" onclick="pwToggle('arg-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
-        <div class="auth-fld"><label>Confirm Password</label><div class="pw-wrap"><input type="password" id="arg-p2" placeholder="Repeat your password" autocomplete="new-password" onkeydown="if(event.key==='Enter')authReg()"/><button class="pw-eye" type="button" onclick="pwToggle('arg-p2',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <input class="auth-inp" type="email" id="arg-u" placeholder="Email address" autocomplete="email" autocapitalize="none" spellcheck="false"/>
+        <div class="pw-wrap">
+          <input class="auth-inp" type="password" id="arg-p" placeholder="Password (min 6 characters)" autocomplete="new-password"/>
+          <button class="pw-eye" type="button" onclick="pwToggle('arg-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <div class="pw-wrap">
+          <input class="auth-inp" type="password" id="arg-p2" placeholder="Confirm password" autocomplete="new-password" onkeydown="if(event.key==='Enter')authReg()"/>
+          <button class="pw-eye" type="button" onclick="pwToggle('arg-p2',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
         <button class="auth-mb" onclick="authReg()">Create Account</button>
         <div id="arg-msg" class="auth-msg"></div>
       </div>
       <div class="auth-sw">Have an account? <a onclick="authShowLogin()">Sign in</a></div>
     </div>
-    <!-- Biometric Setup View (shown after first register) -->
+    <!-- Biometric Setup View -->
     <div id="auth-bio-setup-view" style="display:none">
       <div class="auth-card">
         <div class="auth-vh">Enable Biometrics</div>
