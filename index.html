@@ -1297,9 +1297,9 @@ async function authReg(){
     }
   }catch(e){_aMsg('arg-msg',_fbErr(e.code));}
 }
-async function authGoogleLogin(){
-  try{await _fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());}
-  catch(e){if(e.code!=='auth/popup-closed-by-user')_aMsg('aln-msg',e.message);}
+function authGoogleLogin(){
+  _fbAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())
+    .catch(e=>_aMsg('aln-msg',_fbErr(e.code)));
 }
 async function authSetupBio(){
   if(!_authUser)return;
@@ -1357,6 +1357,7 @@ function checkAuth(){
   }
   document.getElementById('app').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
+  _fbAuth.getRedirectResult().catch(e=>_aMsg('aln-msg',_fbErr(e.code)));
   _fbAuth.onAuthStateChanged(user=>{
     if(user){authOpen(user);}
     else{
