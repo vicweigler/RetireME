@@ -363,7 +363,7 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
     </div>
     <div class="hdr-right">
-      <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
+      <div id="sync-lbl" style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
       <div class="hdr-id" id="device-id">ID: —</div>
       <div style="margin-top:5px;display:flex;align-items:center;justify-content:flex-end;gap:6px;"><span id="auth-user-lbl" style="font-size:10px;color:#484f58;"></span><button id="admin-hdr-btn" class="hdr-logout" style="display:none;background:rgba(163,113,247,0.12);border-color:rgba(163,113,247,0.35);color:#a371f7;" onclick="openAdminPanel()">⚙ Admin</button><button class="hdr-logout" onclick="authLogout()">Sign Out</button></div>
     </div>
@@ -670,13 +670,17 @@ async function load(){
     if(snap.exists){
       S={...S,...snap.data()};
       try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}
+      _syncStatus(true);
     } else {
       // First time on Firestore — migrate any existing localStorage data up
       const r=localStorage.getItem('retireme_v3');
-      if(r){try{const p=JSON.parse(r);S={...S,...p};_fsDoc().set(S).catch(()=>{});}catch(e){}}
+      if(r){try{const p=JSON.parse(r);S={...S,...p};await _fsDoc().set(S);_syncStatus(true);}catch(e){console.error('Firestore migrate:',e);_syncStatus(false,e.code||e.message);}}
+      else{_syncStatus(true);}
     }
   }catch(e){
     // Offline or Firestore unavailable — use localStorage cache
+    console.error('Firestore load error:',e);
+    _syncStatus(false,e.code||e.message);
     try{const r=localStorage.getItem('retireme_v3');if(r){const p=JSON.parse(r);S={...S,...p};}}catch(e2){}
   }
   if(!S.assets)S.assets={};
@@ -693,18 +697,30 @@ async function load(){
   for(const y of ['2026','2027','2028','2029','2030']){if(S.bonuses[y]==null)S.bonuses[y]=BONUSES[y];}
   applyDOM();
 }
+function _syncStatus(ok,msg){
+  const el=document.getElementById('sync-lbl');
+  if(!el)return;
+  if(ok){el.style.color='#00d17a';el.innerHTML='<span class="sync-dot"></span>Synced';}
+  else{el.style.color='#f85149';el.textContent='⚠ '+( msg||'Sync error');}
+}
 let _st;
 function save(){
   clearTimeout(_st);
   _st=setTimeout(()=>{
     try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}
-    if(_authUser){_fsDoc().set(S).catch(()=>{});}
+    if(_authUser){
+      _syncStatus(true);
+      _fsDoc().set(S).then(()=>_syncStatus(true)).catch(e=>{
+        console.error('Firestore save error:',e);
+        _syncStatus(false,e.code||e.message);
+      });
+    }
   },500);
 }
 function clearData(){
   if(!confirm('Clear all saved data?'))return;
   localStorage.removeItem('retireme_v3');
-  if(_authUser){_fsDoc().delete().catch(()=>{});}
+  if(_authUser){_fsDoc().delete().catch(e=>console.error('Firestore clear:',e));}
   location.reload();
 }
 const _EPASS='RetireMe.Vault.Export.2026.XK9mVz';const _ESALT=new TextEncoder().encode('RetireMe.Export.Salt.2026');
@@ -740,10 +756,12 @@ async function importData(input){
     if(imported.bonuses){for(const y in imported.bonuses){const bv=imported.bonuses[y];if(bv!==null&&typeof bv==='object'){imported.bonuses[y]=(bv.mrt||0)+(bv.yt||0);}}}
     S={...S,...imported};
     localStorage.setItem('retireme_v3',JSON.stringify(S));
-    if(_authUser){_fsDoc().set(S).catch(()=>{});}
+    if(_authUser){
+      try{await _fsDoc().set(S);_syncStatus(true);}catch(e){console.error('Firestore import:',e);_syncStatus(false,e.code||e.message);alert('⚠️ Data imported locally but cloud sync failed: '+(e.code||e.message));}
+    }
     input.value='';
     applyDOM();recalc();
-    alert('✅ Backup restored successfully!');
+    alert('✅ Backup restored and synced to your account!');
   }catch(err){
     console.error('Import error:',err);
     alert('❌ Import failed: '+(err.message||'invalid or corrupted backup file.'));
