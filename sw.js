@@ -1,4 +1,4 @@
-const CACHE = 'retireme-v3';
+const CACHE = 'retireme-v4';
 const ASSETS = ['./', './index.html', './icon.png', './apple-touch-icon.png', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -18,9 +18,17 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
-  );
+  // Network-first for the HTML document so updates always come through
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request)
+        .then(r => { const cl = r.clone(); caches.open(CACHE).then(c => c.put(e.request, cl)); return r; })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+  // Cache-first for all other assets
+  e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request)));
 });
 
 self.addEventListener('message', e => {
