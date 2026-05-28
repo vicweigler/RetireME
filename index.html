@@ -13,7 +13,8 @@
 <meta name="theme-color" content="#0d1117"/>
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
 <title>RetireMe</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <style>
 :root{
   --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--border:#21262d;--border2:#30363d;
@@ -294,7 +295,7 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
       <div class="auth-card">
         <div class="auth-vh">Welcome back</div>
         <div class="auth-vs">Sign in to your vault</div>
-        <div class="auth-fld"><label>Username</label><input type="text" id="aln-u" placeholder="Your username" autocomplete="username" autocapitalize="none" spellcheck="false"/></div>
+        <div class="auth-fld"><label>Email</label><input type="email" id="aln-u" placeholder="your@email.com" autocomplete="email" autocapitalize="none" spellcheck="false"/></div>
         <div class="auth-fld"><label>Password</label><div class="pw-wrap"><input type="password" id="aln-p" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()"/><button class="pw-eye" type="button" onclick="pwToggle('aln-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
         <button class="auth-mb" onclick="authLogin()">Sign In</button>
         <div id="auth-bio-row">
@@ -318,7 +319,7 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
       <div class="auth-card">
         <div class="auth-vh">Create account</div>
         <div class="auth-vs">Set up your RetireMe vault</div>
-        <div class="auth-fld"><label>Username</label><input type="text" id="arg-u" placeholder="Choose a username" autocomplete="username" autocapitalize="none" spellcheck="false"/></div>
+        <div class="auth-fld"><label>Email</label><input type="email" id="arg-u" placeholder="your@email.com" autocomplete="email" autocapitalize="none" spellcheck="false"/></div>
         <div class="auth-fld"><label>Password</label><div class="pw-wrap"><input type="password" id="arg-p" placeholder="At least 6 characters" autocomplete="new-password"/><button class="pw-eye" type="button" onclick="pwToggle('arg-p',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
         <div class="auth-fld"><label>Confirm Password</label><div class="pw-wrap"><input type="password" id="arg-p2" placeholder="Repeat your password" autocomplete="new-password" onkeydown="if(event.key==='Enter')authReg()"/><button class="pw-eye" type="button" onclick="pwToggle('arg-p2',this)" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
         <button class="auth-mb" onclick="authReg()">Create Account</button>
@@ -614,9 +615,6 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
 const UK_BH=['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-08-31','2026-12-25','2026-12-28','2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-08-30','2027-12-27','2027-12-28'];
 const ADMIN_EMAIL='vicweigler@gmail.com';
 const APP_VERSION='2.1.0';
-// Google Sign-In: set up at console.cloud.google.com → APIs & Services → Credentials
-// Add www.retire-me.co.uk as an Authorized JavaScript Origin, then paste your Client ID below
-const GOOGLE_CLIENT_ID=''; // ← paste your Client ID here
 const BONUSES={'2026':0,'2027':0,'2028':0,'2029':0,'2030':0};
 const DA={savings_main:{label:'Main Savings Account',sub:'Easy Access / Current Account',val:0},isa_investment:{label:'ISA / Investment Account',sub:'Stocks & Shares or Cash ISA',val:0},pension_pot:{label:'Personal Pension Pot',sub:'DC Pension / SIPP',val:0},premium_bonds:{label:'Premium Bonds / NS&I',sub:"NS&I Savings",val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
@@ -1238,31 +1236,136 @@ function setupSwipes(el){
   });
 }
 
-/* ──────────── GOOGLE AUTH ──────────── */
-let _gInited=false;
-function _ensureGoogleAuth(){
-  if(_gInited||!GOOGLE_CLIENT_ID||typeof google==='undefined')return;
-  google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleCredential});
-  _gInited=true;
-}
-function authGoogleLogin(){
-  if(!GOOGLE_CLIENT_ID){_aMsg('aln-msg','Google Sign-In is not configured yet.');return;}
-  if(typeof google==='undefined'){_aMsg('aln-msg','Google Sign-In unavailable — check your connection.');return;}
-  _ensureGoogleAuth();
-  google.accounts.id.prompt();
-}
-function handleGoogleCredential(response){
-  try{
-    const payload=JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
-    const email=payload.email;
-    if(!email)throw new Error('No email received');
-    const store=_aLoad();
-    if(!store[email]){store[email]={createdAt:Date.now(),googleAuth:true,webauthn:null};_aSave(store);}
-    authOpen(email);
-  }catch(e){_aMsg('aln-msg','Google Sign-In failed: '+e.message);}
-}
+/* ──────────── FIREBASE INIT ──────────── */
+firebase.initializeApp({
+  apiKey:'AIzaSyBTVDEydTgaxxn9P6Xid0yGMYeqZciEULU',
+  authDomain:'invest-in-it.firebaseapp.com',
+  projectId:'invest-in-it',
+  storageBucket:'invest-in-it.firebasestorage.app',
+  messagingSenderId:'202407923',
+  appId:'1:202407923:web:838a847ddec5cf0b2c5c86'
+});
+const _fbAuth=firebase.auth();
 
-/* ──────────── FORCE REFRESH ──────────── */
+/* ──────────── AUTH ──────────── */
+let _authUser=null;
+function _fbErr(code){
+  switch(code){
+    case 'auth/invalid-email':return 'Invalid email address.';
+    case 'auth/user-not-found':return 'No account found with that email.';
+    case 'auth/wrong-password':return 'Incorrect password.';
+    case 'auth/invalid-credential':return 'Incorrect email or password.';
+    case 'auth/email-already-in-use':return 'An account with that email already exists.';
+    case 'auth/weak-password':return 'Password must be at least 6 characters.';
+    case 'auth/too-many-requests':return 'Too many attempts. Please try again later.';
+    case 'auth/network-request-failed':return 'Network error. Check your connection.';
+    default:return 'Something went wrong. Please try again.';
+  }
+}
+function _aMsg(id,txt,cls){const e=document.getElementById(id);if(e){e.textContent=txt;e.className='auth-msg '+(cls||'err');}}
+function authShowLogin(){document.getElementById('auth-login-view').style.display='';document.getElementById('auth-reg-view').style.display='none';document.getElementById('auth-bio-setup-view').style.display='none';_aMsg('aln-msg','');}
+function authShowReg(){document.getElementById('auth-login-view').style.display='none';document.getElementById('auth-reg-view').style.display='';document.getElementById('auth-bio-setup-view').style.display='none';_aMsg('arg-msg','');}
+function authOpen(user){
+  _authUser=user;
+  document.getElementById('auth-screen').style.display='none';
+  const app=document.getElementById('app');app.style.display='flex';
+  const ul=document.getElementById('auth-user-lbl');if(ul)ul.textContent=user.displayName||user.email;
+  const ab=document.getElementById('admin-hdr-btn');if(ab)ab.style.display=(user.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase()?'':'none';
+  load();recalc();
+}
+function authLogout(){_fbAuth.signOut();}
+async function authLogin(){
+  const email=(document.getElementById('aln-u').value||'').trim();
+  const pwd=document.getElementById('aln-p').value||'';
+  if(!email||!pwd){_aMsg('aln-msg','Enter your email and password.');return;}
+  try{await _fbAuth.signInWithEmailAndPassword(email,pwd);}
+  catch(e){_aMsg('aln-msg',_fbErr(e.code));}
+}
+async function authReg(){
+  const email=(document.getElementById('arg-u').value||'').trim();
+  const pwd=document.getElementById('arg-p').value||'';
+  const pwd2=document.getElementById('arg-p2').value||'';
+  if(!email){_aMsg('arg-msg','Enter your email address.');return;}
+  if(pwd.length<6){_aMsg('arg-msg','Password must be at least 6 characters.');return;}
+  if(pwd!==pwd2){_aMsg('arg-msg','Passwords do not match.');return;}
+  try{
+    const cred=await _fbAuth.createUserWithEmailAndPassword(email,pwd);
+    _authUser=cred.user;
+    if(window.PublicKeyCredential&&location.protocol!=='file:'){
+      document.getElementById('auth-reg-view').style.display='none';
+      document.getElementById('auth-bio-setup-view').style.display='';
+    }
+  }catch(e){_aMsg('arg-msg',_fbErr(e.code));}
+}
+async function authGoogleLogin(){
+  try{await _fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());}
+  catch(e){if(e.code!=='auth/popup-closed-by-user')_aMsg('aln-msg',e.message);}
+}
+async function authSetupBio(){
+  if(!_authUser)return;
+  _aMsg('abs-msg','Waiting for biometric prompt…','ok');
+  try{
+    const challenge=crypto.getRandomValues(new Uint8Array(32));
+    const uid=crypto.getRandomValues(new Uint8Array(16));
+    const cred=await navigator.credentials.create({publicKey:{
+      challenge,rp:{name:'RetireMe',id:location.hostname},
+      user:{id:uid,name:_authUser.email,displayName:_authUser.displayName||_authUser.email},
+      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
+      timeout:60000
+    }});
+    const bioStore=JSON.parse(localStorage.getItem('rm_webauthn')||'{}');
+    const emailMap=JSON.parse(localStorage.getItem('rm_webauthn_email')||'{}');
+    bioStore[_authUser.uid]=Array.from(new Uint8Array(cred.rawId));
+    emailMap[(_authUser.email||'').toLowerCase()]=_authUser.uid;
+    localStorage.setItem('rm_webauthn',JSON.stringify(bioStore));
+    localStorage.setItem('rm_webauthn_email',JSON.stringify(emailMap));
+    authOpen(_authUser);
+  }catch(e){
+    if(e.name==='NotAllowedError')_aMsg('abs-msg','Biometric was cancelled.','err');
+    else _aMsg('abs-msg','Could not register biometric: '+e.message,'err');
+  }
+}
+function authSkipBio(){if(_authUser)authOpen(_authUser);}
+async function authBioLogin(){
+  const email=(document.getElementById('aln-u').value||'').trim();
+  if(!email){_aMsg('aln-msg','Enter your email first, then tap Face ID / Fingerprint.');return;}
+  const emailMap=JSON.parse(localStorage.getItem('rm_webauthn_email')||'{}');
+  const uid=emailMap[email.toLowerCase()];
+  const bioStore=JSON.parse(localStorage.getItem('rm_webauthn')||'{}');
+  if(!uid||!bioStore[uid]){_aMsg('aln-msg','No biometric set up for this account. Use password to sign in.');return;}
+  _aMsg('aln-msg','Waiting for biometric…','ok');
+  try{
+    const credId=new Uint8Array(bioStore[uid]);
+    const challenge=crypto.getRandomValues(new Uint8Array(32));
+    await navigator.credentials.get({publicKey:{
+      challenge,
+      allowCredentials:[{type:'public-key',id:credId,transports:['internal']}],
+      userVerification:'required',timeout:60000
+    }});
+    const user=_fbAuth.currentUser;
+    if(user&&user.uid===uid){authOpen(user);}
+    else{_aMsg('aln-msg','Session expired. Please sign in with your email and password.','err');}
+  }catch(e){
+    if(e.name==='NotAllowedError')_aMsg('aln-msg','Biometric was cancelled.','err');
+    else _aMsg('aln-msg','Biometric sign-in failed.','err');
+  }
+}
+function checkAuth(){
+  if(!window.PublicKeyCredential||location.protocol==='file:'){
+    const row=document.getElementById('auth-bio-row');if(row)row.style.display='none';
+  }
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  _fbAuth.onAuthStateChanged(user=>{
+    if(user){authOpen(user);}
+    else{
+      document.getElementById('app').style.display='none';
+      document.getElementById('auth-screen').style.display='flex';
+      authShowLogin();
+    }
+  });
+}
 async function forceRefresh(btn){
   if(btn){btn.textContent='⏳ Updating…';btn.disabled=true;}
   try{
@@ -1276,249 +1379,18 @@ async function forceRefresh(btn){
   location.reload();
 }
 
-/* ──────────── AUTH ──────────── */
-const _ASTORE='retireme_auth_v1',_ASESS='retireme_sess_v1',_ASALT='RetireMe.Vault.2026.Secure';
-let _authU=null;
-function _sha256js(msg){
-  var rr=function(w,b){return(w>>>b)|(w<<(32-b));};
-  var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
-  var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
-         0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
-         0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
-         0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
-         0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
-         0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
-         0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
-         0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
-  var bytes=[];
-  for(var i=0;i<msg.length;i++){var c=msg.charCodeAt(i);if(c<0x80)bytes.push(c);else if(c<0x800)bytes.push((c>>6)|0xC0,(c&0x3F)|0x80);else bytes.push((c>>12)|0xE0,((c>>6)&0x3F)|0x80,(c&0x3F)|0x80);}
-  var bitLen=bytes.length*8;bytes.push(0x80);while(bytes.length%64!==56)bytes.push(0);
-  bytes.push(0,0,0,0,(bitLen>>>24)&0xff,(bitLen>>>16)&0xff,(bitLen>>>8)&0xff,bitLen&0xff);
-  for(var blk=0;blk<bytes.length;blk+=64){
-    var W=[];
-    for(var i=0;i<16;i++)W[i]=(bytes[blk+i*4]<<24)|(bytes[blk+i*4+1]<<16)|(bytes[blk+i*4+2]<<8)|bytes[blk+i*4+3];
-    for(var i=16;i<64;i++){var s0=rr(W[i-15],7)^rr(W[i-15],18)^(W[i-15]>>>3);var s1=rr(W[i-2],17)^rr(W[i-2],19)^(W[i-2]>>>10);W[i]=(W[i-16]+s0+W[i-7]+s1)|0;}
-    var a=H[0],bb=H[1],cc=H[2],dd=H[3],ee=H[4],ff=H[5],gg=H[6],hh=H[7];
-    for(var i=0;i<64;i++){var S1=rr(ee,6)^rr(ee,11)^rr(ee,25);var ch=(ee&ff)^(~ee&gg);var t1=(hh+S1+ch+K[i]+W[i])|0;var S0=rr(a,2)^rr(a,13)^rr(a,22);var maj=(a&bb)^(a&cc)^(bb&cc);var t2=(S0+maj)|0;hh=gg;gg=ff;ff=ee;ee=(dd+t1)|0;dd=cc;cc=bb;bb=a;a=(t1+t2)|0;}
-    H[0]=(H[0]+a)|0;H[1]=(H[1]+bb)|0;H[2]=(H[2]+cc)|0;H[3]=(H[3]+dd)|0;H[4]=(H[4]+ee)|0;H[5]=(H[5]+ff)|0;H[6]=(H[6]+gg)|0;H[7]=(H[7]+hh)|0;
-  }
-  return H.map(function(n){return('00000000'+(n>>>0).toString(16)).slice(-8);}).join('');
-}
-async function _aHash(u,p){
-  const str=u+':'+p+':'+_ASALT;
-  if(window.crypto&&window.crypto.subtle){
-    const d=new TextEncoder().encode(str);const b=await crypto.subtle.digest('SHA-256',d);
-    return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
-  }
-  return _sha256js(str);
-}
-function _aLoad(){try{return JSON.parse(localStorage.getItem(_ASTORE)||'{}');}catch(e){return{};}}
-function _aSave(d){localStorage.setItem(_ASTORE,JSON.stringify(d));}
-function _aMsg(id,txt,cls){const e=document.getElementById(id);if(e){e.textContent=txt;e.className='auth-msg '+(cls||'err');}}
-function authShowLogin(){document.getElementById('auth-login-view').style.display='';document.getElementById('auth-reg-view').style.display='none';document.getElementById('auth-bio-setup-view').style.display='none';_aMsg('aln-msg','');}
-function authShowReg(){document.getElementById('auth-login-view').style.display='none';document.getElementById('auth-reg-view').style.display='';document.getElementById('auth-bio-setup-view').style.display='none';_aMsg('arg-msg','');}
-function authOpen(username){
-  _authU=username;
-  localStorage.setItem(_ASESS,JSON.stringify({username,loginAt:Date.now()}));
-  document.getElementById('auth-screen').style.display='none';
-  const app=document.getElementById('app');app.style.display='flex';
-  const ul=document.getElementById('auth-user-lbl');if(ul)ul.textContent=username;
-  const ab=document.getElementById('admin-hdr-btn');if(ab)ab.style.display=username.toLowerCase()===ADMIN_EMAIL.toLowerCase()?'':'none';
-  load();recalc();
-  // Show any queued admin messages
-  const store=_aLoad();
-  if(store[username]&&store[username].messages&&store[username].messages.length){
-    showMsgToast(store[username].messages[store[username].messages.length-1]);
-    store[username].messages=[];
-    _aSave(store);
-  }
-}
-function authLogout(){
-  localStorage.removeItem(_ASESS);_authU=null;
-  document.getElementById('app').style.display='none';
-  document.getElementById('auth-screen').style.display='flex';
-  const p=document.getElementById('aln-p');if(p)p.value='';
-  authShowLogin();
-}
-async function authLogin(){
-  const u=(document.getElementById('aln-u').value||'').trim();
-  const p=document.getElementById('aln-p').value||'';
-  if(!u||!p){_aMsg('aln-msg','Enter your username and password.');return;}
-  try{
-    const store=_aLoad();
-    if(!store[u]){_aMsg('aln-msg','No account found for that username.');return;}
-    const hash=await _aHash(u,p);
-    if(store[u].hash!==hash){_aMsg('aln-msg','Incorrect password. Try again.');return;}
-    authOpen(u);
-  }catch(e){_aMsg('aln-msg','Sign in failed: '+e.message);}
-}
-async function authReg(){
-  const u=(document.getElementById('arg-u').value||'').trim();
-  const p=document.getElementById('arg-p').value||'';
-  const p2=document.getElementById('arg-p2').value||'';
-  if(u.length<4){_aMsg('arg-msg','Username must be at least 4 characters.');return;}
-  if(p.length<6){_aMsg('arg-msg','Password must be at least 6 characters.');return;}
-  if(p!==p2){_aMsg('arg-msg','Passwords do not match.');return;}
-  try{
-  const store=_aLoad();
-  if(store[u]){_aMsg('arg-msg','That username is already taken.');return;}
-  const hash=await _aHash(u,p);
-  store[u]={hash,createdAt:Date.now(),webauthn:null};
-  _aSave(store);_authU=u;
-  if(window.PublicKeyCredential&&location.protocol!=='file:'){
-    document.getElementById('auth-reg-view').style.display='none';
-    document.getElementById('auth-bio-setup-view').style.display='';
-  }else{authOpen(u);}
-  }catch(e){_aMsg('arg-msg','Registration failed: '+e.message);}
-}
-async function authSetupBio(){
-  if(!_authU)return;
-  _aMsg('abs-msg','Waiting for biometric prompt…','ok');
-  try{
-    const challenge=crypto.getRandomValues(new Uint8Array(32));
-    const uid=crypto.getRandomValues(new Uint8Array(16));
-    const cred=await navigator.credentials.create({publicKey:{
-      challenge,rp:{name:'RetireMe',id:location.hostname},
-      user:{id:uid,name:_authU,displayName:_authU},
-      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
-      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
-      timeout:60000
-    }});
-    const store=_aLoad();
-    if(store[_authU])store[_authU].webauthn=Array.from(new Uint8Array(cred.rawId));
-    _aSave(store);authOpen(_authU);
-  }catch(e){
-    if(e.name==='NotAllowedError')_aMsg('abs-msg','Biometric was cancelled.','err');
-    else _aMsg('abs-msg','Could not register biometric: '+e.message,'err');
-  }
-}
-function authSkipBio(){authOpen(_authU);}
-async function authBioLogin(){
-  const u=(document.getElementById('aln-u').value||'').trim();
-  if(!u){_aMsg('aln-msg','Enter your username first, then tap Face ID / Fingerprint.');return;}
-  const store=_aLoad();
-  if(!store[u]){_aMsg('aln-msg','No account found for "'+u+'".');return;}
-  if(!store[u].webauthn){_aMsg('aln-msg','No biometric set up for this account. Use password to sign in.');return;}
-  const credId=new Uint8Array(store[u].webauthn);
-  _aMsg('aln-msg','Waiting for biometric…','ok');
-  try{
-    const challenge=crypto.getRandomValues(new Uint8Array(32));
-    await navigator.credentials.get({publicKey:{
-      challenge,
-      allowCredentials:[{type:'public-key',id:credId,transports:['internal']}],
-      userVerification:'required',timeout:60000
-    }});
-    authOpen(u);
-  }catch(e){
-    if(e.name==='NotAllowedError')_aMsg('aln-msg','Biometric was cancelled.','err');
-    else _aMsg('aln-msg','Biometric sign-in failed.','err');
-  }
-}
-function checkAuth(){
-  if(!window.PublicKeyCredential||location.protocol==='file:'){
-    const row=document.getElementById('auth-bio-row');
-    if(row)row.style.display='none';
-  }
-  try{
-    const sess=JSON.parse(localStorage.getItem(_ASESS)||'null');
-    if(sess&&sess.username){
-      const store=_aLoad();
-      if(store[sess.username]){authOpen(sess.username);return;}
-      localStorage.removeItem(_ASESS);
-    }
-  }catch(e){}
-  document.getElementById('app').style.display='none';
-  document.getElementById('auth-screen').style.display='flex';
-}
 /* ──────────── ADMIN PANEL ──────────── */
 function openAdminPanel(){document.getElementById('admin-overlay').style.display='block';renderAdminUsers();}
 function closeAdminPanel(){document.getElementById('admin-overlay').style.display='none';}
 function renderAdminUsers(){
-  const store=_aLoad();
-  const users=Object.keys(store).filter(u=>u.toLowerCase()!==ADMIN_EMAIL.toLowerCase());
   const el=document.getElementById('adm-users-list');
   if(!el)return;
-  if(!users.length){el.innerHTML='<div style="text-align:center;color:#484f58;font-size:13px;padding:24px;">No other accounts registered yet.</div>';return;}
-  window._admUsers=users;
-  el.innerHTML=users.map((u,i)=>{
-    const ua=store[u];
-    const created=ua.createdAt?new Date(ua.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Unknown';
-    const hasBio=ua.webauthn?'Biometrics on':'No biometrics';
-    const msgCount=ua.messages&&ua.messages.length?` · ${ua.messages.length} msg pending`:'';
-    return `<div class="adm-user-row">
-      <div class="adm-u-name">&#128100; ${u}</div>
-      <div class="adm-u-meta">Joined ${created} &middot; ${hasBio}${msgCount}</div>
-      <div class="adm-u-btns">
-        <button class="adm-btn purple" onclick="admToggleReset(${i})">&#128273; Reset Password</button>
-        <button class="adm-btn green" onclick="admToggleMsg(${i})">&#9993; Message</button>
-        <button class="adm-btn red" onclick="admDeleteUser(${i})">&#10005; Remove</button>
-      </div>
-      <div id="adm-rf-${i}" style="display:none" class="adm-form">
-        <label>New password for ${u}</label>
-        <input type="password" id="adm-rp-${i}" placeholder="Min 6 characters"/>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button class="adm-btn green" onclick="admDoReset(${i})">Save Password</button>
-          <button class="adm-btn" onclick="document.getElementById('adm-rf-${i}').style.display='none'">Cancel</button>
-        </div>
-        <div id="adm-rf-msg-${i}" style="font-size:12px;margin-top:8px;"></div>
-      </div>
-      <div id="adm-mf-${i}" style="display:none" class="adm-form">
-        <label>Message to ${u} &mdash; shown at next login</label>
-        <textarea id="adm-mt-${i}" placeholder="Type your message\u2026"></textarea>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button class="adm-btn green" onclick="admDoMsg(${i})">Send Message</button>
-          <button class="adm-btn" onclick="document.getElementById('adm-mf-${i}').style.display='none'">Cancel</button>
-        </div>
-        <div id="adm-mf-msg-${i}" style="font-size:12px;margin-top:8px;"></div>
-      </div>
-    </div>`;
-  }).join('');
-}
-function admToggleReset(i){
-  const f=document.getElementById('adm-rf-'+i),m=document.getElementById('adm-mf-'+i);
-  if(m)m.style.display='none';if(f)f.style.display=f.style.display==='none'?'block':'none';
-}
-function admToggleMsg(i){
-  const f=document.getElementById('adm-mf-'+i),r=document.getElementById('adm-rf-'+i);
-  if(r)r.style.display='none';if(f)f.style.display=f.style.display==='none'?'block':'none';
-}
-async function admDoReset(i){
-  const u=window._admUsers&&window._admUsers[i];if(!u)return;
-  const inp=document.getElementById('adm-rp-'+i);
-  const pwd=inp?inp.value:'';
-  const msgEl=document.getElementById('adm-rf-msg-'+i);
-  if(pwd.length<6){if(msgEl){msgEl.style.color='#f85149';msgEl.textContent='Password must be at least 6 characters.';}return;}
-  const store=_aLoad();
-  if(!store[u])return;
-  store[u].hash=await _aHash(u,pwd);
-  store[u].webauthn=null;
-  _aSave(store);
-  if(inp)inp.value='';
-  if(msgEl){msgEl.style.color='#00d17a';msgEl.textContent='Password reset. Biometrics cleared for security.';}
-  setTimeout(()=>{renderAdminUsers();},2000);
-}
-function admDoMsg(i){
-  const u=window._admUsers&&window._admUsers[i];if(!u)return;
-  const ta=document.getElementById('adm-mt-'+i);
-  const txt=ta?ta.value.trim():'';
-  const msgEl=document.getElementById('adm-mf-msg-'+i);
-  if(!txt){if(msgEl){msgEl.style.color='#f85149';msgEl.textContent='Enter a message.';}return;}
-  const store=_aLoad();
-  if(!store[u])return;
-  if(!store[u].messages)store[u].messages=[];
-  store[u].messages.push({text:txt,sent:Date.now()});
-  _aSave(store);
-  if(ta)ta.value='';
-  if(msgEl){msgEl.style.color='#00d17a';msgEl.textContent='Message queued \u2014 will show at their next login.';}
-  setTimeout(()=>{renderAdminUsers();},2000);
-}
-function admDeleteUser(i){
-  const u=window._admUsers&&window._admUsers[i];if(!u)return;
-  if(!confirm('Permanently delete account "'+u+'"?\n\nThis cannot be undone.'))return;
-  const store=_aLoad();
-  delete store[u];
-  _aSave(store);
-  renderAdminUsers();
+  el.innerHTML=`<div style="padding:16px;background:var(--bg);border-radius:10px;border:1px solid var(--border);text-align:center;">
+    <div style="font-size:28px;margin-bottom:10px;">&#9881;</div>
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">User management via Firebase</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.5;">Authentication is now handled by Firebase. Manage users, reset passwords and view sign-in activity in the Firebase Console.</div>
+    <a href="https://console.firebase.google.com/project/invest-in-it/authentication/users" target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;border-radius:9px;background:linear-gradient(135deg,#00d17a,#00a85e);color:#0d1117;font-size:13px;font-weight:700;text-decoration:none;">Open Firebase Console →</a>
+  </div>`;
 }
 function showMsgToast(msg){
   const t=document.getElementById('msg-toast'),txt=document.getElementById('msg-toast-text');
@@ -1577,7 +1449,6 @@ async function pwaInstall(){
 setInterval(updateCountdown,1000);
 pwaSetup();
 checkAuth();
-window.addEventListener('load',function(){if(typeof google!=='undefined')_ensureGoogleAuth();});
 </script>
 
 <!-- Admin Panel Overlay -->
