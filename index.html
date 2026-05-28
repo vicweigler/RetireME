@@ -13,6 +13,7 @@
 <meta name="theme-color" content="#0d1117"/>
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
 <title>RetireMe</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
   --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--border:#21262d;--border2:#30363d;
@@ -303,6 +304,11 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
             Use Face ID / Fingerprint
           </button>
         </div>
+        <div class="auth-div"><span>or</span></div>
+        <button class="auth-bb" onclick="authGoogleLogin()">
+          <svg viewBox="0 0 48 48" width="20" height="20" style="flex-shrink:0"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+          Sign in with Google
+        </button>
         <div id="aln-msg" class="auth-msg"></div>
       </div>
       <div class="auth-sw">No account? <a onclick="authShowReg()">Create one</a></div>
@@ -568,6 +574,16 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
       </div>
       <button class="btn-danger" onclick="clearData()">🗑 Clear All Saved Data</button>
     </div>
+    <div class="card">
+      <div class="card-eyebrow">App Info</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);">RetireMe</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;">Version <span id="app-version-lbl">—</span></div>
+        </div>
+        <button onclick="forceRefresh(this)" style="padding:8px 14px;font-size:12px;font-weight:600;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);cursor:pointer;font-family:inherit;">🔄 Check for Update</button>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -597,6 +613,10 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
 <script>
 const UK_BH=['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-08-31','2026-12-25','2026-12-28','2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-08-30','2027-12-27','2027-12-28'];
 const ADMIN_EMAIL='vicweigler@gmail.com';
+const APP_VERSION='2.1.0';
+// Google Sign-In: set up at console.cloud.google.com → APIs & Services → Credentials
+// Add www.retire-me.co.uk as an Authorized JavaScript Origin, then paste your Client ID below
+const GOOGLE_CLIENT_ID=''; // ← paste your Client ID here
 const BONUSES={'2026':0,'2027':0,'2028':0,'2029':0,'2030':0};
 const DA={savings_main:{label:'Main Savings Account',sub:'Easy Access / Current Account',val:0},isa_investment:{label:'ISA / Investment Account',sub:'Stocks & Shares or Cash ISA',val:0},pension_pot:{label:'Personal Pension Pot',sub:'DC Pension / SIPP',val:0},premium_bonds:{label:'Premium Bonds / NS&I',sub:"NS&I Savings",val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
@@ -713,6 +733,7 @@ function applyDOM(){
   sv('r-prior26',p26||'');
   const lp26=document.getElementById('r-prior26-v');if(lp26)lp26.textContent='£'+p26.toLocaleString();
   document.getElementById('device-id').textContent=devId();
+  const vl=document.getElementById('app-version-lbl');if(vl)vl.textContent=APP_VERSION;
   const tog=document.getElementById('theme-toggle');if(tog)tog.checked=document.body.classList.contains('light-mode');
 }
 function sv(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
@@ -1217,6 +1238,44 @@ function setupSwipes(el){
   });
 }
 
+/* ──────────── GOOGLE AUTH ──────────── */
+let _gInited=false;
+function _ensureGoogleAuth(){
+  if(_gInited||!GOOGLE_CLIENT_ID||typeof google==='undefined')return;
+  google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleCredential});
+  _gInited=true;
+}
+function authGoogleLogin(){
+  if(!GOOGLE_CLIENT_ID){_aMsg('aln-msg','Google Sign-In is not configured yet.');return;}
+  if(typeof google==='undefined'){_aMsg('aln-msg','Google Sign-In unavailable — check your connection.');return;}
+  _ensureGoogleAuth();
+  google.accounts.id.prompt();
+}
+function handleGoogleCredential(response){
+  try{
+    const payload=JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    const email=payload.email;
+    if(!email)throw new Error('No email received');
+    const store=_aLoad();
+    if(!store[email]){store[email]={createdAt:Date.now(),googleAuth:true,webauthn:null};_aSave(store);}
+    authOpen(email);
+  }catch(e){_aMsg('aln-msg','Google Sign-In failed: '+e.message);}
+}
+
+/* ──────────── FORCE REFRESH ──────────── */
+async function forceRefresh(btn){
+  if(btn){btn.textContent='⏳ Updating…';btn.disabled=true;}
+  try{
+    const keys=await caches.keys();
+    await Promise.all(keys.map(k=>caches.delete(k)));
+    if(navigator.serviceWorker&&navigator.serviceWorker.controller){
+      navigator.serviceWorker.controller.postMessage('SKIP_WAITING');
+      await new Promise(r=>setTimeout(r,400));
+    }
+  }catch(e){}
+  location.reload();
+}
+
 /* ──────────── AUTH ──────────── */
 const _ASTORE='retireme_auth_v1',_ASESS='retireme_sess_v1',_ASALT='RetireMe.Vault.2026.Secure';
 let _authU=null;
@@ -1518,6 +1577,7 @@ async function pwaInstall(){
 setInterval(updateCountdown,1000);
 pwaSetup();
 checkAuth();
+window.addEventListener('load',function(){if(typeof google!=='undefined')_ensureGoogleAuth();});
 </script>
 
 <!-- Admin Panel Overlay -->
