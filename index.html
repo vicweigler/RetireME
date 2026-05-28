@@ -15,6 +15,7 @@
 <title>RetireMe</title>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <style>
 :root{
   --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--border:#21262d;--border2:#30363d;
@@ -579,7 +580,7 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
     </div>
     <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
       <div class="card-eyebrow">Data &amp; Backup</div>
-      <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:12px;">✅ All values are <strong style="color:#e6edf3;">automatically saved</strong> locally and restored every time you open the app.<br/><br/><strong style="color:#e6edf3;">Save</strong> exports an encrypted backup only this app can read. <strong style="color:#e6edf3;">Import</strong> restores from any previous backup.</div>
+      <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:12px;">☁️ All values are <strong style="color:#e6edf3;">automatically synced to your account</strong> via the cloud and available on any device you sign in to.<br/><br/><strong style="color:#e6edf3;">Save</strong> exports an encrypted backup file. <strong style="color:#e6edf3;">Import</strong> restores from any previous backup.</div>
       <input type="file" id="rm-import" accept=".rme" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" onchange="importData(this)"/>
       <div style="display:flex;gap:8px;margin-top:0;">
         <button style="flex:1;padding:10px 8px;font-size:12px;font-weight:600;background:linear-gradient(135deg,#2ea043,#238636);color:#e6edf3;border:none;border-radius:8px;cursor:pointer;font-family:inherit;" onclick="exportData()">⬇ Save Backup</button>
@@ -651,19 +652,33 @@ function toggleTheme(isLight){
 }
 (function(){const t=localStorage.getItem('rm_theme');if(t==='light'){document.body.classList.add('light-mode');}})();
 
-function load(){
-  // Check for data restore via URL hash (transfer from VS Code browser)
+async function load(){
+  // Check for data restore via URL hash
   try{
     const h=location.hash;
     if(h.startsWith('#restore=')){
       const encoded=h.slice(9);
       const json=decodeURIComponent(escape(atob(encoded)));
       const imported=JSON.parse(json);
-      if(imported&&typeof imported==='object'){S={...S,...imported};localStorage.setItem('retireme_v3',JSON.stringify(S));}
+      if(imported&&typeof imported==='object'){S={...S,...imported};}
       history.replaceState(null,'',location.pathname+location.search);
     }
   }catch(e){}
-  try{const r=localStorage.getItem('retireme_v3');if(r){const p=JSON.parse(r);S={...S,...p};}}catch(e){}
+  // Load from Firestore (source of truth), fall back to localStorage
+  try{
+    const snap=await _fsDoc().get();
+    if(snap.exists){
+      S={...S,...snap.data()};
+      try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}
+    } else {
+      // First time on Firestore — migrate any existing localStorage data up
+      const r=localStorage.getItem('retireme_v3');
+      if(r){try{const p=JSON.parse(r);S={...S,...p};_fsDoc().set(S).catch(()=>{});}catch(e){}}
+    }
+  }catch(e){
+    // Offline or Firestore unavailable — use localStorage cache
+    try{const r=localStorage.getItem('retireme_v3');if(r){const p=JSON.parse(r);S={...S,...p};}}catch(e2){}
+  }
   if(!S.assets)S.assets={};
   if(!S.customItems)S.customItems={};
   if(!S.hiddenAssets)S.hiddenAssets=[];
@@ -679,8 +694,19 @@ function load(){
   applyDOM();
 }
 let _st;
-function save(){clearTimeout(_st);_st=setTimeout(()=>{try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}},500);}
-function clearData(){if(!confirm('Clear all saved data?'))return;localStorage.removeItem('retireme_v3');location.reload();}
+function save(){
+  clearTimeout(_st);
+  _st=setTimeout(()=>{
+    try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}
+    if(_authUser){_fsDoc().set(S).catch(()=>{});}
+  },500);
+}
+function clearData(){
+  if(!confirm('Clear all saved data?'))return;
+  localStorage.removeItem('retireme_v3');
+  if(_authUser){_fsDoc().delete().catch(()=>{});}
+  location.reload();
+}
 const _EPASS='RetireMe.Vault.Export.2026.XK9mVz';const _ESALT=new TextEncoder().encode('RetireMe.Export.Salt.2026');
 async function _exportKey(usage){const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(_EPASS),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:_ESALT,iterations:100000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,[usage]);}
 async function exportData(){
@@ -714,6 +740,7 @@ async function importData(input){
     if(imported.bonuses){for(const y in imported.bonuses){const bv=imported.bonuses[y];if(bv!==null&&typeof bv==='object'){imported.bonuses[y]=(bv.mrt||0)+(bv.yt||0);}}}
     S={...S,...imported};
     localStorage.setItem('retireme_v3',JSON.stringify(S));
+    if(_authUser){_fsDoc().set(S).catch(()=>{});}
     input.value='';
     applyDOM();recalc();
     alert('✅ Backup restored successfully!');
@@ -1258,6 +1285,8 @@ firebase.initializeApp({
   appId:'1:202407923:web:838a847ddec5cf0b2c5c86'
 });
 const _fbAuth=firebase.auth();
+const _fbDb=firebase.firestore();
+function _fsDoc(){return _fbDb.collection('users').doc(_authUser.uid);}
 
 /* ──────────── AUTH ──────────── */
 let _authUser=null;
@@ -1279,13 +1308,13 @@ function _fbErr(code){
 function _aMsg(id,txt,cls){const e=document.getElementById(id);if(e){e.textContent=txt;e.className='auth-msg '+(cls||'err');}}
 function authShowLogin(){document.getElementById('auth-login-view').style.display='';document.getElementById('auth-reg-view').style.display='none';document.getElementById('auth-bio-setup-view').style.display='none';_aMsg('aln-msg','');}
 function authShowReg(){document.getElementById('auth-login-view').style.display='none';document.getElementById('auth-reg-view').style.display='';document.getElementById('auth-bio-setup-view').style.display='none';_aMsg('arg-msg','');}
-function authOpen(user){
+async function authOpen(user){
   _authUser=user;
   document.getElementById('auth-screen').style.display='none';
   const app=document.getElementById('app');app.style.display='flex';
   const ul=document.getElementById('auth-user-lbl');if(ul)ul.textContent=user.displayName||user.email;
   const ab=document.getElementById('admin-hdr-btn');if(ab)ab.style.display=(user.email||'').toLowerCase()===ADMIN_EMAIL.toLowerCase()?'':'none';
-  load();recalc();
+  await load();recalc();
 }
 function authLogout(){_fbAuth.signOut();}
 async function authLogin(){
