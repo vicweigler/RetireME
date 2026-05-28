@@ -27,8 +27,8 @@ body.light-mode{
   --green:#0a7c45;--green-bg:rgba(10,124,69,0.10);--green-border:rgba(10,124,69,0.35);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html{height:100%;height:-webkit-fill-available;background:var(--bg);overscroll-behavior:none;touch-action:none;}
-body{height:100%;min-height:-webkit-fill-available;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;overflow:hidden;overscroll-behavior:none;touch-action:none;}
+html{height:100%;height:-webkit-fill-available;background:var(--bg);overscroll-behavior:none;}
+body{height:100%;min-height:-webkit-fill-available;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;overflow:hidden;overscroll-behavior:none;}
 #app{display:flex;flex-direction:column;height:100%;min-height:-webkit-fill-available;padding-top:env(safe-area-inset-top,0px);}
 #header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 18px 10px;flex-shrink:0;}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
@@ -220,7 +220,7 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
 #auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:24px;padding-top:max(env(safe-area-inset-top,0px),24px);overflow-y:auto;}
 .auth-wrap{width:100%;max-width:340px;}
 .auth-brand{text-align:center;margin-bottom:28px;}
-.auth-brand-icon{width:68px;height:68px;background:linear-gradient(135deg,#00d17a,#00a85e);border-radius:18px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 40px rgba(0,209,122,0.2);}
+.auth-brand-icon{width:80px;height:80px;border-radius:20px;margin:0 auto 14px;overflow:hidden;box-shadow:0 0 40px rgba(0,209,122,0.25);}
 .auth-brand-name{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-0.5px;}
 .auth-brand-tag{font-size:12px;color:var(--text3);margin-top:4px;}
 .auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:22px 20px;}
@@ -287,7 +287,7 @@ input:checked+.theme-slider::before{transform:translateX(20px);}
 <div id="auth-screen">
   <div class="auth-wrap">
     <div class="auth-brand">
-      <div class="auth-brand-icon">🏦</div>
+      <div class="auth-brand-icon"><img src="apple-touch-icon.png" alt="RetireMe" style="width:100%;height:100%;display:block;"/></div>
       <div class="auth-brand-name">RetireMe</div>
       <div class="auth-brand-tag">Your personal retirement vault</div>
     </div>
