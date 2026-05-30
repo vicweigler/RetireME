@@ -284,6 +284,9 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
 .pwa-text-title{font-size:13px;font-weight:700;color:var(--text);}
 .pwa-text-sub{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4;}
 .pwa-install-btn{background:linear-gradient(135deg,#00d17a,#00a85e);border:none;border-radius:8px;color:#0d1117;font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.auth-install-btn{display:none;align-items:center;justify-content:center;gap:8px;margin-top:14px;width:100%;padding:11px 16px;background:rgba(0,209,122,0.07);border:1px solid rgba(0,209,122,0.2);border-radius:10px;color:var(--green);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.auth-install-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+#auth-ios-hint{display:none;margin-top:10px;background:rgba(0,209,122,0.05);border:1px solid rgba(0,209,122,0.15);border-radius:10px;padding:12px 14px;}
 </style>
 </head>
 <body>
@@ -320,6 +323,14 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
       </div>
       <div class="auth-sw">Don't have an account? <a onclick="authShowReg()">Register</a></div>
       <div class="auth-disclaimer">For your eyes only. All data encrypted.</div>
+      <button id="auth-install-btn" class="auth-install-btn" onclick="authPwaInstall()" aria-label="Install app">
+        <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+        <span id="auth-install-label">Add to Home Screen</span>
+      </button>
+      <div id="auth-ios-hint">
+        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:7px;">Install on iPhone / iPad:</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.7;">1&#46; Tap <b style="color:var(--text)">Share &#8593;</b> in Safari's toolbar<br>2&#46; Scroll &amp; tap <b style="color:var(--text)">&ldquo;Add to Home Screen&rdquo;</b><br>3&#46; Tap <b style="color:var(--text)">Add</b></div>
+      </div>
     </div>
     <!-- Register View -->
     <div id="auth-reg-view" style="display:none">
@@ -627,7 +638,7 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
 <script>
 const UK_BH=['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-08-31','2026-12-25','2026-12-28','2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-08-30','2027-12-27','2027-12-28'];
 const ADMIN_EMAIL='vicweigler@gmail.com';
-const APP_VERSION='2.3.0';
+const APP_VERSION='2.4.0';
 const BONUSES={'2026':0,'2027':0,'2028':0,'2029':0,'2030':0};
 const DA={savings_main:{label:'Main Savings Account',sub:'Easy Access / Current Account',val:0},isa_investment:{label:'ISA / Investment Account',sub:'Stocks & Shares or Cash ISA',val:0},pension_pot:{label:'Personal Pension Pot',sub:'DC Pension / SIPP',val:0},premium_bonds:{label:'Premium Bonds / NS&I',sub:"NS&I Savings",val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
@@ -1481,19 +1492,43 @@ function pwaSetup(){
   const heroImg=document.getElementById('pwa-hero-img');if(heroImg)heroImg.src='icon.png';
   function showTrigger(){const b=document.getElementById('pwa-trigger-btn');if(b)b.style.display='block';}
   function showSection(){const s=document.getElementById('pwa-install-section');if(s)s.style.display='block';}
-  // Already installed — show section directly
+  function showAuthBtn(label){const b=document.getElementById('auth-install-btn');if(b){b.style.display='flex';const l=document.getElementById('auth-install-label');if(l&&label)l.textContent=label;}}
+  // Already installed — hide auth button, show in-app section
   if(('standalone' in navigator&&navigator.standalone)||window.matchMedia('(display-mode:standalone)').matches){
     showSection();
     const r=document.getElementById('pwa-installed-row');if(r)r.style.display='flex';
     if(note)note.style.display='none';return;
   }
-  // iOS Safari — pre-fill ios row, show trigger button only
   const isIOS=/ipad|iphone|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+  const isAndroid=/android/i.test(navigator.userAgent);
+  // iOS Safari — show auth button immediately
   if(isIOS){
     const r=document.getElementById('pwa-ios-row');if(r)r.style.display='flex';
-    showTrigger();return;
+    showTrigger();
+    showAuthBtn('Add to Home Screen · iPhone / iPad');
+    return;
   }
-  // Android / Chrome — wait for prompt, then show trigger
+  // Android — show auth button immediately; activate install when prompt ready
+  if(isAndroid){
+    showAuthBtn('Install App');
+    window.addEventListener('beforeinstallprompt',e=>{
+      e.preventDefault();_pwaPrompt=e;
+      const r=document.getElementById('pwa-android-row');if(r)r.style.display='flex';
+      if(note)note.style.display='none';
+      showTrigger();
+    });
+    window.addEventListener('appinstalled',()=>{
+      _pwaPrompt=null;
+      const b=document.getElementById('pwa-trigger-btn');if(b)b.style.display='none';
+      const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';
+      showSection();
+      const ra=document.getElementById('pwa-android-row');if(ra)ra.style.display='none';
+      const ri=document.getElementById('pwa-installed-row');if(ri)ri.style.display='flex';
+      if(note)note.style.display='none';
+    });
+    return;
+  }
+  // Desktop Chrome — still capture prompt if criteria met
   window.addEventListener('beforeinstallprompt',e=>{
     e.preventDefault();_pwaPrompt=e;
     const r=document.getElementById('pwa-android-row');if(r)r.style.display='flex';
@@ -1508,6 +1543,21 @@ function pwaSetup(){
     const ri=document.getElementById('pwa-installed-row');if(ri)ri.style.display='flex';
     if(note)note.style.display='none';
   });
+
+async function authPwaInstall(){
+  const isIOS=/ipad|iphone|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+  if(isIOS){
+    const h=document.getElementById('auth-ios-hint');
+    if(h)h.style.display=h.style.display==='block'?'none':'block';
+    return;
+  }
+  if(!_pwaPrompt)return;
+  _pwaPrompt.prompt();
+  const{outcome}=await _pwaPrompt.userChoice;
+  if(outcome==='accepted'){
+    _pwaPrompt=null;
+    const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';
+  }
 }
 async function pwaInstall(){
   if(!_pwaPrompt)return;
