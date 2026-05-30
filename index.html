@@ -1543,7 +1543,7 @@ function pwaSetup(){
     const ri=document.getElementById('pwa-installed-row');if(ri)ri.style.display='flex';
     if(note)note.style.display='none';
   });
-
+}
 async function authPwaInstall(){
   const isIOS=/ipad|iphone|ipod/i.test(navigator.userAgent)&&!window.MSStream;
   if(isIOS){
