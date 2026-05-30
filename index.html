@@ -1548,10 +1548,14 @@ async function authPwaInstall(){
   const isIOS=/ipad|iphone|ipod/i.test(navigator.userAgent)&&!window.MSStream;
   if(isIOS){
     const h=document.getElementById('auth-ios-hint');
-    if(h)h.style.display=h.style.display==='block'?'none':'block';
+    if(h)h.style.display=getComputedStyle(h).display==='none'?'block':'none';
     return;
   }
-  if(!_pwaPrompt)return;
+  if(!_pwaPrompt){
+    const ab=document.getElementById('auth-install-btn');
+    if(ab){const orig=ab.innerHTML;ab.innerHTML='<span>⏳ One moment…</span>';setTimeout(()=>{ab.innerHTML=orig;},1800);}
+    return;
+  }
   _pwaPrompt.prompt();
   const{outcome}=await _pwaPrompt.userChoice;
   if(outcome==='accepted'){
