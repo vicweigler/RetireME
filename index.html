@@ -13,6 +13,8 @@
 <meta name="theme-color" content="#0d1117"/>
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
 <title>RetireMe</title>
+<!-- Capture install prompt as early as possible — Android/Chrome fires it before the page is interactive -->
+<script>window.__pwaInstallPrompt=null;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__pwaInstallPrompt=e;});</script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -1493,51 +1495,34 @@ function pwaSetup(){
   function showTrigger(){const b=document.getElementById('pwa-trigger-btn');if(b)b.style.display='block';}
   function showSection(){const s=document.getElementById('pwa-install-section');if(s)s.style.display='block';}
   function showAuthBtn(label){const b=document.getElementById('auth-install-btn');if(b){b.style.display='flex';const l=document.getElementById('auth-install-label');if(l&&label)l.textContent=label;}}
-  // Already installed — hide auth button, show in-app section
+  function onPromptReady(e){
+    _pwaPrompt=e;window.__pwaInstallPrompt=e;
+    const r=document.getElementById('pwa-android-row');if(r)r.style.display='flex';
+    if(note)note.style.display='none';
+    showTrigger();showAuthBtn('Install App');
+  }
+  // Already installed
   if(('standalone' in navigator&&navigator.standalone)||window.matchMedia('(display-mode:standalone)').matches){
     showSection();
     const r=document.getElementById('pwa-installed-row');if(r)r.style.display='flex';
     if(note)note.style.display='none';return;
   }
   const isIOS=/ipad|iphone|ipod/i.test(navigator.userAgent)&&!window.MSStream;
-  const isAndroid=/android/i.test(navigator.userAgent);
-  // iOS Safari — show auth button immediately
+  // iOS Safari
   if(isIOS){
     const r=document.getElementById('pwa-ios-row');if(r)r.style.display='flex';
-    showTrigger();
-    showAuthBtn('Add to Home Screen · iPhone / iPad');
-    return;
+    showTrigger();showAuthBtn('Add to Home Screen · iPhone / iPad');return;
   }
-  // Android — show auth button immediately; activate install when prompt ready
-  if(isAndroid){
-    showAuthBtn('Install App');
-    window.addEventListener('beforeinstallprompt',e=>{
-      e.preventDefault();_pwaPrompt=e;
-      const r=document.getElementById('pwa-android-row');if(r)r.style.display='flex';
-      if(note)note.style.display='none';
-      showTrigger();
-    });
-    window.addEventListener('appinstalled',()=>{
-      _pwaPrompt=null;
-      const b=document.getElementById('pwa-trigger-btn');if(b)b.style.display='none';
-      const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';
-      showSection();
-      const ra=document.getElementById('pwa-android-row');if(ra)ra.style.display='none';
-      const ri=document.getElementById('pwa-installed-row');if(ri)ri.style.display='flex';
-      if(note)note.style.display='none';
-    });
-    return;
+  // Android / Desktop Chrome — pick up early-captured prompt or wait for it
+  if(window.__pwaInstallPrompt){
+    onPromptReady(window.__pwaInstallPrompt);
+  } else {
+    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();onPromptReady(e);});
   }
-  // Desktop Chrome — still capture prompt if criteria met
-  window.addEventListener('beforeinstallprompt',e=>{
-    e.preventDefault();_pwaPrompt=e;
-    const r=document.getElementById('pwa-android-row');if(r)r.style.display='flex';
-    if(note)note.style.display='none';
-    showTrigger();
-  });
   window.addEventListener('appinstalled',()=>{
-    _pwaPrompt=null;
+    _pwaPrompt=null;window.__pwaInstallPrompt=null;
     const b=document.getElementById('pwa-trigger-btn');if(b)b.style.display='none';
+    const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';
     showSection();
     const ra=document.getElementById('pwa-android-row');if(ra)ra.style.display='none';
     const ri=document.getElementById('pwa-installed-row');if(ri)ri.style.display='flex';
@@ -1551,15 +1536,16 @@ async function authPwaInstall(){
     if(h)h.style.display=getComputedStyle(h).display==='none'?'block':'none';
     return;
   }
-  if(!_pwaPrompt){
+  const prompt=_pwaPrompt||window.__pwaInstallPrompt;
+  if(!prompt){
     const ab=document.getElementById('auth-install-btn');
     if(ab){const orig=ab.innerHTML;ab.innerHTML='<span>⏳ One moment…</span>';setTimeout(()=>{ab.innerHTML=orig;},1800);}
     return;
   }
-  _pwaPrompt.prompt();
-  const{outcome}=await _pwaPrompt.userChoice;
+  prompt.prompt();
+  const{outcome}=await prompt.userChoice;
   if(outcome==='accepted'){
-    _pwaPrompt=null;
+    _pwaPrompt=null;window.__pwaInstallPrompt=null;
     const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';
   }
 }
