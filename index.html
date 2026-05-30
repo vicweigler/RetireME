@@ -451,30 +451,6 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
         <div class="liquid-outlook-val" id="outlook-val">£0</div>
       </div>
     </div>
-    <button id="pwa-trigger-btn" style="display:none;width:100%;margin-top:12px;padding:11px;background:rgba(0,209,122,0.07);border:1px solid rgba(0,209,122,0.2);border-radius:10px;color:#00d17a;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="document.getElementById('pwa-install-section').style.display='block';this.style.display='none';">&#128242; Add to Home Screen</button>
-    <div id="pwa-install-section" style="display:none;margin-top:12px;">
-      <div class="card">
-        <div style="display:flex;flex-direction:column;align-items:center;padding:6px 0 20px;">
-          <img id="pwa-hero-img" src="" alt="RetireMe" style="width:100px;height:100px;border-radius:22px;object-fit:cover;box-shadow:0 8px 24px rgba(0,0,0,0.55);"/>
-          <div style="font-size:16px;font-weight:700;color:#e6edf3;margin-top:14px;">Add to Home Screen</div>
-          <div style="font-size:12px;color:#484f58;margin-top:4px;">Quick access to your retirement vault</div>
-        </div>
-        <div id="pwa-android-row" style="display:none;flex-direction:column;align-items:stretch;gap:8px;">
-          <button class="pwa-install-btn" style="width:100%;padding:15px;font-size:14px;border-radius:12px;letter-spacing:0.3px;" onclick="pwaInstall()">&#8853; Install App</button>
-          <div style="font-size:11px;color:#484f58;text-align:center;">Adds a shortcut to your device home screen</div>
-        </div>
-        <div id="pwa-ios-row" style="display:none;flex-direction:column;">
-          <div class="install-step"><div class="step-num">1</div><div class="step-txt">Open in <b>Safari</b> on your iPhone or iPad</div></div>
-          <div class="install-step"><div class="step-num">2</div><div class="step-txt">Tap the <b>Share &#8593;</b> button at the bottom</div></div>
-          <div class="install-step"><div class="step-num">3</div><div class="step-txt">Tap <b>"Add to Home Screen"</b> then <b>Add</b></div></div>
-        </div>
-        <div id="pwa-installed-row" style="display:none;flex-direction:row;align-items:center;gap:14px;background:#0d1117;border-radius:12px;border:1px solid rgba(0,209,122,0.3);padding:14px;">
-          <div style="font-size:28px;">&#9989;</div>
-          <div><div style="font-size:13px;font-weight:700;color:#00d17a;">App installed</div><div style="font-size:11px;color:#484f58;margin-top:3px;">RetireMe is on your home screen</div></div>
-        </div>
-        <div id="pwa-note" style="font-size:12px;color:#484f58;text-align:center;padding:4px 0;"></div>
-      </div>
-    </div>
   </div>
 
   <!-- CASHFLOW -->
@@ -1490,55 +1466,18 @@ function dismissMsgToast(){const t=document.getElementById('msg-toast');if(t)t.c
 let _pwaPrompt=null;
 function pwaSetup(){
   try{if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});}catch(e){}
-  const note=document.getElementById('pwa-note');
-  const heroImg=document.getElementById('pwa-hero-img');if(heroImg)heroImg.src='icon.png';
-  function showTrigger(){const b=document.getElementById('pwa-trigger-btn');if(b)b.style.display='block';}
-  function showSection(){const s=document.getElementById('pwa-install-section');if(s)s.style.display='block';}
   function showAuthBtn(label){const b=document.getElementById('auth-install-btn');if(b){b.style.display='flex';const l=document.getElementById('auth-install-label');if(l&&label)l.textContent=label;}}
-  function onPromptReady(e){
-    _pwaPrompt=e;window.__pwaInstallPrompt=e;
-    const r=document.getElementById('pwa-android-row');if(r)r.style.display='flex';
-    if(note)note.style.display='none';
-    showTrigger();showAuthBtn('Install App');
-  }
-  // Already installed
-  if(('standalone' in navigator&&navigator.standalone)||window.matchMedia('(display-mode:standalone)').matches){
-    showSection();
-    const r=document.getElementById('pwa-installed-row');if(r)r.style.display='flex';
-    if(note)note.style.display='none';return;
-  }
   const isIOS=/ipad|iphone|ipod/i.test(navigator.userAgent)&&!window.MSStream;
   const isAndroid=/android/i.test(navigator.userAgent);
-  // iOS Safari — show button immediately
-  if(isIOS){
-    const r=document.getElementById('pwa-ios-row');if(r)r.style.display='flex';
-    showTrigger();showAuthBtn('Add to Home Screen · iPhone / iPad');return;
-  }
-  // Android — show button immediately, activate install when prompt is ready
+  // iOS: show button unless already running as standalone PWA
+  if(isIOS){if(!navigator.standalone)showAuthBtn('Add to Home Screen · iPhone / iPad');return;}
+  // Android: always show button; store prompt when available
   if(isAndroid){
     showAuthBtn('Install App');
-    if(window.__pwaInstallPrompt){
-      onPromptReady(window.__pwaInstallPrompt);
-    } else {
-      window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();onPromptReady(e);});
-    }
-    return;
+    if(window.__pwaInstallPrompt){_pwaPrompt=window.__pwaInstallPrompt;}
+    else{window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_pwaPrompt=e;});}
+    window.addEventListener('appinstalled',()=>{_pwaPrompt=null;window.__pwaInstallPrompt=null;const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';});
   }
-  // Desktop Chrome — only show if prompt fires
-  if(window.__pwaInstallPrompt){
-    onPromptReady(window.__pwaInstallPrompt);
-  } else {
-    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();onPromptReady(e);});
-  }
-  window.addEventListener('appinstalled',()=>{
-    _pwaPrompt=null;window.__pwaInstallPrompt=null;
-    const b=document.getElementById('pwa-trigger-btn');if(b)b.style.display='none';
-    const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';
-    showSection();
-    const ra=document.getElementById('pwa-android-row');if(ra)ra.style.display='none';
-    const ri=document.getElementById('pwa-installed-row');if(ri)ri.style.display='flex';
-    if(note)note.style.display='none';
-  });
 }
 async function authPwaInstall(){
   const isIOS=/ipad|iphone|ipod/i.test(navigator.userAgent)&&!window.MSStream;
@@ -1558,16 +1497,6 @@ async function authPwaInstall(){
   if(outcome==='accepted'){
     _pwaPrompt=null;window.__pwaInstallPrompt=null;
     const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';
-  }
-}
-async function pwaInstall(){
-  if(!_pwaPrompt)return;
-  _pwaPrompt.prompt();
-  const{outcome}=await _pwaPrompt.userChoice;
-  if(outcome==='accepted'){
-    _pwaPrompt=null;
-    const r=document.getElementById('pwa-android-row');if(r)r.style.display='none';
-    const ri=document.getElementById('pwa-installed-row');if(ri)ri.style.display='flex';
   }
 }
 setInterval(updateCountdown,1000);
