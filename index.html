@@ -1455,12 +1455,12 @@ async function forceRefresh(btn){
   try{
     const keys=await caches.keys();
     await Promise.all(keys.map(k=>caches.delete(k)));
-    if(navigator.serviceWorker&&navigator.serviceWorker.controller){
-      navigator.serviceWorker.controller.postMessage('SKIP_WAITING');
-      await new Promise(r=>setTimeout(r,400));
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
     }
   }catch(e){}
-  location.reload();
+  location.reload(true);
 }
 
 /* ──────────── ADMIN PANEL ──────────── */
