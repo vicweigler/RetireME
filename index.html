@@ -335,8 +335,8 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
         <div style="font-size:11px;color:var(--text2);line-height:1.7;">1&#46; Tap <b style="color:var(--text)">Share &#8593;</b> in Safari's toolbar<br>2&#46; Scroll &amp; tap <b style="color:var(--text)">&ldquo;Add to Home Screen&rdquo;</b><br>3&#46; Tap <b style="color:var(--text)">Add</b></div>
       </div>
       <div id="auth-android-hint">
-        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:7px;">Install on Android / Chrome:</div>
-        <div style="font-size:11px;color:var(--text2);line-height:1.7;">1&#46; Tap <b style="color:var(--text)">&#8942; Menu</b> in Chrome's top-right corner<br>2&#46; Tap <b style="color:var(--text)">&ldquo;Add to Home Screen&rdquo;</b> or <b style="color:var(--text)">&ldquo;Install app&rdquo;</b><br>3&#46; Tap <b style="color:var(--text)">Add</b></div>
+        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:7px;">&#128241; RetireMe on Android:</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.8;"><b style="color:var(--text);">Already installed?</b> Swipe up from your home screen to open your <b style="color:var(--text);">app drawer</b> and look for the RetireMe icon there.<br><br><b style="color:var(--text);">Not installed yet?</b> In Chrome tap <b style="color:var(--text);">&#8942;</b> then <b style="color:var(--text);">&ldquo;Install app&rdquo;</b></div>
       </div>
     </div>
     <!-- Register View -->
@@ -1472,11 +1472,11 @@ let _pwaPrompt=null;
 function pwaSetup(){
   try{if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});}catch(e){}
   function showAuthBtn(label){const b=document.getElementById('auth-install-btn');if(b){b.style.display='flex';const l=document.getElementById('auth-install-label');if(l&&label)l.textContent=label;}}
+  // Already running as installed PWA — hide install button
+  if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)return;
   const isIOS=/ipad|iphone|ipod/i.test(navigator.userAgent)&&!window.MSStream;
   const isAndroid=/android/i.test(navigator.userAgent);
-  // iOS: show button unless already running as standalone PWA
-  if(isIOS){if(!navigator.standalone)showAuthBtn('Add to Home Screen · iPhone / iPad');return;}
-  // Android: always show button; store prompt when available
+  if(isIOS){showAuthBtn('Add to Home Screen · iPhone / iPad');return;}
   if(isAndroid){
     showAuthBtn('Install App');
     if(window.__pwaInstallPrompt){_pwaPrompt=window.__pwaInstallPrompt;}
