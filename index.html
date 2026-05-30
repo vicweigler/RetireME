@@ -289,6 +289,7 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
 .auth-install-btn{display:none;align-items:center;justify-content:center;gap:8px;margin-top:14px;width:100%;padding:11px 16px;background:rgba(0,209,122,0.07);border:1px solid rgba(0,209,122,0.2);border-radius:10px;color:var(--green);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
 .auth-install-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
 #auth-ios-hint{display:none;margin-top:10px;background:rgba(0,209,122,0.05);border:1px solid rgba(0,209,122,0.15);border-radius:10px;padding:12px 14px;}
+#auth-android-hint{display:none;margin-top:10px;background:rgba(0,209,122,0.05);border:1px solid rgba(0,209,122,0.15);border-radius:10px;padding:12px 14px;}
 </style>
 </head>
 <body>
@@ -332,6 +333,10 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
       <div id="auth-ios-hint">
         <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:7px;">Install on iPhone / iPad:</div>
         <div style="font-size:11px;color:var(--text2);line-height:1.7;">1&#46; Tap <b style="color:var(--text)">Share &#8593;</b> in Safari's toolbar<br>2&#46; Scroll &amp; tap <b style="color:var(--text)">&ldquo;Add to Home Screen&rdquo;</b><br>3&#46; Tap <b style="color:var(--text)">Add</b></div>
+      </div>
+      <div id="auth-android-hint">
+        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:7px;">Install on Android / Chrome:</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.7;">1&#46; Tap <b style="color:var(--text)">&#8942; Menu</b> in Chrome's top-right corner<br>2&#46; Tap <b style="color:var(--text)">&ldquo;Add to Home Screen&rdquo;</b> or <b style="color:var(--text)">&ldquo;Install app&rdquo;</b><br>3&#46; Tap <b style="color:var(--text)">Add</b></div>
       </div>
     </div>
     <!-- Register View -->
@@ -616,7 +621,7 @@ body.light-mode .auth-google-btn{background:var(--bg3);border:1px solid var(--bo
 <script>
 const UK_BH=['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-08-31','2026-12-25','2026-12-28','2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-08-30','2027-12-27','2027-12-28'];
 const ADMIN_EMAIL='vicweigler@gmail.com';
-const APP_VERSION='2.5.0';
+const APP_VERSION='2.6.0';
 const BONUSES={'2026':0,'2027':0,'2028':0,'2029':0,'2030':0};
 const DA={savings_main:{label:'Main Savings Account',sub:'Easy Access / Current Account',val:0},isa_investment:{label:'ISA / Investment Account',sub:'Stocks & Shares or Cash ISA',val:0},pension_pot:{label:'Personal Pension Pot',sub:'DC Pension / SIPP',val:0},premium_bonds:{label:'Premium Bonds / NS&I',sub:"NS&I Savings",val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
@@ -1487,17 +1492,15 @@ async function authPwaInstall(){
     return;
   }
   const prompt=_pwaPrompt||window.__pwaInstallPrompt;
-  if(!prompt){
-    const ab=document.getElementById('auth-install-btn');
-    if(ab){const orig=ab.innerHTML;ab.innerHTML='<span>⏳ One moment…</span>';setTimeout(()=>{ab.innerHTML=orig;},1800);}
+  if(prompt){
+    prompt.prompt();
+    const{outcome}=await prompt.userChoice;
+    if(outcome==='accepted'){_pwaPrompt=null;window.__pwaInstallPrompt=null;const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';}
     return;
   }
-  prompt.prompt();
-  const{outcome}=await prompt.userChoice;
-  if(outcome==='accepted'){
-    _pwaPrompt=null;window.__pwaInstallPrompt=null;
-    const ab=document.getElementById('auth-install-btn');if(ab)ab.style.display='none';
-  }
+  // No native prompt — show manual instructions
+  const h=document.getElementById('auth-android-hint');
+  if(h)h.style.display=getComputedStyle(h).display==='none'?'block':'none';
 }
 setInterval(updateCountdown,1000);
 pwaSetup();
