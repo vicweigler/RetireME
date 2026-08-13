@@ -16,8 +16,11 @@
 html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;overflow:hidden;}
 #login-screen{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(1200px 500px at 20% -10%,rgba(0,209,122,0.15),transparent 50%),#0d1117;}
 .login-card{width:min(420px,100%);background:#161b22;border:1px solid #21262d;border-radius:16px;padding:22px;}
-.login-logo{font-size:31px;font-weight:800;letter-spacing:-0.7px;color:#e6edf3;}
-.login-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(0,209,122,0.12);border:1px solid rgba(0,209,122,0.3);border-radius:16px;padding:2px 8px;font-size:10px;color:#00d17a;font-weight:700;margin-left:6px;vertical-align:middle;}
+.login-brand{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.login-logo-wrap{width:56px;height:56px;border-radius:14px;overflow:hidden;flex-shrink:0;background:#0d1117;border:1px solid #30363d;display:flex;align-items:center;justify-content:center;}
+.login-logo-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.login-brand-name{font-size:40px;font-weight:800;letter-spacing:-0.8px;color:#e6edf3;line-height:0.95;}
+.login-heading{font-size:34px;font-weight:800;color:#e6edf3;letter-spacing:-0.6px;line-height:1.1;}
 .login-sub{font-size:12px;color:#8b949e;line-height:1.5;margin:6px 0 14px;}
 .login-field{margin-bottom:10px;}
 .login-label{display:block;font-size:11px;color:#8b949e;margin-bottom:5px;}
@@ -309,7 +312,13 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 <body>
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo">RetireMe <span class="login-tag">Secure</span></div>
+    <div class="login-brand">
+      <div class="login-logo-wrap">
+        <img src="icon.png" alt="RetireMe logo" onerror="this.src='apple-touch-icon.png'"/>
+      </div>
+      <div class="login-brand-name">RetireMe</div>
+    </div>
+    <div class="login-heading">Welcome back</div>
     <div class="login-sub">Sign in with your email and password to access your portfolio. If needed, reset your password below.</div>
     <form onsubmit="loginWithPassword(event)">
       <div class="login-field">
