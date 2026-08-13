@@ -175,9 +175,6 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .year-chip{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px;}
 .year-chip .y{font-size:10px;color:#484f58;}
 .year-chip .v{font-size:13px;font-weight:700;color:#00d17a;margin-top:3px;}
-.spend-row{display:grid;grid-template-columns:1fr 110px 72px;gap:8px;align-items:center;margin-bottom:8px;}
-.spend-row input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 10px;color:#e6edf3;font-size:13px;}
-.spend-head{display:grid;grid-template-columns:1fr 110px 72px;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;margin-bottom:6px;}
 .pf-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
 .pf-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
 .pf-row{position:relative;display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:center;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
@@ -187,6 +184,26 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .pf-amount-wrap{position:relative;display:flex;align-items:center;justify-content:flex-end;}
 .pf-pound{position:absolute;left:10px;color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;}
 .pf-amount-wrap input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#f85149;font-size:13px;font-weight:700;outline:none;text-align:right;}
+.move-col{display:flex;gap:6px;justify-content:flex-end;margin-top:6px;}
+.move-btn{background:transparent;border:1px solid #30363d;color:#8b949e;border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer;}
+.move-btn:disabled{opacity:0.35;cursor:not-allowed;}
+.spend-summary-card{margin-bottom:10px;}
+.summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px;}
+.summary-chip{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px;}
+.summary-chip .k{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.6px;}
+.summary-chip .v{font-size:14px;color:#f85149;font-weight:700;margin-top:3px;}
+.spend-type-list{display:grid;gap:6px;margin-top:8px;}
+.spend-type-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#c9d1d9;background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:7px 10px;}
+.spend-type-row .type-total{color:#f85149;font-weight:700;}
+.sp-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
+.sp-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
+.sp-row{position:relative;display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:center;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
+.sp-title-wrap{min-width:0;}
+.sp-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
+.sp-type-input{width:100%;background:transparent;border:none;color:#8b949e;font-size:11px;line-height:1.2;padding:2px 0 0;outline:none;}
+.sp-amount-wrap{position:relative;display:flex;align-items:center;justify-content:flex-end;}
+.sp-pound{position:absolute;left:10px;color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;}
+.sp-amount-wrap input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#f85149;font-size:13px;font-weight:700;outline:none;text-align:right;}
 .pf-total{display:flex;justify-content:space-between;align-items:center;background:#0d1117;border:1px solid rgba(0,209,122,0.3);border-radius:10px;padding:10px 12px;margin-bottom:10px;}
 .pf-total-lbl{font-size:11px;font-weight:700;color:#00d17a;}
 .pf-total-val{font-size:16px;font-weight:800;color:#00d17a;}
@@ -222,14 +239,24 @@ body.light-mode .ms-item,
 body.light-mode .liquid-bar,
 body.light-mode .runway-base,
 body.light-mode .pf-total,
-body.light-mode .pf-row input,
+body.light-mode .pf-row,
+body.light-mode .sp-row,
+body.light-mode .summary-chip,
+body.light-mode .spend-type-row,
 body.light-mode .pf-name-input,
 body.light-mode .pf-type-input,
+body.light-mode .sp-name-input,
+body.light-mode .sp-type-input,
 body.light-mode .invest-row input,
 body.light-mode .invest-row select,
-body.light-mode .spend-row input,
 body.light-mode .form-group input,
 body.light-mode .form-group select{background:#f8fafc;color:#0f172a;border-color:#d0d7e2;}
+body.light-mode .pf-row,
+body.light-mode .sp-row{background:#eef2f6;}
+body.light-mode .pf-amount-wrap input,
+body.light-mode .sp-amount-wrap input{background:#f8fafc;border-color:#d0d7e2;color:#f85149;}
+body.light-mode .spend-type-row .type-total,
+body.light-mode .summary-chip .v{color:#dc2626;}
 body.light-mode .hdr-logo,
 body.light-mode .asset-name,
 body.light-mode .ms-title,
@@ -249,7 +276,6 @@ body.light-mode .asset-sub2,
 body.light-mode .rw-carry-lbl,
 body.light-mode .rw-net-mo,
 body.light-mode .toggle-meta,
-body.light-mode .spend-head,
 body.light-mode .invest-head,
 body.light-mode .pf-head{color:#64748b;}
 body.light-mode .tab-btn{color:#64748b;}
@@ -258,6 +284,7 @@ body.light-mode .lyt{background:#ffffff;color:#64748b;border-color:#d8dee8;}
 body.light-mode .lyt.active{background:#00d17a;color:#073b24;border-color:#00d17a;}
 body.light-mode .btn-inline-danger{border-color:#d0d7e2;}
 body.light-mode .pf-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
+body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </style>
 </head>
 <body>
@@ -338,21 +365,23 @@ body.light-mode .pf-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 
   <!-- SPEND -->
   <div class="tab-panel" id="tab-spend">
+    <div class="card spend-summary-card">
+      <div class="card-eyebrow">Spend Summary</div>
+      <div class="summary-grid" id="spend-grand-totals"></div>
+      <div id="spend-by-type" class="spend-type-list"></div>
+    </div>
     <div class="card">
       <div class="card-eyebrow">Monthly Bills</div>
-      <div class="spend-head"><div>Name</div><div>Amount (£)</div><div>Delete</div></div>
       <div id="spend-monthly-list"></div>
       <button class="btn-primary" onclick="addSpend('monthly')">+ Add Monthly Bill</button>
     </div>
     <div class="card">
       <div class="card-eyebrow">Quarterly Bills</div>
-      <div class="spend-head"><div>Name</div><div>Amount (£)</div><div>Delete</div></div>
       <div id="spend-quarterly-list"></div>
       <button class="btn-primary" onclick="addSpend('quarterly')">+ Add Quarterly Bill</button>
     </div>
     <div class="card">
       <div class="card-eyebrow">Annual Bills</div>
-      <div class="spend-head"><div>Name</div><div>Amount (£)</div><div>Delete</div></div>
       <div id="spend-annual-list"></div>
       <button class="btn-primary" onclick="addSpend('annual')">+ Add Annual Bill</button>
     </div>
@@ -413,7 +442,7 @@ body.light-mode .pf-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V2.8.2';
+const APP_VERSION='V2.9.0';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyBTVDEydTgaxxn9P6Xid0yGMYeqZciEULU',
   authDomain:'invest-in-it.firebaseapp.com',
@@ -652,9 +681,9 @@ function renderVersionLabels(){
 }
 function normalizeSpendRow(row){
   if(row===null||row===undefined)return null;
-  if(typeof row==='number')return {id:uid('sp'),name:'Bill',amount:row};
-  if(typeof row==='string')return {id:uid('sp'),name:row,amount:0};
-  if(typeof row==='object')return {id:row.id||uid('sp'),name:row.name||row.title||'Bill',amount:parseFloat(row.amount)||0};
+  if(typeof row==='number')return {id:uid('sp'),name:'Bill',type:'General',amount:row};
+  if(typeof row==='string')return {id:uid('sp'),name:row,type:'General',amount:0};
+  if(typeof row==='object')return {id:row.id||uid('sp'),name:row.name||row.title||'Bill',type:row.type||row.category||'General',amount:parseFloat(row.amount)||0};
   return null;
 }
 function sv(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
@@ -749,30 +778,89 @@ function renderInvestments(){
 }
 
 function addSpend(type){
-  S.spend[type].push({id:uid('sp'),name:'',amount:0});
+  S.spend[type].push({id:uid('sp'),name:'',type:'General',amount:0});
   save();renderSpendAll();
 }
 function updateSpend(type,idx,key,val){
   const row=S.spend[type][idx];if(!row)return;
   row[key]=key==='amount'?(parseFloat(val)||0):val;
   save();
+  renderSpendSummary();
+  buildRunway();
 }
 function deleteSpend(type,idx){
   S.spend[type].splice(idx,1);
   save();renderSpendAll();
 }
+function moveSpend(type,idx,dir){
+  const rows=S.spend[type];
+  const next=idx+dir;
+  if(!rows||next<0||next>=rows.length)return;
+  const tmp=rows[idx];
+  rows[idx]=rows[next];
+  rows[next]=tmp;
+  save();
+  renderSpendAll();
+}
+function spendTotal(type){
+  return S.spend[type].reduce((sum,row)=>sum+(parseFloat(row.amount)||0),0);
+}
+function spendTotalsByType(){
+  const map={};
+  for(const kind of ['monthly','quarterly','annual']){
+    for(const row of S.spend[kind]){
+      const key=(row.type||'General').trim()||'General';
+      if(!map[key])map[key]={label:key,total:0,count:0};
+      map[key].total+=(parseFloat(row.amount)||0);
+      map[key].count++;
+    }
+  }
+  return Object.values(map).sort((a,b)=>b.total-a.total);
+}
+function renderSpendSummary(){
+  const monthly=spendTotal('monthly');
+  const quarterly=spendTotal('quarterly');
+  const annual=spendTotal('annual');
+  const totals=document.getElementById('spend-grand-totals');
+  if(totals){
+    totals.innerHTML=`
+      <div class="summary-chip"><div class="k">Grand Monthly</div><div class="v">£${fmtN(monthly)}</div></div>
+      <div class="summary-chip"><div class="k">Grand Quarterly</div><div class="v">£${fmtN(quarterly)}</div></div>
+      <div class="summary-chip"><div class="k">Grand Annual</div><div class="v">£${fmtN(annual)}</div></div>`;
+  }
+  const byType=document.getElementById('spend-by-type');
+  if(!byType)return;
+  const rows=spendTotalsByType();
+  if(rows.length===0){
+    byType.innerHTML='<div class="spend-type-row"><span>No bills added yet</span><span class="type-total">£0</span></div>';
+    return;
+  }
+  byType.innerHTML=rows.map(r=>`<div class="spend-type-row"><span>${escapeHtml(r.label)} <span style="color:#8b949e;">(${r.count})</span></span><span class="type-total">£${fmtN(r.total)}</span></div>`).join('');
+}
 function renderSpendSection(type,elId){
   const list=document.getElementById(elId);if(!list)return;
-  list.innerHTML=S.spend[type].map((r,idx)=>`<div class="spend-row">
-    <input type="text" value="${escapeHtml(r.name||'')}" onchange="updateSpend('${type}',${idx},'name',this.value)" placeholder="Bill name"/>
-    <input type="number" value="${r.amount||0}" onchange="updateSpend('${type}',${idx},'amount',this.value)" style="text-align:right;"/>
-    <button class="btn-inline-danger" onclick="deleteSpend('${type}',${idx})">Delete</button>
+  list.innerHTML=S.spend[type].map((r,idx)=>`<div class="sp-row-wrap">
+    <div class="sp-swipe-delete-bg">Swipe left to delete</div>
+    <div class="sp-row" data-sp-row="${type}:${idx}" onpointerdown="spPointerStart(event,'${type}',${idx})" onpointermove="spPointerMove(event,'${type}',${idx})" onpointerup="spPointerEnd(event,'${type}',${idx})" onpointercancel="spPointerEnd(event,'${type}',${idx})">
+      <div class="sp-title-wrap">
+        <input class="sp-name-input" type="text" value="${escapeHtml(r.name||'')}" onchange="updateSpend('${type}',${idx},'name',this.value)" placeholder="Name of bill"/>
+        <input class="sp-type-input" type="text" value="${escapeHtml(r.type||'General')}" onchange="updateSpend('${type}',${idx},'type',this.value)" placeholder="Bill type"/>
+      </div>
+      <div>
+        <div class="sp-amount-wrap"><span class="sp-pound">£</span><input type="number" value="${r.amount||0}" onchange="updateSpend('${type}',${idx},'amount',this.value)"/></div>
+        <div class="move-col">
+          <button class="move-btn" onclick="moveSpend('${type}',${idx},-1)" ${idx===0?'disabled':''}>↑</button>
+          <button class="move-btn" onclick="moveSpend('${type}',${idx},1)" ${idx===S.spend[type].length-1?'disabled':''}>↓</button>
+        </div>
+      </div>
+    </div>
   </div>`).join('');
 }
 function renderSpendAll(){
   renderSpendSection('monthly','spend-monthly-list');
   renderSpendSection('quarterly','spend-quarterly-list');
   renderSpendSection('annual','spend-annual-list');
+  renderSpendSummary();
 }
 
 function ukTax(income){
@@ -852,12 +940,18 @@ function showLedger(yr,btn){
     <div class="pf-total"><div class="pf-total-lbl">Total Portfolio Value</div><div class="pf-total-val">£${fmtN(total)}</div></div>
     ${rows.map((r,idx)=>`<div class="pf-row-wrap">
       <div class="pf-swipe-delete-bg">Swipe left to delete</div>
-      <div class="pf-row" data-pf-row="${yr}:${idx}" ontouchstart="pfTouchStart(event,'${yr}',${idx})" ontouchmove="pfTouchMove(event,'${yr}',${idx})" ontouchend="pfTouchEnd(event,'${yr}',${idx})">
+      <div class="pf-row" data-pf-row="${yr}:${idx}" onpointerdown="pfPointerStart(event,'${yr}',${idx})" onpointermove="pfPointerMove(event,'${yr}',${idx})" onpointerup="pfPointerEnd(event,'${yr}',${idx})" onpointercancel="pfPointerEnd(event,'${yr}',${idx})">
         <div class="pf-title-wrap">
           <input class="pf-name-input" type="text" value="${escapeHtml(r.name||'')}" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
           <input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>
         </div>
-        <div class="pf-amount-wrap"><span class="pf-pound">£</span><input type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
+        <div>
+          <div class="pf-amount-wrap"><span class="pf-pound">£</span><input type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
+          <div class="move-col">
+            <button class="move-btn" onclick="movePortfolioItem('${yr}',${idx},-1)" ${idx===0?'disabled':''}>↑</button>
+            <button class="move-btn" onclick="movePortfolioItem('${yr}',${idx},1)" ${idx===rows.length-1?'disabled':''}>↓</button>
+          </div>
+        </div>
       </div>
     </div>`).join('')}
     <button class="btn-primary" onclick="addPortfolioItem('${yr}')">+ Add Portfolio Item</button>
@@ -865,28 +959,32 @@ function showLedger(yr,btn){
 }
 
 const PF_SWIPE={};
-function pfTouchStart(e,year,idx){
-  const t=e.touches&&e.touches[0];
-  if(!t)return;
-  PF_SWIPE[year+':'+idx]={startX:t.clientX,startY:t.clientY,dx:0};
+const SP_SWIPE={};
+function pointerBlockedTarget(t){
+  return !!(t&&t.closest&&t.closest('input,button,select,textarea,label'));
 }
-function pfTouchMove(e,year,idx){
+function pfPointerStart(e,year,idx){
+  if(pointerBlockedTarget(e.target))return;
+  const key=year+':'+idx;
+  PF_SWIPE[key]={startX:e.clientX,startY:e.clientY,dx:0,pointerId:e.pointerId};
+  if(e.currentTarget&&e.currentTarget.setPointerCapture){e.currentTarget.setPointerCapture(e.pointerId);}
+}
+function pfPointerMove(e,year,idx){
   const key=year+':'+idx;
   const s=PF_SWIPE[key];
-  const t=e.touches&&e.touches[0];
-  if(!s||!t)return;
-  const dx=t.clientX-s.startX;
-  const dy=t.clientY-s.startY;
+  if(!s||s.pointerId!==e.pointerId)return;
+  const dx=e.clientX-s.startX;
+  const dy=e.clientY-s.startY;
   if(Math.abs(dy)>Math.abs(dx))return;
   s.dx=Math.min(0,dx);
   const row=document.querySelector('[data-pf-row="'+key+'"]');
   if(row)row.style.transform='translateX('+Math.max(-110,s.dx)+'px)';
 }
-function pfTouchEnd(e,year,idx){
+function pfPointerEnd(e,year,idx){
   const key=year+':'+idx;
   const s=PF_SWIPE[key];
   const row=document.querySelector('[data-pf-row="'+key+'"]');
-  if(s&&s.dx<-70){
+  if(s&&s.pointerId===e.pointerId&&s.dx<-70){
     delete PF_SWIPE[key];
     deletePortfolioItem(year,idx);
     return;
@@ -894,9 +992,49 @@ function pfTouchEnd(e,year,idx){
   if(row)row.style.transform='translateX(0px)';
   delete PF_SWIPE[key];
 }
+function spPointerStart(e,type,idx){
+  if(pointerBlockedTarget(e.target))return;
+  const key=type+':'+idx;
+  SP_SWIPE[key]={startX:e.clientX,startY:e.clientY,dx:0,pointerId:e.pointerId};
+  if(e.currentTarget&&e.currentTarget.setPointerCapture){e.currentTarget.setPointerCapture(e.pointerId);}
+}
+function spPointerMove(e,type,idx){
+  const key=type+':'+idx;
+  const s=SP_SWIPE[key];
+  if(!s||s.pointerId!==e.pointerId)return;
+  const dx=e.clientX-s.startX;
+  const dy=e.clientY-s.startY;
+  if(Math.abs(dy)>Math.abs(dx))return;
+  s.dx=Math.min(0,dx);
+  const row=document.querySelector('[data-sp-row="'+key+'"]');
+  if(row)row.style.transform='translateX('+Math.max(-110,s.dx)+'px)';
+}
+function spPointerEnd(e,type,idx){
+  const key=type+':'+idx;
+  const s=SP_SWIPE[key];
+  const row=document.querySelector('[data-sp-row="'+key+'"]');
+  if(s&&s.pointerId===e.pointerId&&s.dx<-70){
+    delete SP_SWIPE[key];
+    deleteSpend(type,idx);
+    return;
+  }
+  if(row)row.style.transform='translateX(0px)';
+  delete SP_SWIPE[key];
+}
 
 function addPortfolioItem(year){
   portfolioRows(year).push({id:uid('pf'),name:'New item',type:'Asset',amount:0});
+  save();
+  showLedger(year,document.querySelector('.lyt.active')||undefined);
+  buildRunway();
+}
+function movePortfolioItem(year,idx,dir){
+  const rows=portfolioRows(year);
+  const next=idx+dir;
+  if(next<0||next>=rows.length)return;
+  const tmp=rows[idx];
+  rows[idx]=rows[next];
+  rows[next]=tmp;
   save();
   showLedger(year,document.querySelector('.lyt.active')||undefined);
   buildRunway();
