@@ -196,7 +196,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .year-chip .v{font-size:13px;font-weight:700;color:#00d17a;margin-top:3px;}
 .cashflow-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
 .cashflow-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
-.cashflow-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 96px 72px 126px 126px;gap:8px;align-items:flex-start;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
+.cashflow-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 64px 56px 132px 132px;gap:8px;align-items:flex-start;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
 .cashflow-title-wrap{min-width:0;}
 .cashflow-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
 .cashflow-model-link{background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;cursor:pointer;text-align:left;display:block;width:100%;}
@@ -206,6 +206,8 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .cashflow-model-subitem{font-size:11px;line-height:1.25;color:#8b949e;white-space:normal;word-break:break-word;}
 .cashflow-frequency-toggle{display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px;font-weight:700;color:#8b949e;white-space:nowrap;user-select:none;}
 .cashflow-frequency-toggle span{line-height:1;}
+.cashflow-head-grid{display:grid;grid-template-columns:minmax(0,1fr) 64px 56px 132px 132px;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;margin-bottom:6px;align-items:center;}
+.cashflow-head-grid > div:nth-child(n+2){text-align:center;}
 .cashflow-mini-switch{position:relative;display:inline-block;width:38px;height:20px;flex-shrink:0;}
 .cashflow-mini-switch input{opacity:0;width:0;height:0;}
 .cashflow-mini-switch .slider-round{border-radius:20px;}
@@ -529,7 +531,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
   <div class="tab-panel" id="tab-cashflow">
     <div class="card">
       <div class="card-eyebrow">Income Sources</div>
-      <div class="invest-head" style="grid-template-columns:1fr 112px 90px 118px 58px;"><div>Name</div><div>Monthly / Annual</div><div>Tax</div><div>Amount (£)</div><div>Monthly</div></div>
+      <div class="cashflow-head-grid"><div>Name</div><div>M/A</div><div>Tax</div><div>Amount (£)</div><div>Monthly</div></div>
       <div id="income-sources-list"></div>
       <button class="btn-primary" onclick="addInvestment()">+ Add Income Source</button>
     </div>
@@ -646,7 +648,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.0.9';
+const APP_VERSION='V3.1.0';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -1354,6 +1356,13 @@ function incomeSourceAssetNames(row){
   }).filter(Boolean);
   return names;
 }
+function incomeModelHeading(idx){
+  let modelNumber=0;
+  for(let i=0;i<=idx;i++){
+    if(Array.isArray(S.investments[i]&&S.investments[i].modelAssets)&&S.investments[i].modelAssets.length>0)modelNumber++;
+  }
+  return 'Income Model '+modelNumber;
+}
 function normalizeIncomeSource(row){
   if(row===null||row===undefined)return null;
   if(typeof row==='number')return {id:uid('inc'),name:'Income source',frequency:'annual',amount:parseFloat(row)||0,taxable:false};
@@ -1413,26 +1422,25 @@ function renderCashflowSummary(){
   const spendAnnualEquivalent=(spendMonthly*12)+(spendQuarterly*4)+spendAnnual;
   const leftMonthly=incomeMonthly-spendMonthlyEquivalent;
   const leftAnnual=incomeAnnual-spendAnnualEquivalent;
-  const valueClass=value=>value>=0?'green':'red';
   el.innerHTML=`
-    <div class="summary-chip"><div class="k">Income / Month</div><div class="v ${valueClass(incomeMonthly)}">£${fmtN(incomeMonthly)}</div></div>
+    <div class="summary-chip"><div class="k">Income / Month</div><div class="v green">£${fmtN(incomeMonthly)}</div></div>
     <div class="summary-chip"><div class="k">Spend / Month</div><div class="v red">£${fmtN(spendMonthlyEquivalent)}</div></div>
     <div class="summary-chip"><div class="k">Spend / Quarter</div><div class="v red">£${fmtN(spendQuarterly)}</div></div>
     <div class="summary-chip"><div class="k">Spend / Year</div><div class="v red">£${fmtN(spendAnnualEquivalent)}</div></div>
-    <div class="summary-chip"><div class="k">Left Over / Month</div><div class="v ${valueClass(leftMonthly)}">£${fmtN(leftMonthly)}</div></div>
-    <div class="summary-chip"><div class="k">Left Over / Year</div><div class="v ${valueClass(leftAnnual)}">£${fmtN(leftAnnual)}</div></div>`;
+    <div class="summary-chip"><div class="k">Left Over / Month</div><div class="v green">£${fmtN(leftMonthly)}</div></div>
+    <div class="summary-chip"><div class="k">Left Over / Year</div><div class="v green">£${fmtN(leftAnnual)}</div></div>`;
 }
 const INC_SWIPE={};
 function renderInvestments(){
   const list=document.getElementById('income-sources-list');
   if(!list)return;
-  list.innerHTML=S.investments.map((i,idx)=>{const monthly=incomeSourceMonthlyValue(i);const annualValue=parseFloat(i.amount)||0;const rowKey='inc:'+idx;const assetNames=incomeSourceAssetNames(i);const isModel=assetNames.length>0;return `<div class="cashflow-row-wrap">
+  list.innerHTML=S.investments.map((i,idx)=>{const monthly=incomeSourceMonthlyValue(i);const annualValue=parseFloat(i.amount)||0;const rowKey='inc:'+idx;const assetNames=incomeSourceAssetNames(i);const isModel=assetNames.length>0;const heading=isModel?incomeModelHeading(idx):String(i.name||'');return `<div class="cashflow-row-wrap">
     <div class="cashflow-swipe-delete-bg">Swipe left to delete</div>
     <div class="cashflow-row" data-inc-row="${rowKey}" onpointerdown="incPointerStart(event,${idx})" onpointermove="incPointerMove(event,${idx})" onpointerup="incPointerEnd(event,${idx})" onpointercancel="incPointerEnd(event,${idx})">
-      <div class="cashflow-title-wrap">${isModel?`<button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(i.name||'Income Model')}</button>${i.plannedInvestmentType?`<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate||0).toFixed(1)}%</div>`:''}${assetNames.length>1?`<div class="cashflow-model-sublist">${assetNames.map(name=>`<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>`:''}`:`<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name||'')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/>`}</div>
+      <div class="cashflow-title-wrap">${isModel?`<button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(heading)}</button>${i.plannedInvestmentType?`<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate||0).toFixed(1)}%</div>`:''}${assetNames.length>0?`<div class="cashflow-model-sublist">${assetNames.map(name=>`<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>`:''}`:`<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name||'')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/>`}</div>
       <div class="cashflow-frequency-toggle"><span>M</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency)==='annual'?'checked':''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>A</span></div>
       <label class="cashflow-taxable"><input type="checkbox" ${i.taxable?'checked':''} onchange="updateInvestment(${idx},'taxable',this.checked)"/>Tax</label>
-      <input class="cashflow-amount-input" type="text" inputmode="decimal" value="${annualValue.toFixed(2)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=parseFloat(this.value||0).toFixed(2)" onchange="updateInvestment(${idx},'amount',this.value)"/>
+      <input class="cashflow-amount-input" type="text" inputmode="decimal" value="${fmt2(annualValue)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmt2(parseFloat(this.value||0))" onchange="updateInvestment(${idx},'amount',this.value)"/>
       <div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-monthly-input ${monthly>=0?'amt-pos':'amt-neg'}" type="text" value="${fmt2(monthly)}" readonly/></div>
     </div>
   </div>`;}).join('');
