@@ -194,6 +194,19 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .year-chip{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px;}
 .year-chip .y{font-size:10px;color:#484f58;}
 .year-chip .v{font-size:13px;font-weight:700;color:#00d17a;margin-top:3px;}
+.cashflow-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
+.cashflow-row{position:relative;display:grid;grid-template-columns:1fr 112px 90px 118px 58px;gap:8px;align-items:center;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;}
+.cashflow-title-wrap{min-width:0;}
+.cashflow-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
+.cashflow-type-select,.cashflow-amount-input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px;color:#e6edf3;font-size:13px;outline:none;}
+.cashflow-type-select:focus,.cashflow-amount-input:focus{border-color:#00d17a;}
+.cashflow-taxable{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:#8b949e;white-space:nowrap;}
+.cashflow-taxable input{accent-color:#00d17a;}
+.cashflow-monthly-wrap{position:relative;display:flex;align-items:center;justify-content:flex-end;}
+.cashflow-pound{position:absolute;left:10px;color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;}
+.cashflow-monthly-input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#00d17a;font-size:13px;font-weight:700;outline:none;text-align:right;}
+.cashflow-monthly-input[readonly]{cursor:default;}
+.cashflow-summary-card .summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
 .pf-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
 .pf-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
 .pf-row{position:relative;display:grid;grid-template-columns:18px 1fr 120px;gap:10px;align-items:center;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
@@ -302,6 +315,12 @@ body.light-mode .sp-name-input,
 body.light-mode .sp-type-input{background:transparent;}
 body.light-mode .pf-name-input,
 body.light-mode .sp-name-input{color:#000000;}
+body.light-mode .cashflow-row{background:#ffffff;border-color:#d8dee8;}
+body.light-mode .cashflow-name-input{color:#0f172a;}
+body.light-mode .cashflow-type-select,
+body.light-mode .cashflow-amount-input,
+body.light-mode .cashflow-monthly-input{background:#f8fafc;border-color:#d0d7e2;color:#0f172a;}
+body.light-mode .cashflow-taxable{color:#64748b;}
 body.light-mode .share-link{color:#0ea86d;}
 body.light-mode .share-modal{background:#ffffff;border-color:#d8dee8;}
 body.light-mode .share-modal-title{color:#0f172a;}
@@ -461,15 +480,17 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <div class="slider-item"><label>Annual Drawdown Top-up <span id="r-draw-v">£24,000</span></label><input type="range" id="r-draw" min="0" max="60000" step="500" value="24000" oninput="S.drawdown=parseInt(this.value)||0;document.getElementById('r-draw-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
         <div class="slider-item"><label>Gross DB Pension / annum <span id="r-db-v">£43,000</span></label><input type="range" id="r-db" min="10000" max="80000" step="500" value="43000" oninput="S.dbPension=parseInt(this.value)||0;document.getElementById('r-db-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
         <div class="slider-item"><label>Target Monthly Net Income <span id="r-tgt-v" style="color:#f85149;">£3,500</span></label><input type="range" id="r-tgt" min="1000" max="8000" step="100" value="3500" oninput="S.targetMonthly=parseInt(this.value)||0;document.getElementById('r-tgt-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
-        <div class="slider-item full"><label>Additional Gross Income / annum <span id="r-extra-v" style="color:#00d17a;">£0</span></label><input type="range" id="r-extra" min="0" max="50000" step="500" value="0" oninput="S.extra=parseInt(this.value)||0;document.getElementById('r-extra-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
       </div>
     </div>
     <div class="card">
-      <div class="card-eyebrow">Investments (User Added)</div>
-      <div class="invest-head"><div>Year</div><div>Name</div><div>Amount (£)</div><div>Delete</div></div>
-      <div id="investments-list"></div>
-      <button class="btn-primary" onclick="addInvestment()">+ Add Investment</button>
-      <div class="year-chip-grid" id="investments-year-totals"></div>
+      <div class="card-eyebrow">Income Sources</div>
+      <div class="invest-head" style="grid-template-columns:1fr 112px 90px 118px 58px;"><div>Name</div><div>Monthly / Annual</div><div>Tax</div><div>Amount (£)</div><div>Monthly</div></div>
+      <div id="income-sources-list"></div>
+      <button class="btn-primary" onclick="addInvestment()">+ Add Income Source</button>
+    </div>
+    <div class="card cashflow-summary-card">
+      <div class="card-eyebrow">Cashflow Summary</div>
+      <div class="summary-grid" id="cashflow-summary"></div>
     </div>
     <div class="card-eyebrow" style="padding:0 4px;margin-bottom:8px;">2026 - 2030 Capital Escalator Flowsheet</div>
     <div class="runway-base">
@@ -558,7 +579,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.0.4';
+const APP_VERSION='V3.0.5';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -792,14 +813,21 @@ function setTheme(mode){
   if(t)t.checked=S.theme==='light';
   save();
 }
-function forceRefreshApp(){
-  const run=async()=>{
-    try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs){await r.unregister();}}}catch(e){}
-    const u=new URL(window.location.href);
-    u.searchParams.set('v',Date.now().toString());
-    window.location.replace(u.toString());
-  };
-  run();
+async function forceRefreshApp(){
+  try{
+    if('caches' in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(key=>caches.delete(key)));
+    }
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(reg=>reg.unregister()));
+    }
+  }catch(e){}
+  const u=new URL(window.location.href);
+  u.searchParams.set('v',Date.now().toString());
+  u.searchParams.set('refresh','1');
+  window.location.replace(u.toString());
 }
 function safeParseJSON(raw){
   if(!raw)return null;
@@ -884,8 +912,15 @@ function load(){
   for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
   initPortfolioData();
   if(!Array.isArray(S.investments))S.investments=[];
-  if(!Array.isArray(S.investments) && Array.isArray(S.monthlyAmounts)){
-    S.investments=S.monthlyAmounts.map((n,idx)=>({id:uid('inv'),year:'2027',name:'Amount '+(idx+1),amount:parseFloat(n)||0}));
+  if(Array.isArray(S.monthlyAmounts) && S.investments.length===0){
+    S.investments=S.monthlyAmounts.map((n,idx)=>normalizeIncomeSource({id:uid('inc'),name:'Amount '+(idx+1),frequency:'annual',amount:parseFloat(n)||0,taxable:false})).filter(Boolean);
+  }else{
+    S.investments=S.investments.map(normalizeIncomeSource).filter(Boolean);
+  }
+  if(S.extra&&Number(S.extra)>0&&!S._cashflowExtraMigrated){
+    S.investments.unshift({id:uid('inc'),name:'Legacy Gross Income',frequency:'annual',amount:parseFloat(S.extra)||0,taxable:false});
+    S.extra=0;
+    S._cashflowExtraMigrated=true;
   }
   if(!S.spend)S.spend={monthly:[],quarterly:[],annual:[]};
   for(const t of ['monthly','quarterly','annual']){if(!Array.isArray(S.spend[t]))S.spend[t]=[];}
@@ -1053,9 +1088,7 @@ function drawdownRaw(){return parseInt(document.getElementById('r-draw')?.value|
 function drawdownUsed(){return S.useDrawdown?drawdownRaw():0;}
 function growthUsed(){return S.useGrowth?growthRate():0;}
 function investmentTotal(year){
-  return S.investments
-    .filter(i=>String(i.year)===String(year))
-    .reduce((sum,i)=>sum+(parseFloat(i.amount)||0),0);
+  return cashflowIncomeAnnualTotal();
 }
 function yearlyProjection(start,year){
   const interest=start*growthUsed();
@@ -1083,38 +1116,97 @@ function setUseGrowth(v){S.useGrowth=!!v;save();recalc();}
 function setUseDrawdown(v){S.useDrawdown=!!v;save();recalc();}
 
 function addInvestment(){
-  S.investments.push({id:uid('inv'),year:'2027',name:'New investment',amount:0});
+  S.investments.push({id:uid('inc'),name:'New income source',frequency:'monthly',amount:0,taxable:false});
   save();renderInvestments();recalc();
 }
 function updateInvestment(idx,key,val){
   if(!S.investments[idx])return;
-  S.investments[idx][key]=key==='amount'?(parseFloat(val)||0):val;
+  if(key==='amount')S.investments[idx][key]=parseFloat(val)||0;
+  else if(key==='taxable')S.investments[idx][key]=!!val;
+  else if(key==='frequency')S.investments[idx][key]=String(val||'monthly')==='annual'?'annual':'monthly';
+  else S.investments[idx][key]=val;
   save();renderInvestments();recalc();
 }
 function deleteInvestment(idx){
   S.investments.splice(idx,1);
   save();renderInvestments();recalc();
 }
+function normalizeIncomeSource(row){
+  if(row===null||row===undefined)return null;
+  if(typeof row==='number')return {id:uid('inc'),name:'Income source',frequency:'annual',amount:parseFloat(row)||0,taxable:false};
+  if(typeof row==='string')return {id:uid('inc'),name:row||'Income source',frequency:'annual',amount:0,taxable:false};
+  if(typeof row==='object'){
+    const legacyFrequency=String(row.frequency||row.period||'').toLowerCase();
+    const derivedFrequency=legacyFrequency==='monthly'?'monthly':'annual';
+    return {
+      id:row.id||uid('inc'),
+      name:row.name||row.title||'Income source',
+      frequency:derivedFrequency,
+      amount:parseFloat(row.amount)||0,
+      taxable:!!row.taxable,
+    };
+  }
+  return null;
+}
+function incomeSourceMonthlyValue(row){
+  const gross=parseFloat(row&&row.amount)||0;
+  const monthlyGross=String(row&&row.frequency)==='annual'?gross/12:gross;
+  return row&&row.taxable?monthlyGross*0.55:monthlyGross;
+}
+function incomeSourceAnnualValue(row){
+  return incomeSourceMonthlyValue(row)*12;
+}
+function cashflowIncomeMonthlyTotal(){
+  return S.investments.reduce((sum,row)=>sum+incomeSourceMonthlyValue(row),0);
+}
+function cashflowIncomeAnnualTotal(){
+  return S.investments.reduce((sum,row)=>sum+incomeSourceAnnualValue(row),0);
+}
+function cashflowIncomeAnnualGrossTotal(){
+  return S.investments.reduce((sum,row)=>sum+((String(row&&row.frequency)==='annual')?(parseFloat(row&&row.amount)||0):((parseFloat(row&&row.amount)||0)*12)),0);
+}
+function renderCashflowSummary(){
+  const el=document.getElementById('cashflow-summary');
+  if(!el)return;
+  const incomeMonthly=cashflowIncomeMonthlyTotal();
+  const incomeAnnual=incomeMonthly*12;
+  const spendMonthly=spendTotal('monthly');
+  const spendQuarterly=spendTotal('quarterly');
+  const spendAnnual=spendTotal('annual');
+  const spendMonthlyEquivalent=spendMonthly+(spendQuarterly/3)+(spendAnnual/12);
+  const spendAnnualEquivalent=(spendMonthly*12)+(spendQuarterly*4)+spendAnnual;
+  const leftMonthly=incomeMonthly-spendMonthlyEquivalent;
+  const leftAnnual=incomeAnnual-spendAnnualEquivalent;
+  const valueClass=value=>value>=0?'green':'red';
+  el.innerHTML=`
+    <div class="summary-chip"><div class="k">Income / Month</div><div class="v ${valueClass(incomeMonthly)}">£${fmtN(incomeMonthly)}</div></div>
+    <div class="summary-chip"><div class="k">Spend / Month</div><div class="v red">£${fmtN(spendMonthlyEquivalent)}</div></div>
+    <div class="summary-chip"><div class="k">Spend / Quarter</div><div class="v red">£${fmtN(spendQuarterly)}</div></div>
+    <div class="summary-chip"><div class="k">Spend / Year</div><div class="v red">£${fmtN(spendAnnualEquivalent)}</div></div>
+    <div class="summary-chip"><div class="k">Left Over / Month</div><div class="v ${valueClass(leftMonthly)}">£${fmtN(leftMonthly)}</div></div>
+    <div class="summary-chip"><div class="k">Left Over / Year</div><div class="v ${valueClass(leftAnnual)}">£${fmtN(leftAnnual)}</div></div>`;
+}
 function renderInvestments(){
-  const list=document.getElementById('investments-list');
+  const list=document.getElementById('income-sources-list');
   if(!list)return;
-  list.innerHTML=S.investments.map((i,idx)=>`<div class="invest-row">
-    <select onchange="updateInvestment(${idx},'year',this.value)">
-      <option value="2027" ${String(i.year)==='2027'?'selected':''}>2027</option>
-      <option value="2028" ${String(i.year)==='2028'?'selected':''}>2028</option>
-      <option value="2029" ${String(i.year)==='2029'?'selected':''}>2029</option>
-      <option value="2030" ${String(i.year)==='2030'?'selected':''}>2030</option>
-    </select>
-    <input type="text" value="${escapeHtml(i.name||'')}" onchange="updateInvestment(${idx},'name',this.value)"/>
-    <input type="number" value="${i.amount||0}" onchange="updateInvestment(${idx},'amount',this.value)" style="text-align:right;"/>
-    <button class="btn-inline-danger" onclick="deleteInvestment(${idx})">Delete</button>
-  </div>`).join('');
-  const chips=document.getElementById('investments-year-totals');
-  if(!chips)return;
-  chips.innerHTML=['2027','2028','2029','2030'].map(y=>`<div class="year-chip"><div class="y">${y} total</div><div class="v">£${fmtN(investmentTotal(y))}</div></div>`).join('');
+  list.innerHTML=S.investments.map((i,idx)=>{const monthly=incomeSourceMonthlyValue(i);return `<div class="cashflow-row-wrap">
+    <div class="cashflow-row">
+      <div class="cashflow-title-wrap"><input class="cashflow-name-input" type="text" value="${escapeHtml(i.name||'')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/></div>
+      <select class="cashflow-type-select" onchange="updateInvestment(${idx},'frequency',this.value)">
+        <option value="monthly" ${String(i.frequency)==='monthly'?'selected':''}>Monthly</option>
+        <option value="annual" ${String(i.frequency)==='annual'?'selected':''}>Annual</option>
+      </select>
+      <label class="cashflow-taxable"><input type="checkbox" ${i.taxable?'checked':''} onchange="updateInvestment(${idx},'taxable',this.checked)"/>Taxable</label>
+      <input class="cashflow-amount-input" type="number" min="0" step="0.01" value="${parseFloat(i.amount)||0}" onchange="updateInvestment(${idx},'amount',this.value)" style="text-align:right;"/>
+      <div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-monthly-input ${monthly>=0?'amt-pos':'amt-neg'}" type="text" value="${fmtN(monthly)}" readonly/></div>
+      <button class="btn-inline-danger" onclick="deleteInvestment(${idx})">Delete</button>
+    </div>
+  </div>`;}).join('');
+  renderCashflowSummary();
 }
 
 function addSpend(type){
+  renderCashflowSummary();
   S.spend[type].push({id:uid('sp'),name:'',type:'General',amount:0,_draft:true});
   save();renderSpendAll();
 }
@@ -1182,13 +1274,15 @@ function renderSpendSummary(){
       <div class="summary-chip"><div class="k">Total Annual</div><div class="v">£${fmtN(annual)}</div></div>`;
   }
   const byType=document.getElementById('spend-by-type');
-  if(!byType)return;
+  if(!byType){renderCashflowSummary();return;}
   const rows=spendTotalsByType();
   if(rows.length===0){
     byType.innerHTML='<div class="spend-type-row"><span>No bills added yet</span><span class="type-total">£0</span></div>';
+    renderCashflowSummary();
     return;
   }
   byType.innerHTML=rows.map(r=>`<div class="spend-type-row"><span>${escapeHtml(r.label)} <span style="color:#8b949e;">(${r.count})</span></span><span class="type-total">£${fmtN(r.total)}</span></div>`).join('');
+  renderCashflowSummary();
 }
 function renderSpendSection(type,elId){
   const list=document.getElementById(elId);if(!list)return;
@@ -1239,7 +1333,8 @@ function buildRunway(){
   const gr=growthRate();
   const db=parseInt(document.getElementById('r-db').value||43000,10);
   const tgt=parseInt(document.getElementById('r-tgt').value||3500,10);
-  const extra=parseInt(document.getElementById('r-extra').value||0,10);
+  const incomeAnnualGross=cashflowIncomeAnnualGrossTotal();
+  const incomeAnnualNet=cashflowIncomeAnnualTotal();
   let bal=calcBase();
   document.getElementById('base-val').textContent='£'+fmtN(bal);
   document.getElementById('liquid-val').textContent='£'+fmtN(bal);
@@ -1248,14 +1343,12 @@ function buildRunway(){
     const start=bal;
     const p=yearlyProjection(start,yr);
     bal=p.end;
-    const pensionTax=Math.round(ukTax(db+extra)-ukTax(extra));
-    const extraTax=Math.round(ukTax(extra));
+    const pensionTax=Math.round(ukTax(db+incomeAnnualGross)-ukTax(incomeAnnualGross));
     const netDB=db-pensionTax;
-    const netExtra=extra-extraTax;
-    const combined=netDB+netExtra+p.draw;
+    const combined=netDB+incomeAnnualNet+p.draw;
     const monthly=combined/12;
     const met=monthly>=tgt;
-    const taxable=db+extra;
+    const taxable=db+incomeAnnualGross;
     const hrLbl=taxable>125140?'Additional Rate':taxable>100000?'PA Taper band':taxable>50270?'Higher Rate':'Basic Rate';
     html+=`<div class="timeline-item"><div class="timeline-dot"></div><div class="rw-card">
       <div class="rw-header">
@@ -1265,15 +1358,15 @@ function buildRunway(){
       <div class="rw-boxes">
         <div class="rw-box"><div class="rw-box-lbl">Start Balance</div><div class="rw-box-val">£${fmtN(start)}</div></div>
         <div class="rw-box"><div class="rw-box-lbl">${S.useGrowth?'+ '+(gr*100).toFixed(1)+'% Growth / Interest':'Growth / Interest (Off)'}</div><div class="rw-box-val ${S.useGrowth?'green':''}" style="${S.useGrowth?'':'color:#484f58'}">${S.useGrowth?'+£'+fmtN(p.interest):'—'}</div></div>
-        <div class="rw-box"><div class="rw-box-lbl">+ Investments</div><div class="rw-box-val green">+£${fmtN(p.investments)}</div></div>
+        <div class="rw-box"><div class="rw-box-lbl">+ Income Sources</div><div class="rw-box-val green">+£${fmtN(p.investments)}</div></div>
         <div class="rw-box"><div class="rw-box-lbl">${S.useDrawdown?'− Drawdown':'Drawdown (Off)'}</div><div class="rw-box-val ${S.useDrawdown?'red':''}" style="${S.useDrawdown?'':'color:#484f58'}">${S.useDrawdown?'−£'+fmtN(p.draw):'—'}</div></div>
       </div>
       <div class="rw-tax-row">
         <div class="rw-tax-line"><span class="lbl">DB Pension Gross:</span><span class="val">£${fmtN(db)}</span></div>
-        ${extra>0?`<div class="rw-tax-line"><span class="lbl">Additional Gross Income:</span><span class="val">£${fmtN(extra)}</span></div>`:''}
+        ${incomeAnnualGross>0?`<div class="rw-tax-line"><span class="lbl">Income Sources Gross:</span><span class="val">£${fmtN(incomeAnnualGross)}</span></div>`:''}
         <div class="rw-tax-line"><span class="lbl">Pension Tax (${db>0?Math.round((pensionTax/db)*100):0}% - ${hrLbl}):</span><span class="val red">−£${fmtN(pensionTax)}</span></div>
         <div class="rw-tax-line"><span class="lbl">Net Pension:</span><span class="val">£${fmtN(netDB)}</span></div>
-        ${extra>0?`<div class="rw-tax-line"><span class="lbl">Net Additional Income (after tax):</span><span class="val green">£${fmtN(netExtra)}</span></div>`:''}
+        ${incomeAnnualNet>0?`<div class="rw-tax-line"><span class="lbl">Net Income Sources (after tax):</span><span class="val green">£${fmtN(incomeAnnualNet)}</span></div>`:''}
         ${S.useDrawdown?`<div class="rw-tax-line"><span class="lbl">Drawdown (Tax-free capital):</span><span class="val green">£${fmtN(p.draw)}</span></div>`:''}
         <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income:</span><span class="val">£${fmtN(combined)} /yr</span></div>
       </div>
