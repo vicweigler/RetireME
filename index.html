@@ -542,6 +542,25 @@ function forceRefreshApp(){
   };
   run();
 }
+async function forceLoginScreen(){
+  try{
+    if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){
+      const auth=firebase.auth();
+      if(auth&&typeof auth.signInWithRedirect==='function'){
+        const provider=new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithRedirect(provider);
+        return;
+      }
+    }
+  }catch(e){}
+  window.location.reload();
+}
+function enforceLoginGate(){
+  const auth=readAuthSession();
+  if(auth.loggedIn)return;
+  cloudStatus('redirecting to login...', '#d29922');
+  forceLoginScreen();
+}
 
 function safeParseJSON(raw){
   if(!raw)return null;
@@ -608,7 +627,7 @@ async function signOutUser(){
   sessionStorage.setItem('loggedIn','false');
   renderAuthHeader();
   cloudStatus('local-only (signed out)', '#848d97');
-  alert('You are now signed out.');
+  forceLoginScreen();
 }
 
 function load(){
@@ -637,6 +656,7 @@ function load(){
   if(typeof S.useDrawdown!=='boolean')S.useDrawdown=true;
   applyDOM();
   initFirebase();
+  enforceLoginGate();
   syncFromCloud();
 }
 let _st;
