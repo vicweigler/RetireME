@@ -184,9 +184,13 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .pf-amount-wrap{position:relative;display:flex;align-items:center;justify-content:flex-end;}
 .pf-pound{position:absolute;left:10px;color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;}
 .pf-amount-wrap input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#f85149;font-size:13px;font-weight:700;outline:none;text-align:right;}
-.move-col{display:flex;gap:6px;justify-content:flex-end;margin-top:6px;}
+.amount-move-row{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;}
+.move-col{display:flex;flex-direction:column;gap:4px;justify-content:center;}
 .move-btn{background:transparent;border:1px solid #30363d;color:#8b949e;border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer;}
 .move-btn:disabled{opacity:0.35;cursor:not-allowed;}
+.draft-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:6px;}
+.mini-action-btn{background:#00d17a;border:1px solid #00d17a;color:#073b24;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;}
+.mini-action-btn.cancel{background:transparent;border-color:#30363d;color:#8b949e;}
 .spend-summary-card{margin-bottom:10px;}
 .summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px;}
 .summary-chip{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px;}
@@ -257,6 +261,7 @@ body.light-mode .pf-amount-wrap input,
 body.light-mode .sp-amount-wrap input{background:#f8fafc;border-color:#d0d7e2;color:#f85149;}
 body.light-mode .spend-type-row .type-total,
 body.light-mode .summary-chip .v{color:#dc2626;}
+body.light-mode .mini-action-btn.cancel{border-color:#d0d7e2;color:#64748b;}
 body.light-mode .hdr-logo,
 body.light-mode .asset-name,
 body.light-mode .ms-title,
@@ -442,7 +447,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V2.9.0';
+const APP_VERSION='V2.9.1';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyBTVDEydTgaxxn9P6Xid0yGMYeqZciEULU',
   authDomain:'invest-in-it.firebaseapp.com',
@@ -778,7 +783,7 @@ function renderInvestments(){
 }
 
 function addSpend(type){
-  S.spend[type].push({id:uid('sp'),name:'',type:'General',amount:0});
+  S.spend[type].push({id:uid('sp'),name:'',type:'General',amount:0,_draft:true});
   save();renderSpendAll();
 }
 function updateSpend(type,idx,key,val){
@@ -791,6 +796,22 @@ function updateSpend(type,idx,key,val){
 function deleteSpend(type,idx){
   S.spend[type].splice(idx,1);
   save();renderSpendAll();
+}
+function confirmAddSpend(type,idx){
+  const row=S.spend[type][idx];
+  if(!row)return;
+  row.name=(row.name||'').trim()||'New bill';
+  row.type=(row.type||'').trim()||'General';
+  row.amount=parseFloat(row.amount)||0;
+  row._draft=false;
+  save();
+  renderSpendAll();
+}
+function cancelAddSpend(type,idx){
+  if(!S.spend[type][idx])return;
+  S.spend[type].splice(idx,1);
+  save();
+  renderSpendAll();
 }
 function moveSpend(type,idx,dir){
   const rows=S.spend[type];
@@ -824,9 +845,9 @@ function renderSpendSummary(){
   const totals=document.getElementById('spend-grand-totals');
   if(totals){
     totals.innerHTML=`
-      <div class="summary-chip"><div class="k">Grand Monthly</div><div class="v">£${fmtN(monthly)}</div></div>
-      <div class="summary-chip"><div class="k">Grand Quarterly</div><div class="v">£${fmtN(quarterly)}</div></div>
-      <div class="summary-chip"><div class="k">Grand Annual</div><div class="v">£${fmtN(annual)}</div></div>`;
+      <div class="summary-chip"><div class="k">Total Monthly</div><div class="v">£${fmtN(monthly)}</div></div>
+      <div class="summary-chip"><div class="k">Total Quarterly</div><div class="v">£${fmtN(quarterly)}</div></div>
+      <div class="summary-chip"><div class="k">Total Annual</div><div class="v">£${fmtN(annual)}</div></div>`;
   }
   const byType=document.getElementById('spend-by-type');
   if(!byType)return;
@@ -841,17 +862,20 @@ function renderSpendSection(type,elId){
   const list=document.getElementById(elId);if(!list)return;
   list.innerHTML=S.spend[type].map((r,idx)=>`<div class="sp-row-wrap">
     <div class="sp-swipe-delete-bg">Swipe left to delete</div>
-    <div class="sp-row" data-sp-row="${type}:${idx}" onpointerdown="spPointerStart(event,'${type}',${idx})" onpointermove="spPointerMove(event,'${type}',${idx})" onpointerup="spPointerEnd(event,'${type}',${idx})" onpointercancel="spPointerEnd(event,'${type}',${idx})">
+    <div class="sp-row" data-sp-row="${type}:${idx}" ${r._draft?'':`onpointerdown="spPointerStart(event,'${type}',${idx})" onpointermove="spPointerMove(event,'${type}',${idx})" onpointerup="spPointerEnd(event,'${type}',${idx})" onpointercancel="spPointerEnd(event,'${type}',${idx})"`}>
       <div class="sp-title-wrap">
         <input class="sp-name-input" type="text" value="${escapeHtml(r.name||'')}" onchange="updateSpend('${type}',${idx},'name',this.value)" placeholder="Name of bill"/>
         <input class="sp-type-input" type="text" value="${escapeHtml(r.type||'General')}" onchange="updateSpend('${type}',${idx},'type',this.value)" placeholder="Bill type"/>
       </div>
       <div>
-        <div class="sp-amount-wrap"><span class="sp-pound">£</span><input type="number" value="${r.amount||0}" onchange="updateSpend('${type}',${idx},'amount',this.value)"/></div>
-        <div class="move-col">
-          <button class="move-btn" onclick="moveSpend('${type}',${idx},-1)" ${idx===0?'disabled':''}>↑</button>
-          <button class="move-btn" onclick="moveSpend('${type}',${idx},1)" ${idx===S.spend[type].length-1?'disabled':''}>↓</button>
+        <div class="amount-move-row">
+          <div class="sp-amount-wrap"><span class="sp-pound">£</span><input type="number" value="${r.amount||0}" onchange="updateSpend('${type}',${idx},'amount',this.value)"/></div>
+          <div class="move-col">
+            <button class="move-btn" onclick="moveSpend('${type}',${idx},-1)" ${idx===0||r._draft?'disabled':''}>↑</button>
+            <button class="move-btn" onclick="moveSpend('${type}',${idx},1)" ${idx===S.spend[type].length-1||r._draft?'disabled':''}>↓</button>
+          </div>
         </div>
+        ${r._draft?`<div class="draft-actions"><button class="mini-action-btn" onclick="confirmAddSpend('${type}',${idx})">Add</button><button class="mini-action-btn cancel" onclick="cancelAddSpend('${type}',${idx})">Cancel</button></div>`:''}
       </div>
     </div>
   </div>`).join('');
@@ -940,17 +964,20 @@ function showLedger(yr,btn){
     <div class="pf-total"><div class="pf-total-lbl">Total Portfolio Value</div><div class="pf-total-val">£${fmtN(total)}</div></div>
     ${rows.map((r,idx)=>`<div class="pf-row-wrap">
       <div class="pf-swipe-delete-bg">Swipe left to delete</div>
-      <div class="pf-row" data-pf-row="${yr}:${idx}" onpointerdown="pfPointerStart(event,'${yr}',${idx})" onpointermove="pfPointerMove(event,'${yr}',${idx})" onpointerup="pfPointerEnd(event,'${yr}',${idx})" onpointercancel="pfPointerEnd(event,'${yr}',${idx})">
+      <div class="pf-row" data-pf-row="${yr}:${idx}" ${r._draft?'':`onpointerdown="pfPointerStart(event,'${yr}',${idx})" onpointermove="pfPointerMove(event,'${yr}',${idx})" onpointerup="pfPointerEnd(event,'${yr}',${idx})" onpointercancel="pfPointerEnd(event,'${yr}',${idx})"`}>
         <div class="pf-title-wrap">
           <input class="pf-name-input" type="text" value="${escapeHtml(r.name||'')}" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
           <input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>
         </div>
         <div>
-          <div class="pf-amount-wrap"><span class="pf-pound">£</span><input type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
-          <div class="move-col">
-            <button class="move-btn" onclick="movePortfolioItem('${yr}',${idx},-1)" ${idx===0?'disabled':''}>↑</button>
-            <button class="move-btn" onclick="movePortfolioItem('${yr}',${idx},1)" ${idx===rows.length-1?'disabled':''}>↓</button>
+          <div class="amount-move-row">
+            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
+            <div class="move-col">
+              <button class="move-btn" onclick="movePortfolioItem('${yr}',${idx},-1)" ${idx===0||r._draft?'disabled':''}>↑</button>
+              <button class="move-btn" onclick="movePortfolioItem('${yr}',${idx},1)" ${idx===rows.length-1||r._draft?'disabled':''}>↓</button>
+            </div>
           </div>
+          ${r._draft?`<div class="draft-actions"><button class="mini-action-btn" onclick="confirmAddPortfolioItem('${yr}',${idx})">Add</button><button class="mini-action-btn cancel" onclick="cancelAddPortfolioItem('${yr}',${idx})">Cancel</button></div>`:''}
         </div>
       </div>
     </div>`).join('')}
@@ -985,8 +1012,9 @@ function pfPointerEnd(e,year,idx){
   const s=PF_SWIPE[key];
   const row=document.querySelector('[data-pf-row="'+key+'"]');
   if(s&&s.pointerId===e.pointerId&&s.dx<-70){
+    const ok=window.confirm('Delete this portfolio card?');
     delete PF_SWIPE[key];
-    deletePortfolioItem(year,idx);
+    if(ok){deletePortfolioItem(year,idx);}else if(row){row.style.transform='translateX(0px)';}
     return;
   }
   if(row)row.style.transform='translateX(0px)';
@@ -1014,8 +1042,9 @@ function spPointerEnd(e,type,idx){
   const s=SP_SWIPE[key];
   const row=document.querySelector('[data-sp-row="'+key+'"]');
   if(s&&s.pointerId===e.pointerId&&s.dx<-70){
+    const ok=window.confirm('Delete this bill card?');
     delete SP_SWIPE[key];
-    deleteSpend(type,idx);
+    if(ok){deleteSpend(type,idx);}else if(row){row.style.transform='translateX(0px)';}
     return;
   }
   if(row)row.style.transform='translateX(0px)';
@@ -1023,7 +1052,27 @@ function spPointerEnd(e,type,idx){
 }
 
 function addPortfolioItem(year){
-  portfolioRows(year).push({id:uid('pf'),name:'New item',type:'Asset',amount:0});
+  portfolioRows(year).push({id:uid('pf'),name:'',type:'Asset',amount:0,_draft:true});
+  save();
+  showLedger(year,document.querySelector('.lyt.active')||undefined);
+  buildRunway();
+}
+function confirmAddPortfolioItem(year,idx){
+  const rows=portfolioRows(year);
+  const row=rows[idx];
+  if(!row)return;
+  row.name=(row.name||'').trim()||'New item';
+  row.type=(row.type||'').trim()||'Asset';
+  row.amount=parseFloat(row.amount)||0;
+  row._draft=false;
+  save();
+  showLedger(year,document.querySelector('.lyt.active')||undefined);
+  buildRunway();
+}
+function cancelAddPortfolioItem(year,idx){
+  const rows=portfolioRows(year);
+  if(!rows[idx])return;
+  rows.splice(idx,1);
   save();
   showLedger(year,document.querySelector('.lyt.active')||undefined);
   buildRunway();
