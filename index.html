@@ -26,7 +26,7 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 .hdr-id{font-size:10px;color:#484f58;margin-top:2px;}
 .hdr-admin{font-size:10px;color:#848d97;letter-spacing:0.3px;}
-.hdr-signout{background:transparent;border:1px solid #30363d;color:#e6edf3;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;display:none;}
+.hdr-signout{background:transparent;border:1px solid #30363d;color:#e6edf3;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;}
 .hdr-signout:hover{border-color:#484f58;}
 #content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(72px + env(safe-area-inset-bottom,0px));}
 #tabbar{position:fixed;bottom:0;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:100;}
@@ -547,7 +547,7 @@ function renderAuthHeader(){
   const adminBadge=document.getElementById('admin-badge');
   const signoutBtn=document.getElementById('signout-btn');
   if(adminBadge)adminBadge.style.display=auth.loggedIn&&auth.isAdmin?'block':'none';
-  if(signoutBtn)signoutBtn.style.display=auth.loggedIn?'inline-flex':'none';
+  if(signoutBtn)signoutBtn.style.display='inline-flex';
 }
 async function signOutUser(){
   if(!confirm('Sign out now?'))return;
