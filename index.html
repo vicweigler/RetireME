@@ -195,16 +195,26 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .year-chip .y{font-size:10px;color:#484f58;}
 .year-chip .v{font-size:13px;font-weight:700;color:#00d17a;margin-top:3px;}
 .cashflow-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
-.cashflow-row{position:relative;display:grid;grid-template-columns:1fr 112px 90px 118px 58px;gap:8px;align-items:center;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;}
+.cashflow-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
+.cashflow-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 96px 72px 126px 126px;gap:8px;align-items:flex-start;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
 .cashflow-title-wrap{min-width:0;}
 .cashflow-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
-.cashflow-type-select,.cashflow-amount-input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px;color:#e6edf3;font-size:13px;outline:none;}
-.cashflow-type-select:focus,.cashflow-amount-input:focus{border-color:#00d17a;}
+.cashflow-frequency-toggle{display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px;font-weight:700;color:#8b949e;white-space:nowrap;user-select:none;}
+.cashflow-frequency-toggle span{line-height:1;}
+.cashflow-mini-switch{position:relative;display:inline-block;width:38px;height:20px;flex-shrink:0;}
+.cashflow-mini-switch input{opacity:0;width:0;height:0;}
+.cashflow-mini-switch .slider-round{border-radius:20px;}
+.cashflow-mini-switch .slider-round:before{height:14px;width:14px;left:3px;top:3px;}
+.cashflow-mini-switch input:checked + .slider-round:before{transform:translateX(18px);}
 .cashflow-taxable{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:#8b949e;white-space:nowrap;}
 .cashflow-taxable input{accent-color:#00d17a;}
-.cashflow-monthly-wrap{position:relative;display:flex;align-items:center;justify-content:flex-end;}
+.cashflow-monthly-wrap{position:relative;display:flex;align-items:flex-start;justify-content:flex-end;padding-top:2px;}
 .cashflow-pound{position:absolute;left:10px;color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;}
-.cashflow-monthly-input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#00d17a;font-size:13px;font-weight:700;outline:none;text-align:right;}
+.cashflow-amount-input,.cashflow-monthly-input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#e6edf3;font-size:13px;font-weight:700;outline:none;text-align:right;}
+.cashflow-amount-input:focus,.cashflow-monthly-input:focus{border-color:#00d17a;}
+.cashflow-amount-input{padding-left:10px;}
+.cashflow-amount-input{color:#e6edf3;}
+.cashflow-monthly-input{color:#00d17a;}
 .cashflow-monthly-input[readonly]{cursor:default;}
 .cashflow-summary-card .summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
 .cashflow-model-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
@@ -327,10 +337,12 @@ body.light-mode .pf-name-input,
 body.light-mode .sp-name-input{color:#000000;}
 body.light-mode .cashflow-row{background:#ffffff;border-color:#d8dee8;}
 body.light-mode .cashflow-name-input{color:#0f172a;}
+body.light-mode .cashflow-frequency-toggle{color:#64748b;}
 body.light-mode .cashflow-type-select,
 body.light-mode .cashflow-amount-input,
 body.light-mode .cashflow-monthly-input{background:#f8fafc;border-color:#d0d7e2;color:#0f172a;}
 body.light-mode .cashflow-taxable{color:#64748b;}
+body.light-mode .cashflow-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 body.light-mode .cashflow-model-asset{background:#ffffff;border-color:#d8dee8;}
 body.light-mode .cashflow-model-asset label{color:#0f172a;}
 body.light-mode .share-link{color:#0ea86d;}
@@ -469,32 +481,6 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
   <!-- CASHFLOW -->
   <div class="tab-panel" id="tab-cashflow">
     <div class="card">
-      <div class="slider-label-bar">
-        <div class="sim-title">Runway Simulation Drivers</div>
-        <div class="live-sync-badge">LIVE SYNC</div>
-      </div>
-      <div class="toggle-row">
-        <div>
-          <div class="toggle-label">Apply Growth / Interest</div>
-          <div class="toggle-meta">Use annual growth in yearly carry-over balance</div>
-        </div>
-        <label class="switch"><input type="checkbox" id="use-growth" onchange="setUseGrowth(this.checked)"/><span class="slider-round"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div>
-          <div class="toggle-label">Apply Drawdown</div>
-          <div class="toggle-meta">Use annual drawdown in yearly carry-over balance</div>
-        </div>
-        <label class="switch"><input type="checkbox" id="use-drawdown" onchange="setUseDrawdown(this.checked)"/><span class="slider-round"></span></label>
-      </div>
-      <div class="slider-grid">
-        <div class="slider-item"><label>Assets Growth Rate <span id="r-gr-v">4.0%</span></label><input type="range" id="r-gr" min="1" max="15" step="0.5" value="4" oninput="S.growth=parseFloat(this.value)||4;document.getElementById('r-gr-v').textContent=parseFloat(this.value).toFixed(1)+'%';save();buildRunway()"/></div>
-        <div class="slider-item"><label>Annual Drawdown Top-up <span id="r-draw-v">£24,000</span></label><input type="range" id="r-draw" min="0" max="60000" step="500" value="24000" oninput="S.drawdown=parseInt(this.value)||0;document.getElementById('r-draw-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
-        <div class="slider-item"><label>Gross DB Pension / annum <span id="r-db-v">£43,000</span></label><input type="range" id="r-db" min="10000" max="80000" step="500" value="43000" oninput="S.dbPension=parseInt(this.value)||0;document.getElementById('r-db-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
-        <div class="slider-item"><label>Target Monthly Net Income <span id="r-tgt-v" style="color:#f85149;">£3,500</span></label><input type="range" id="r-tgt" min="1000" max="8000" step="100" value="3500" oninput="S.targetMonthly=parseInt(this.value)||0;document.getElementById('r-tgt-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
-      </div>
-    </div>
-    <div class="card">
       <div class="card-eyebrow">Income Sources</div>
       <div class="invest-head" style="grid-template-columns:1fr 112px 90px 118px 58px;"><div>Name</div><div>Monthly / Annual</div><div>Tax</div><div>Amount (£)</div><div>Monthly</div></div>
       <div id="income-sources-list"></div>
@@ -532,8 +518,6 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="btn-danger" type="button" onclick="clearCashflowModelSelection()">Clear Selection</button>
       </div>
     </div>
-    <div class="card-eyebrow" style="padding:0 4px;margin-bottom:8px;">2026 - 2030 Capital Escalator Flowsheet</div>
-    <div class="timeline" id="runway-timeline"></div>
   </div>
 
   <!-- SPEND -->
@@ -615,7 +599,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.0.6';
+const APP_VERSION='V3.0.7';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -1159,9 +1143,9 @@ function addInvestment(){
 }
 function updateInvestment(idx,key,val){
   if(!S.investments[idx])return;
-  if(key==='amount')S.investments[idx][key]=parseFloat(val)||0;
+  if(key==='amount')S.investments[idx][key]=parseFloat(String(val||'').replace(/,/g,''))||0;
   else if(key==='taxable')S.investments[idx][key]=!!val;
-  else if(key==='frequency')S.investments[idx][key]=String(val||'monthly')==='annual'?'annual':'monthly';
+  else if(key==='frequency')S.investments[idx][key]=val?'annual':'monthly';
   else S.investments[idx][key]=val;
   save();renderInvestments();recalc();
 }
@@ -1329,25 +1313,54 @@ function renderCashflowSummary(){
     <div class="summary-chip"><div class="k">Left Over / Month</div><div class="v ${valueClass(leftMonthly)}">£${fmtN(leftMonthly)}</div></div>
     <div class="summary-chip"><div class="k">Left Over / Year</div><div class="v ${valueClass(leftAnnual)}">£${fmtN(leftAnnual)}</div></div>`;
 }
+const INC_SWIPE={};
 function renderInvestments(){
   const list=document.getElementById('income-sources-list');
   if(!list)return;
-  list.innerHTML=S.investments.map((i,idx)=>{const monthly=incomeSourceMonthlyValue(i);return `<div class="cashflow-row-wrap">
-    <div class="cashflow-row">
+  list.innerHTML=S.investments.map((i,idx)=>{const monthly=incomeSourceMonthlyValue(i);const annualValue=parseFloat(i.amount)||0;const rowKey='inc:'+idx;return `<div class="cashflow-row-wrap">
+    <div class="cashflow-swipe-delete-bg">Swipe left to delete</div>
+    <div class="cashflow-row" data-inc-row="${rowKey}" onpointerdown="incPointerStart(event,${idx})" onpointermove="incPointerMove(event,${idx})" onpointerup="incPointerEnd(event,${idx})" onpointercancel="incPointerEnd(event,${idx})">
       <div class="cashflow-title-wrap"><input class="cashflow-name-input" type="text" value="${escapeHtml(i.name||'')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/></div>
-      <select class="cashflow-type-select" onchange="updateInvestment(${idx},'frequency',this.value)">
-        <option value="monthly" ${String(i.frequency)==='monthly'?'selected':''}>Monthly</option>
-        <option value="annual" ${String(i.frequency)==='annual'?'selected':''}>Annual</option>
-      </select>
-      <label class="cashflow-taxable"><input type="checkbox" ${i.taxable?'checked':''} onchange="updateInvestment(${idx},'taxable',this.checked)"/>Taxable</label>
-      <input class="cashflow-amount-input" type="number" min="0" step="0.01" value="${parseFloat(i.amount)||0}" onchange="updateInvestment(${idx},'amount',this.value)" style="text-align:right;"/>
-      <div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-monthly-input ${monthly>=0?'amt-pos':'amt-neg'}" type="text" value="${fmtN(monthly)}" readonly/></div>
-      <button class="btn-inline-danger" onclick="deleteInvestment(${idx})">Delete</button>
+      <div class="cashflow-frequency-toggle"><span>M</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency)==='annual'?'checked':''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>A</span></div>
+      <label class="cashflow-taxable"><input type="checkbox" ${i.taxable?'checked':''} onchange="updateInvestment(${idx},'taxable',this.checked)"/>Tax</label>
+      <input class="cashflow-amount-input" type="text" inputmode="decimal" value="${annualValue.toFixed(2)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=parseFloat(this.value||0).toFixed(2)" onchange="updateInvestment(${idx},'amount',this.value)"/>
+      <div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-monthly-input ${monthly>=0?'amt-pos':'amt-neg'}" type="text" value="${fmt2(monthly)}" readonly/></div>
     </div>
   </div>`;}).join('');
   renderCashflowModelAssets();
   renderCashflowModelPreview();
   renderCashflowSummary();
+}
+
+function incPointerStart(e,idx){
+  if(pointerBlockedTarget(e.target))return;
+  const key=String(idx);
+  INC_SWIPE[key]={startX:e.clientX,startY:e.clientY,dx:0,pointerId:e.pointerId};
+  if(e.currentTarget&&e.currentTarget.setPointerCapture){e.currentTarget.setPointerCapture(e.pointerId);}
+}
+function incPointerMove(e,idx){
+  const key=String(idx);
+  const s=INC_SWIPE[key];
+  if(!s||s.pointerId!==e.pointerId)return;
+  const dx=e.clientX-s.startX;
+  const dy=e.clientY-s.startY;
+  if(Math.abs(dy)>Math.abs(dx))return;
+  s.dx=Math.min(0,dx);
+  const row=document.querySelector('[data-inc-row="inc:'+key+'"]');
+  if(row)row.style.transform='translateX('+Math.max(-110,s.dx)+'px)';
+}
+function incPointerEnd(e,idx){
+  const key=String(idx);
+  const s=INC_SWIPE[key];
+  const row=document.querySelector('[data-inc-row="inc:'+key+'"]');
+  if(s&&s.pointerId===e.pointerId&&s.dx<-70){
+    const ok=window.confirm('Delete this income source?');
+    delete INC_SWIPE[key];
+    if(ok){deleteInvestment(idx);}else if(row){row.style.transform='translateX(0px)';}
+    return;
+  }
+  if(row)row.style.transform='translateX(0px)';
+  delete INC_SWIPE[key];
 }
 
 function addSpend(type){
@@ -1480,6 +1493,8 @@ function buildRunway(){
   const incomeAnnualGross=cashflowIncomeAnnualGrossTotal();
   const incomeAnnualNet=cashflowIncomeAnnualTotal();
   let bal=calcBase();
+  const timeline=document.getElementById('runway-timeline');
+  if(!timeline)return;
   let html='';
   for(let yr=2027;yr<=2030;yr++){
     const start=bal;
@@ -1516,7 +1531,7 @@ function buildRunway(){
       </div>
     </div></div>`;
   }
-  document.getElementById('runway-timeline').innerHTML=html;
+  timeline.innerHTML=html;
   document.getElementById('outlook-val').textContent='£'+fmtN(calcRunwayEnd());
 }
 
@@ -1536,15 +1551,15 @@ function showLedger(yr,btn){
           <button class="row-arrow-btn" onclick="movePortfolioItem('${yr}',${idx},1)" ${idx===rows.length-1||r._draft?'disabled':''}>▼</button>
         </div>
         <div class="pf-title-wrap">
-          <input class="pf-name-input" type="text" value="${escapeHtml(r.name||'')}" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
-          ${isShares?`<button type="button" class="share-link" onclick="openShareModal('${yr}',${idx});return false;">Shares</button>`:`<input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>`}
+          <input class="pf-name-input" type="text" value="${escapeHtml(r.name||'')}" onpointerdown="event.stopPropagation()" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
+          ${isShares?`<button type="button" class="share-link" onclick="openShareModal('${yr}',${idx});return false;">Shares</button>`:`<input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onpointerdown="event.stopPropagation()" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>`}
         </div>
         <div>
           ${isShares?`<div class="amount-move-row">
             <div></div>
             <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="text" value="${fmtN(calcPortfolioShareAmount(r))}" readonly/></div>
           </div>`:`<div class="amount-move-row">
-            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${(parseFloat(r.amount)||0)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(parseFloat(r.amount)||0)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
+            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${(parseFloat(r.amount)||0)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(parseFloat(r.amount)||0)}" onpointerdown="event.stopPropagation()" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
             <div></div>
           </div>`}
           ${r._draft?`<div class="draft-actions"><button class="mini-action-btn" onclick="confirmAddPortfolioItem('${yr}',${idx})">Add</button><button class="mini-action-btn cancel" onclick="cancelAddPortfolioItem('${yr}',${idx})">Cancel</button></div>`:''}
@@ -1737,6 +1752,7 @@ function toggleCk(id,el){if(!S.checklist)S.checklist={};S.checklist[id]=!S.check
 
 function escapeHtml(str){return String(str||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');}
 function fmtN(n){return Math.round(n).toLocaleString('en-GB');}
+function fmt2(n){return Number(n||0).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});}
 
 load();
 applyDefaultLedgerYear();
