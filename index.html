@@ -332,6 +332,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       </div>
       <div class="login-actions">
         <button class="login-btn primary" type="submit">Login</button>
+        <button class="login-btn secondary" type="button" onclick="createAccountWithPassword()">Create Account</button>
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
@@ -516,6 +517,18 @@ function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random
 function uid(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);}
 function cloudStatus(msg,color){const e=document.getElementById('cloud-sync-status');if(e){e.textContent='Sync status: '+msg;if(color)e.style.color=color;}}
 function loginStatus(msg,color){const e=document.getElementById('login-status');if(e){e.textContent=msg||'';if(color)e.style.color=color;}}
+function authErrorMessage(e,forLogin){
+  const code=(e&&e.code)||'';
+  if(code==='auth/invalid-credential')return 'Invalid email/password for this new RetireMe project. Create Account first or reset password.';
+  if(code==='auth/user-not-found')return 'No account found for this email. Use Create Account.';
+  if(code==='auth/wrong-password')return 'Password is incorrect. Try again or reset password.';
+  if(code==='auth/email-already-in-use')return 'This email already has an account. Use Login instead.';
+  if(code==='auth/weak-password')return 'Password is too weak. Use at least 6 characters.';
+  if(code==='auth/operation-not-allowed')return 'Email/Password sign-in is not enabled in Firebase Console yet.';
+  if(code==='auth/invalid-email')return 'Email format looks invalid.';
+  if(forLogin)return 'Login failed. Check your email/password or create a new account.';
+  return (e&&e.message)||'Action failed. Please try again.';
+}
 function isAuthed(){return !!(_firebaseUser&&_firebaseUser.uid);}
 function renderAuthGate(){
   const login=document.getElementById('login-screen');
@@ -570,7 +583,28 @@ async function loginWithPassword(event){
     loginStatus('Signing in...', '#d29922');
     await firebase.auth().signInWithEmailAndPassword(email,password);
   }catch(e){
-    loginStatus((e&&e.message)||'Login failed. Please try again.', '#f85149');
+    loginStatus(authErrorMessage(e,true), '#f85149');
+  }
+}
+async function createAccountWithPassword(){
+  try{
+    if(!(window.firebase&&firebase.auth&&typeof firebase.auth==='function')){
+      loginStatus('Auth unavailable right now. Please refresh.', '#f85149');
+      return;
+    }
+    const emailEl=document.getElementById('login-email');
+    const passEl=document.getElementById('login-password');
+    const email=(emailEl&&emailEl.value||'').trim();
+    const password=(passEl&&passEl.value||'').trim();
+    if(!email||!password){
+      loginStatus('Enter email and password to create account.', '#f85149');
+      return;
+    }
+    loginStatus('Creating account...', '#d29922');
+    await firebase.auth().createUserWithEmailAndPassword(email,password);
+    loginStatus('Account created. You are now signed in.', '#00d17a');
+  }catch(e){
+    loginStatus(authErrorMessage(e,false), '#f85149');
   }
 }
 async function requestPasswordReset(){
@@ -588,7 +622,7 @@ async function requestPasswordReset(){
     await firebase.auth().sendPasswordResetEmail(email);
     loginStatus('Password reset email sent.', '#00d17a');
   }catch(e){
-    loginStatus((e&&e.message)||'Could not send reset email.', '#f85149');
+    loginStatus(authErrorMessage(e,false), '#f85149');
   }
 }
 function signInUser(){
