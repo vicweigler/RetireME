@@ -790,7 +790,7 @@ function renderAuthHeader(){
   const liveAccount=(liveUser&&(liveUser.email||liveUser.uid))||(_firebaseUser&&(_firebaseUser.email||_firebaseUser.uid))||'';
   const storedAccount=readStorageValue('userEmail')||readStorageValue('uid')||'';
   const account=(liveAccount||storedAccount||auth.userKey||'local').toString();
-  if(idEl)idEl.textContent='Acct: '+account+' | Dev: '+devId();
+  if(idEl)idEl.textContent='Acct: '+account;
   if(adminBadge)adminBadge.style.display=auth.loggedIn&&auth.isAdmin?'block':'none';
   if(signoutBtn){
     signoutBtn.style.display='inline-flex';
