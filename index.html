@@ -200,9 +200,15 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .pf-title-wrap{min-width:0;}
 .pf-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
 .pf-type-input{width:100%;background:transparent;border:none;color:#8b949e;font-size:11px;line-height:1.2;padding:2px 0 0;outline:none;}
+.pf-qty-row{display:grid;grid-template-columns:72px 86px 74px 1fr;gap:6px;align-items:center;}
+.pf-mini-input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:7px 8px;color:#e6edf3;font-size:12px;font-weight:600;outline:none;}
+.pf-mini-input:focus{border-color:#00d17a;}
+.pf-taxable{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:#8b949e;white-space:nowrap;}
+.pf-taxable input{accent-color:#00d17a;}
 .pf-amount-wrap{position:relative;display:flex;align-items:center;justify-content:flex-end;}
 .pf-pound{position:absolute;left:10px;color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;}
 .pf-amount-wrap input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#f85149;font-size:13px;font-weight:700;outline:none;text-align:right;}
+.pf-amount-wrap input[readonly]{cursor:default;}
 .amt-pos{color:#00d17a !important;}
 .amt-neg{color:#f85149 !important;}
 .amount-move-row{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;}
@@ -505,7 +511,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.0.2';
+const APP_VERSION='V3.0.3';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -881,6 +887,7 @@ function initPortfolioData(){
   }
   for(const y of years){
     if(!Array.isArray(S.portfolio[y]))S.portfolio[y]=[];
+    S.portfolio[y]=S.portfolio[y].map(r=>ensurePortfolioShareFields(r));
     if(y!=='2026'&&S.portfolio[y].length===0){
       S.portfolio[y]=[{id:uid('pf'),name:'Opening Carry-Over',type:'Carry-Over',amount:portfolioYearTotal(String(parseInt(y,10)-1))}];
     }
@@ -891,7 +898,10 @@ function portfolioRows(year){
   return S.portfolio[year];
 }
 function portfolioYearTotal(year){
-  return portfolioRows(year).reduce((sum,r)=>sum+(parseFloat(r.amount)||0),0);
+  return portfolioRows(year).reduce((sum,r)=>{
+    const isShares=String(r.type||'').trim().toLowerCase()==='shares';
+    return sum+(isShares?calcPortfolioShareAmount(r):(parseFloat(r.amount)||0));
+  },0);
 }
 function renderVersionLabels(){
   const ids=['version-header','version-home','version-settings','version-login'];
@@ -903,6 +913,22 @@ function normalizeSpendRow(row){
   if(typeof row==='string')return {id:uid('sp'),name:row,type:'General',amount:0};
   if(typeof row==='object')return {id:row.id||uid('sp'),name:row.name||row.title||'Bill',type:row.type||row.category||'General',amount:parseFloat(row.amount)||0};
   return null;
+}
+function calcPortfolioShareAmount(row){
+  const shares=parseFloat(row&&row.shares)||0;
+  const sharePrice=parseFloat(row&&row.sharePrice)||0;
+  const gross=shares*sharePrice;
+  return (row&&row.taxable)?gross*0.55:gross;
+}
+function ensurePortfolioShareFields(row){
+  if(!row||typeof row!=='object')return row;
+  if(String(row.type||'').trim().toLowerCase()==='shares'){
+    if(row.shares===undefined||row.shares===null||row.shares==='')row.shares=0;
+    if(row.sharePrice===undefined||row.sharePrice===null||row.sharePrice==='')row.sharePrice=0;
+    if(typeof row.taxable!=='boolean')row.taxable=false;
+    row.amount=calcPortfolioShareAmount(row);
+  }
+  return row;
 }
 function sv(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
 function sr(id,v,lbl,txt){const e=document.getElementById(id);if(e)e.value=v;const l=document.getElementById(lbl);if(l)l.textContent=txt!==undefined?txt:v;}
@@ -1176,7 +1202,7 @@ function showLedger(yr,btn){
   const total=portfolioYearTotal(yr);
   el.innerHTML=`<div class="card">
     <div class="pf-total"><div class="pf-total-lbl">Total Portfolio Value</div><div class="pf-total-val">£${fmtN(total)}</div></div>
-    ${rows.map((r,idx)=>`<div class="pf-row-wrap">
+    ${rows.map((r,idx)=>{const isShares=String(r.type||'').trim().toLowerCase()==='shares';return `<div class="pf-row-wrap">
       <div class="pf-swipe-delete-bg">Swipe left to delete</div>
       <div class="pf-row" data-pf-row="${yr}:${idx}" ${r._draft?'':`onpointerdown="pfPointerStart(event,'${yr}',${idx})" onpointermove="pfPointerMove(event,'${yr}',${idx})" onpointerup="pfPointerEnd(event,'${yr}',${idx})" onpointercancel="pfPointerEnd(event,'${yr}',${idx})"`}>
         <div class="row-arrows">
@@ -1188,14 +1214,19 @@ function showLedger(yr,btn){
           <input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>
         </div>
         <div>
-          <div class="amount-move-row">
+          ${isShares?`<div class="pf-qty-row">
+            <input class="pf-mini-input" type="number" min="0" step="1" value="${parseFloat(r.shares)||0}" onchange="updatePortfolioItem('${yr}',${idx},'shares',this.value)" placeholder="Shares"/>
+            <input class="pf-mini-input" type="number" min="0" step="0.01" value="${parseFloat(r.sharePrice)||0}" onchange="updatePortfolioItem('${yr}',${idx},'sharePrice',this.value)" placeholder="Share price"/>
+            <label class="pf-taxable"><input type="checkbox" ${r.taxable?'checked':''} onchange="updatePortfolioItem('${yr}',${idx},'taxable',this.checked)"/>Taxable</label>
+            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="number" value="${calcPortfolioShareAmount(r)}" readonly/></div>
+          </div>`:`<div class="amount-move-row">
             <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${(parseFloat(r.amount)||0)>=0?'amt-pos':'amt-neg'}" type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
             <div></div>
-          </div>
+          </div>`}
           ${r._draft?`<div class="draft-actions"><button class="mini-action-btn" onclick="confirmAddPortfolioItem('${yr}',${idx})">Add</button><button class="mini-action-btn cancel" onclick="cancelAddPortfolioItem('${yr}',${idx})">Cancel</button></div>`:''}
         </div>
       </div>
-    </div>`).join('')}
+    </div>`;}).join('')}
     <button class="btn-primary" onclick="addPortfolioItem('${yr}')">+ Add Portfolio Item</button>
   </div>`;
 }
@@ -1267,7 +1298,7 @@ function spPointerEnd(e,type,idx){
 }
 
 function addPortfolioItem(year){
-  portfolioRows(year).push({id:uid('pf'),name:'',type:'Asset',amount:0,_draft:true});
+  portfolioRows(year).push({id:uid('pf'),name:'',type:'Asset',amount:0,_draft:true,shares:0,sharePrice:0,taxable:false});
   save();
   showLedger(year,document.querySelector('.lyt.active')||undefined);
   buildRunway();
@@ -1278,7 +1309,11 @@ function confirmAddPortfolioItem(year,idx){
   if(!row)return;
   row.name=(row.name||'').trim()||'New item';
   row.type=(row.type||'').trim()||'Asset';
-  row.amount=parseFloat(row.amount)||0;
+  if(String(row.type).trim().toLowerCase()==='shares'){
+    ensurePortfolioShareFields(row);
+  }else{
+    row.amount=parseFloat(row.amount)||0;
+  }
   row._draft=false;
   save();
   showLedger(year,document.querySelector('.lyt.active')||undefined);
@@ -1307,7 +1342,20 @@ function updatePortfolioItem(year,idx,key,val){
   const rows=portfolioRows(year);
   const row=rows[idx];
   if(!row)return;
-  row[key]=key==='amount'?(parseFloat(val)||0):val;
+  const incomingType=key==='type'?String(val||'').trim().toLowerCase():String(row.type||'').trim().toLowerCase();
+  const isShares=incomingType==='shares';
+  if(key==='type'){
+    row.type=val;
+    ensurePortfolioShareFields(row);
+  }else if(key==='shares' || key==='sharePrice'){
+    row[key]=parseFloat(val)||0;
+    if(isShares)row.amount=calcPortfolioShareAmount(row);
+  }else if(key==='taxable'){
+    row.taxable=!!val;
+    if(isShares)row.amount=calcPortfolioShareAmount(row);
+  }else{
+    row[key]=parseFloat(val)||0;
+  }
   if(year==='2026'&&row.key&&key==='amount'){S.assets[row.key]=parseFloat(row.amount)||0;}
   save();
   showLedger(year,document.querySelector('.lyt.active')||undefined);
