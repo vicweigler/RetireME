@@ -474,6 +474,7 @@ function initFirebase(){
       _authObserverSet=true;
       firebase.auth().onAuthStateChanged((u)=>{
         _firebaseUser=u||null;
+        if(_firebaseUser)sessionStorage.removeItem('rm_login_redirect_attempted');
         renderAuthHeader();
         syncFromCloud();
       });
@@ -543,11 +544,22 @@ function forceRefreshApp(){
   run();
 }
 async function forceLoginScreen(){
+  const loopGuardKey='rm_login_redirect_attempted';
   try{
     if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){
       const auth=firebase.auth();
+      const provider=new firebase.auth.GoogleAuthProvider();
+      if(auth&&typeof auth.signInWithPopup==='function'){
+        await auth.signInWithPopup(provider);
+        sessionStorage.removeItem(loopGuardKey);
+        return;
+      }
       if(auth&&typeof auth.signInWithRedirect==='function'){
-        const provider=new firebase.auth.GoogleAuthProvider();
+        if(sessionStorage.getItem(loopGuardKey)==='1'){
+          cloudStatus('login retry blocked to avoid loop, tap Sign in again', '#f85149');
+          return;
+        }
+        sessionStorage.setItem(loopGuardKey,'1');
         await auth.signInWithRedirect(provider);
         return;
       }
@@ -633,7 +645,6 @@ async function signOutUser(){
   sessionStorage.setItem('loggedIn','false');
   renderAuthHeader();
   cloudStatus('local-only (signed out)', '#848d97');
-  forceLoginScreen();
 }
 
 function load(){
