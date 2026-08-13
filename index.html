@@ -505,7 +505,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.0.0';
+const APP_VERSION='V3.0.1';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -779,7 +779,7 @@ function renderAuthHeader(){
   const adminBadge=document.getElementById('admin-badge');
   const signoutBtn=document.getElementById('signout-btn');
   const idEl=document.getElementById('device-id');
-  const account=(auth.userKey||'').includes('@')?(auth.userKey||''):'local';
+  const account=((_firebaseUser&&(_firebaseUser.email||_firebaseUser.uid))||auth.userKey||'local').toString();
   if(idEl)idEl.textContent='Acct: '+account+' | Dev: '+devId();
   if(adminBadge)adminBadge.style.display=auth.loggedIn&&auth.isAdmin?'block':'none';
   if(signoutBtn){
