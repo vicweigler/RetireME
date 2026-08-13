@@ -18,10 +18,13 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .hdr-logo{font-size:22px;font-weight:800;color:#e6edf3;letter-spacing:-0.5px;}
 .hdr-version{font-size:10px;color:#484f58;margin-top:2px;letter-spacing:0.4px;}
 .hdr-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,209,122,0.12);border:1px solid rgba(0,209,122,0.3);border-radius:20px;padding:3px 8px;font-size:10px;color:#00d17a;font-weight:600;vertical-align:middle;}
-.hdr-right{text-align:right;}
+.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
 .sync-dot{width:7px;height:7px;background:#00d17a;border-radius:50%;display:inline-block;margin-right:4px;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 .hdr-id{font-size:10px;color:#484f58;margin-top:2px;}
+.hdr-admin{font-size:10px;color:#848d97;letter-spacing:0.3px;}
+.hdr-signout{background:transparent;border:1px solid #30363d;color:#e6edf3;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;display:none;}
+.hdr-signout:hover{border-color:#484f58;}
 #content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(72px + env(safe-area-inset-bottom,0px));}
 #tabbar{position:fixed;bottom:0;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:100;}
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 4px 7px;gap:3px;background:none;border:none;color:#484f58;font-size:10px;font-weight:500;cursor:pointer;transition:color 0.2s;letter-spacing:0.3px;}
@@ -172,6 +175,12 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .spend-row{display:grid;grid-template-columns:1fr 110px 72px;gap:8px;align-items:center;margin-bottom:8px;}
 .spend-row input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 10px;color:#e6edf3;font-size:13px;}
 .spend-head{display:grid;grid-template-columns:1fr 110px 72px;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;margin-bottom:6px;}
+.pf-head{display:grid;grid-template-columns:1fr 1fr 120px 72px;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;margin-bottom:8px;}
+.pf-row{display:grid;grid-template-columns:1fr 1fr 120px 72px;gap:8px;align-items:center;margin-bottom:8px;}
+.pf-row input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 10px;color:#e6edf3;font-size:13px;}
+.pf-total{display:flex;justify-content:space-between;align-items:center;background:#0d1117;border:1px solid rgba(0,209,122,0.3);border-radius:10px;padding:10px 12px;margin-bottom:10px;}
+.pf-total-lbl{font-size:11px;font-weight:700;color:#00d17a;}
+.pf-total-val{font-size:16px;font-weight:800;color:#00d17a;}
 .slider-item.full{grid-column:1/-1;}
 .version-note{font-size:10px;color:#484f58;text-align:center;letter-spacing:0.4px;}
 .version-note.home{margin-top:10px;}
@@ -185,11 +194,13 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V2.7.0</div>
+      <div class="hdr-version" id="version-header">V2.7.1</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
       <div class="hdr-id" id="device-id">ID: —</div>
+      <div class="hdr-admin" id="admin-badge" style="display:none;">Admin</div>
+      <button class="hdr-signout" id="signout-btn" onclick="signOutUser()">Sign out</button>
     </div>
   </div>
 </div>
@@ -205,7 +216,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home">V2.7.0</div>
+    <div class="version-note home" id="version-home">V2.7.1</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -230,10 +241,10 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
         <label class="switch"><input type="checkbox" id="use-drawdown" onchange="setUseDrawdown(this.checked)"/><span class="slider-round"></span></label>
       </div>
       <div class="slider-grid">
-        <div class="slider-item"><label>Assets Growth Rate <span id="r-gr-v">4.0%</span></label><input type="range" id="r-gr" min="1" max="15" step="0.5" value="4" oninput="document.getElementById('r-gr-v').textContent=parseFloat(this.value).toFixed(1)+'%';buildRunway()"/></div>
-        <div class="slider-item"><label>Annual Drawdown Top-up <span id="r-draw-v">£24,000</span></label><input type="range" id="r-draw" min="0" max="60000" step="500" value="24000" oninput="document.getElementById('r-draw-v').textContent='£'+parseInt(this.value).toLocaleString();buildRunway()"/></div>
-        <div class="slider-item"><label>Gross DB Pension / annum <span id="r-db-v">£43,000</span></label><input type="range" id="r-db" min="10000" max="80000" step="500" value="43000" oninput="document.getElementById('r-db-v').textContent='£'+parseInt(this.value).toLocaleString();buildRunway()"/></div>
-        <div class="slider-item"><label>Target Monthly Net Income <span id="r-tgt-v" style="color:#f85149;">£3,500</span></label><input type="range" id="r-tgt" min="1000" max="8000" step="100" value="3500" oninput="document.getElementById('r-tgt-v').textContent='£'+parseInt(this.value).toLocaleString();buildRunway()"/></div>
+        <div class="slider-item"><label>Assets Growth Rate <span id="r-gr-v">4.0%</span></label><input type="range" id="r-gr" min="1" max="15" step="0.5" value="4" oninput="S.growth=parseFloat(this.value)||4;document.getElementById('r-gr-v').textContent=parseFloat(this.value).toFixed(1)+'%';save();buildRunway()"/></div>
+        <div class="slider-item"><label>Annual Drawdown Top-up <span id="r-draw-v">£24,000</span></label><input type="range" id="r-draw" min="0" max="60000" step="500" value="24000" oninput="S.drawdown=parseInt(this.value)||0;document.getElementById('r-draw-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
+        <div class="slider-item"><label>Gross DB Pension / annum <span id="r-db-v">£43,000</span></label><input type="range" id="r-db" min="10000" max="80000" step="500" value="43000" oninput="S.dbPension=parseInt(this.value)||0;document.getElementById('r-db-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
+        <div class="slider-item"><label>Target Monthly Net Income <span id="r-tgt-v" style="color:#f85149;">£3,500</span></label><input type="range" id="r-tgt" min="1000" max="8000" step="100" value="3500" oninput="S.targetMonthly=parseInt(this.value)||0;document.getElementById('r-tgt-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
         <div class="slider-item full"><label>Additional Gross Income / annum <span id="r-extra-v" style="color:#00d17a;">£0</span></label><input type="range" id="r-extra" min="0" max="50000" step="500" value="0" oninput="S.extra=parseInt(this.value)||0;document.getElementById('r-extra-v').textContent='£'+parseInt(this.value).toLocaleString();save();buildRunway()"/></div>
       </div>
     </div>
@@ -304,7 +315,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
       <div class="card-eyebrow">Data Privacy</div>
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">All data is stored exclusively in this device's browser storage (localStorage). Nothing is ever transmitted to any server. Your financial details never leave your device.</div>
       <button class="btn-danger" onclick="clearData()">🗑 Clear All Saved Data</button>
-      <div class="version-note settings" id="version-settings">V2.7.0</div>
+      <div class="version-note settings" id="version-settings">V2.7.1</div>
     </div>
   </div>
 
@@ -314,11 +325,11 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
   <button class="tab-btn active" onclick="switchTab('ledger',this)">
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Portfolio View
   </button>
-  <button class="tab-btn" onclick="switchTab('cashflow',this)">
-    <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>Cashflow
-  </button>
   <button class="tab-btn" onclick="switchTab('spend',this)">
     <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>Spend
+  </button>
+  <button class="tab-btn" onclick="switchTab('cashflow',this)">
+    <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>Cashflow
   </button>
   <button class="tab-btn" onclick="switchTab('milestones',this)">
     <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Milestones
@@ -330,22 +341,74 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 </div>
 
 <script>
-const APP_VERSION='V2.7.0';
+const APP_VERSION='V2.7.1';
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:'NS&I',val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:'NS&I',val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
-let S={dob:'',retire:'',career:'',hols:25,salary:85000,pot:132000,contrib:12,growth:5.5,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,assets:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
+let S={dob:'',retire:'',career:'',hols:25,salary:85000,pot:132000,contrib:12,growth:4,targetMonthly:3500,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
 
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
 function uid(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);}
+
+function safeParseJSON(raw){
+  if(!raw)return null;
+  try{return JSON.parse(raw);}catch(e){return null;}
+}
+function readAuthSession(){
+  const keys=['rm_session','retireme_session','retireme_auth','auth_user','user'];
+  let session=null;
+  for(const key of keys){
+    const parsed=safeParseJSON(localStorage.getItem(key))||safeParseJSON(sessionStorage.getItem(key));
+    if(parsed&&typeof parsed==='object'){session=parsed;break;}
+  }
+  const roleHint=(localStorage.getItem('role')||localStorage.getItem('userRole')||'').toLowerCase();
+  const isAdminHint=(localStorage.getItem('isAdmin')||sessionStorage.getItem('isAdmin')||'').toLowerCase()==='true';
+  const role=((session&&session.role)||roleHint||'').toString().toLowerCase();
+  const isAdmin=!!(isAdminHint||role==='admin'||(session&&session.isAdmin===true));
+  const loggedIn=!!(session||localStorage.getItem('loggedIn')==='true'||sessionStorage.getItem('loggedIn')==='true'||isAdminHint);
+  return {loggedIn,isAdmin};
+}
+function renderAuthHeader(){
+  const auth=readAuthSession();
+  const adminBadge=document.getElementById('admin-badge');
+  const signoutBtn=document.getElementById('signout-btn');
+  if(adminBadge)adminBadge.style.display=auth.loggedIn&&auth.isAdmin?'block':'none';
+  if(signoutBtn)signoutBtn.style.display=auth.loggedIn?'inline-flex':'none';
+}
+async function signOutUser(){
+  if(!confirm('Sign out now?'))return;
+  try{
+    if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){
+      const auth=firebase.auth();
+      if(auth&&typeof auth.signOut==='function')await auth.signOut();
+    }
+  }catch(e){}
+  const keys=['rm_session','retireme_session','retireme_auth','auth_user','user','loggedIn','role','userRole','isAdmin'];
+  for(const key of keys){localStorage.removeItem(key);sessionStorage.removeItem(key);}
+  renderAuthHeader();
+}
 
 function load(){
   try{const r=localStorage.getItem('retireme_v3');if(r){const p=JSON.parse(r);S={...S,...p};}}catch(e){}
   if(!S.assets)S.assets={};
   for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
+  initPortfolioData();
   if(!Array.isArray(S.investments))S.investments=[];
+  if(!Array.isArray(S.investments) && Array.isArray(S.monthlyAmounts)){
+    S.investments=S.monthlyAmounts.map((n,idx)=>({id:uid('inv'),year:'2027',name:'Amount '+(idx+1),amount:parseFloat(n)||0}));
+  }
   if(!S.spend)S.spend={monthly:[],quarterly:[],annual:[]};
   for(const t of ['monthly','quarterly','annual']){if(!Array.isArray(S.spend[t]))S.spend[t]=[];}
+  if((!S.spend.monthly||S.spend.monthly.length===0) && Array.isArray(S.monthlyBills)){S.spend.monthly=S.monthlyBills.map(normalizeSpendRow).filter(Boolean);}
+  if((!S.spend.quarterly||S.spend.quarterly.length===0) && Array.isArray(S.quarterlyBills)){S.spend.quarterly=S.quarterlyBills.map(normalizeSpendRow).filter(Boolean);}
+  if((!S.spend.annual||S.spend.annual.length===0) && Array.isArray(S.annualBills)){S.spend.annual=S.annualBills.map(normalizeSpendRow).filter(Boolean);}
+  if(S.bills&&typeof S.bills==='object'){
+    if((!S.spend.monthly||S.spend.monthly.length===0) && Array.isArray(S.bills.monthly)){S.spend.monthly=S.bills.monthly.map(normalizeSpendRow).filter(Boolean);}
+    if((!S.spend.quarterly||S.spend.quarterly.length===0) && Array.isArray(S.bills.quarterly)){S.spend.quarterly=S.bills.quarterly.map(normalizeSpendRow).filter(Boolean);}
+    if((!S.spend.annual||S.spend.annual.length===0) && Array.isArray(S.bills.annual)){S.spend.annual=S.bills.annual.map(normalizeSpendRow).filter(Boolean);}
+  }
+  if(!S.targetMonthly)S.targetMonthly=3500;
+  if(!S.growth)S.growth=4;
   if(typeof S.useGrowth!=='boolean')S.useGrowth=true;
   if(typeof S.useDrawdown!=='boolean')S.useDrawdown=true;
   applyDOM();
@@ -358,20 +421,50 @@ function applyDOM(){
   sv('s-dob',S.dob);sv('s-retire',S.retire);sv('s-career',S.career);
   sr('s-hols',S.hols,'s-hols-v',String(S.hols));
   sv('s-salary',S.salary||'');sv('s-pot-n',S.pot||'');sv('s-db',S.dbPension||'');sv('s-draw',S.drawdown||'');
+  sr('r-gr',S.growth||4,'r-gr-v',(S.growth||4).toFixed(1)+'%');
   sr('r-db',S.dbPension||43000,'r-db-v','£'+(S.dbPension||43000).toLocaleString());
   sr('r-draw',S.drawdown||24000,'r-draw-v','£'+(S.drawdown||24000).toLocaleString());
+  sr('r-tgt',S.targetMonthly||3500,'r-tgt-v','£'+(S.targetMonthly||3500).toLocaleString());
   sr('r-extra',S.extra||0,'r-extra-v','£'+(S.extra||0).toLocaleString());
   const growthEl=document.getElementById('use-growth');if(growthEl)growthEl.checked=!!S.useGrowth;
   const drawEl=document.getElementById('use-drawdown');if(drawEl)drawEl.checked=!!S.useDrawdown;
   document.getElementById('device-id').textContent=devId();
+  renderAuthHeader();
   renderVersionLabels();
   renderAssetsForm();
   renderInvestments();
   renderSpendAll();
 }
+function initPortfolioData(){
+  if(!S.portfolio||typeof S.portfolio!=='object')S.portfolio={};
+  const years=['2026','2027','2028','2029','2030'];
+  if(!Array.isArray(S.portfolio['2026'])||S.portfolio['2026'].length===0){
+    S.portfolio['2026']=Object.keys(DA).map(k=>({id:uid('pf'),key:k,name:DA[k].label,type:DA[k].sub,amount:parseFloat(S.assets[k])||0}));
+  }
+  for(const y of years){
+    if(!Array.isArray(S.portfolio[y]))S.portfolio[y]=[];
+    if(y!=='2026'&&S.portfolio[y].length===0){
+      S.portfolio[y]=[{id:uid('pf'),name:'Opening Carry-Over',type:'Carry-Over',amount:portfolioYearTotal(String(parseInt(y,10)-1))}];
+    }
+  }
+}
+function portfolioRows(year){
+  if(!S.portfolio||!Array.isArray(S.portfolio[year]))S.portfolio[year]=[];
+  return S.portfolio[year];
+}
+function portfolioYearTotal(year){
+  return portfolioRows(year).reduce((sum,r)=>sum+(parseFloat(r.amount)||0),0);
+}
 function renderVersionLabels(){
   const ids=['version-header','version-home','version-settings'];
   for(const id of ids){const el=document.getElementById(id);if(el)el.textContent=APP_VERSION;}
+}
+function normalizeSpendRow(row){
+  if(row===null||row===undefined)return null;
+  if(typeof row==='number')return {id:uid('sp'),name:'Bill',amount:row};
+  if(typeof row==='string')return {id:uid('sp'),name:row,amount:0};
+  if(typeof row==='object')return {id:row.id||uid('sp'),name:row.name||row.title||'Bill',amount:parseFloat(row.amount)||0};
+  return null;
 }
 function sv(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
 function sr(id,v,lbl,txt){const e=document.getElementById(id);if(e)e.value=v;const l=document.getElementById(lbl);if(l)l.textContent=txt!==undefined?txt:v;}
@@ -397,7 +490,7 @@ function switchTab(n,btn){
 }
 
 function getA(k){return S.assets&&S.assets[k]!==undefined?S.assets[k]:(DA[k]?.val||0);}
-function calcBase(){return Object.keys(DA).reduce((s,k)=>s+getA(k),0);}
+function calcBase(){return portfolioYearTotal('2026')||Object.keys(DA).reduce((s,k)=>s+getA(k),0);}
 function growthRate(){return parseFloat(document.getElementById('r-gr')?.value||4)/100;}
 function drawdownRaw(){return parseInt(document.getElementById('r-draw')?.value||24000,10);}
 function drawdownUsed(){return S.useDrawdown?drawdownRaw():0;}
@@ -413,9 +506,20 @@ function yearlyProjection(start,year){
   const draw=drawdownUsed();
   return {interest,investments,draw,end:start+interest+investments-draw};
 }
+function defaultLedgerYear(){
+  const y=new Date().getFullYear();
+  if(y<2026)return '2026';
+  if(y>2030)return '2030';
+  return String(y);
+}
 function activeLedgerYear(){
   const el=document.querySelector('.lyt.active');
   return el?el.textContent.trim():'2026';
+}
+function applyDefaultLedgerYear(){
+  const year=defaultLedgerYear();
+  const btn=Array.from(document.querySelectorAll('.lyt')).find(b=>b.textContent.trim()===year) || document.querySelector('.lyt');
+  showLedger(year,btn||undefined);
 }
 
 function setUseGrowth(v){S.useGrowth=!!v;save();recalc();}
@@ -551,19 +655,46 @@ function showLedger(yr,btn){
   document.querySelectorAll('.lyt').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const el=document.getElementById('ledger-content');if(!el)return;
-  if(yr==='2026'){
-    const base=calcBase();let rows='';
-    for(const k in DA){const a=DA[k];const v=getA(k);
-      rows+=`<div class="asset-row"><div><div class="asset-name">${a.label}</div><div class="asset-sub2">${a.sub}</div></div><input class="asset-inp" type="number" value="${v}" onchange="updateAsset('${k}',this.value)" style="color:${v<0?'#f85149':'#d29922'};"/></div>`;}
-    rows+=`<div class="asset-row total"><div><div class="asset-name" style="font-weight:700;color:#00d17a;">July 2026 Liquid Base</div></div><div class="asset-static col-green">£${fmtN(base)}</div></div>`;
-    el.innerHTML=`<div class="card">${rows}</div>`;
-  } else {
-    let prevBal=calcBase();
-    for(let y=2027;y<parseInt(yr,10);y++){prevBal=yearlyProjection(prevBal,y).end;}
-    el.innerHTML=`<div class="card"><div class="card-eyebrow">${yr} Asset Summary</div>
-      <div class="asset-row"><div><div class="asset-name">Opening Carry-Over</div><div class="asset-sub2">Only opening amount shown, as requested.</div></div><div class="asset-static">£${fmtN(prevBal)}</div></div>
-    </div>`;
-  }
+  const rows=portfolioRows(yr);
+  const total=portfolioYearTotal(yr);
+  el.innerHTML=`<div class="card">
+    <div class="pf-total"><div class="pf-total-lbl">Total Portfolio Value</div><div class="pf-total-val">£${fmtN(total)}</div></div>
+    <div class="pf-head"><div>Name</div><div>Type</div><div>Amount (£)</div><div>Delete</div></div>
+    ${rows.map((r,idx)=>`<div class="pf-row">
+      <input type="text" value="${escapeHtml(r.name||'')}" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
+      <input type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>
+      <input type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)" style="text-align:right;"/>
+      <button class="btn-inline-danger" onclick="deletePortfolioItem('${yr}',${idx})">Delete</button>
+    </div>`).join('')}
+    <button class="btn-primary" onclick="addPortfolioItem('${yr}')">+ Add Portfolio Item</button>
+  </div>`;
+}
+
+function addPortfolioItem(year){
+  portfolioRows(year).push({id:uid('pf'),name:'New item',type:'Asset',amount:0});
+  save();
+  showLedger(year,document.querySelector('.lyt.active')||undefined);
+  buildRunway();
+}
+function updatePortfolioItem(year,idx,key,val){
+  const rows=portfolioRows(year);
+  const row=rows[idx];
+  if(!row)return;
+  row[key]=key==='amount'?(parseFloat(val)||0):val;
+  if(year==='2026'&&row.key&&key==='amount'){S.assets[row.key]=parseFloat(row.amount)||0;}
+  save();
+  showLedger(year,document.querySelector('.lyt.active')||undefined);
+  buildRunway();
+}
+function deletePortfolioItem(year,idx){
+  const rows=portfolioRows(year);
+  if(!rows[idx])return;
+  const removed=rows[idx];
+  rows.splice(idx,1);
+  if(year==='2026'&&removed.key){S.assets[removed.key]=0;}
+  save();
+  showLedger(year,document.querySelector('.lyt.active')||undefined);
+  buildRunway();
 }
 
 function updateAsset(k,v){
@@ -609,6 +740,7 @@ function escapeHtml(str){return String(str||'').replaceAll('&','&amp;').replaceA
 function fmtN(n){return Math.round(n).toLocaleString('en-GB');}
 
 load();
+applyDefaultLedgerYear();
 recalc();
 </script>
 </body>
