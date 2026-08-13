@@ -592,6 +592,9 @@ function signInUser(){
   if(email)email.focus();
 }
 function cloudUserKey(){
+  if(_firebaseUser&&_firebaseUser.uid){
+    return String(_firebaseUser.uid).trim().replaceAll('/','_');
+  }
   const auth=readAuthSession();
   if(!auth.loggedIn)return null;
   const key=(auth.userKey||'').trim();
@@ -623,7 +626,14 @@ async function syncFromCloud(){
       cloudStatus('cloud initialized', '#00d17a');
     }
   }catch(e){
-    cloudStatus('cloud unavailable, using local cache', '#f85149');
+    const code=(e&&e.code)||'';
+    if(code==='permission-denied'){
+      cloudStatus('sync blocked by Firestore rules (permission denied)', '#f85149');
+    }else if(code==='unauthenticated'){
+      cloudStatus('sync blocked: authentication expired', '#f85149');
+    }else{
+      cloudStatus('cloud unavailable, using local cache', '#f85149');
+    }
   }finally{_syncBusy=false;}
 }
 function queueCloudSave(){
@@ -631,7 +641,13 @@ function queueCloudSave(){
   _cloudSaveTimer=setTimeout(async()=>{
     const ref=cloudDoc();
     if(!ref||_syncBusy)return;
-    try{await ref.set(S);cloudStatus('synced', '#00d17a');}catch(e){cloudStatus('sync failed (offline)', '#f85149');}
+    try{await ref.set(S);cloudStatus('synced', '#00d17a');}
+    catch(e){
+      const code=(e&&e.code)||'';
+      if(code==='permission-denied')cloudStatus('sync blocked by Firestore rules (permission denied)', '#f85149');
+      else if(code==='unauthenticated')cloudStatus('sync blocked: authentication expired', '#f85149');
+      else cloudStatus('sync failed (offline)', '#f85149');
+    }
   },700);
 }
 function setTheme(mode){
