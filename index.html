@@ -200,6 +200,8 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .pf-title-wrap{min-width:0;}
 .pf-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
 .pf-type-input{width:100%;background:transparent;border:none;color:#8b949e;font-size:11px;line-height:1.2;padding:2px 0 0;outline:none;}
+.share-link{background:transparent;border:none;color:#00d17a;font-size:11px;font-weight:700;padding:2px 0 0;cursor:pointer;text-align:left;}
+.share-link:hover{text-decoration:underline;}
 .pf-qty-row{display:grid;grid-template-columns:72px 86px 74px 1fr;gap:6px;align-items:center;}
 .pf-mini-input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:7px 8px;color:#e6edf3;font-size:12px;font-weight:600;outline:none;}
 .pf-mini-input:focus{border-color:#00d17a;}
@@ -238,6 +240,13 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .sp-amount-wrap{position:relative;display:flex;align-items:center;justify-content:flex-end;}
 .sp-pound{position:absolute;left:10px;color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;}
 .sp-amount-wrap input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#f85149;font-size:13px;font-weight:700;outline:none;text-align:right;}
+.modal-backdrop{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(13,17,23,0.78);backdrop-filter:blur(8px);}
+.share-modal{width:min(460px,100%);background:#161b22;border:1px solid #30363d;border-radius:16px;padding:16px;box-shadow:0 18px 60px rgba(0,0,0,0.35);}
+.share-modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:12px;}
+.share-modal-k{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#00d17a;font-weight:700;}
+.share-modal-title{font-size:18px;font-weight:800;color:#e6edf3;line-height:1.15;}
+.share-modal-close{background:transparent;border:none;color:#8b949e;font-size:26px;line-height:1;cursor:pointer;padding:0;flex-shrink:0;}
+.share-preview{margin-top:10px;}
 .pf-total{display:flex;justify-content:space-between;align-items:center;background:#0d1117;border:1px solid rgba(0,209,122,0.3);border-radius:10px;padding:10px 12px;margin-bottom:10px;}
 .pf-total-lbl{font-size:11px;font-weight:700;color:#00d17a;}
 .pf-total-val{font-size:16px;font-weight:800;color:#00d17a;}
@@ -293,6 +302,10 @@ body.light-mode .sp-name-input,
 body.light-mode .sp-type-input{background:transparent;}
 body.light-mode .pf-name-input,
 body.light-mode .sp-name-input{color:#000000;}
+body.light-mode .share-link{color:#0ea86d;}
+body.light-mode .share-modal{background:#ffffff;border-color:#d8dee8;}
+body.light-mode .share-modal-title{color:#0f172a;}
+body.light-mode .share-modal-close{color:#64748b;}
 body.light-mode .spend-type-row .type-total,
 body.light-mode .summary-chip .v{color:#dc2626;}
 body.light-mode .mini-action-btn.cancel{border-color:#d0d7e2;color:#64748b;}
@@ -355,6 +368,40 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="login-version" id="version-login">V2.9.1</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
+  </div>
+</div>
+<div id="share-modal" class="modal-backdrop" onclick="if(event.target===this)closeShareModal()">
+  <div class="share-modal" role="dialog" aria-modal="true" aria-labelledby="share-modal-title-label">
+    <div class="share-modal-head">
+      <div>
+        <div class="share-modal-k">Shares Editor</div>
+        <div class="share-modal-title" id="share-modal-title-label">Shares</div>
+      </div>
+      <button class="share-modal-close" type="button" onclick="closeShareModal()">&times;</button>
+    </div>
+    <div class="form-group">
+      <label>Number of shares</label>
+      <input id="share-modal-shares" type="number" min="0" step="1" oninput="updateShareModalPreview()"/>
+    </div>
+    <div class="form-group">
+      <label>Share price</label>
+      <input id="share-modal-price" type="number" min="0" step="0.01" oninput="updateShareModalPreview()"/>
+    </div>
+    <div class="toggle-row" style="margin-bottom:10px;">
+      <div>
+        <div class="toggle-label">Taxable</div>
+        <div class="toggle-meta">If selected, 45% tax is deducted from the total</div>
+      </div>
+      <label class="switch"><input type="checkbox" id="share-modal-taxable" onchange="updateShareModalPreview()"/><span class="slider-round"></span></label>
+    </div>
+    <div class="pf-total share-preview">
+      <div class="pf-total-lbl">Calculated Amount</div>
+      <div class="pf-total-val" id="share-modal-amount">£0</div>
+    </div>
+    <div class="login-actions" style="margin-top:12px;">
+      <button class="login-btn primary" type="button" onclick="saveShareModal()">Save</button>
+      <button class="login-btn secondary" type="button" onclick="closeShareModal()">Cancel</button>
+    </div>
   </div>
 </div>
 <div id="app">
@@ -511,7 +558,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.0.3';
+const APP_VERSION='V3.0.4';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -525,6 +572,7 @@ let _cloudSaveTimer=null;
 let _syncBusy=false;
 let _authObserverSet=false;
 let _firebaseUser=null;
+let _shareEditor=null;
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:'NS&I',val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:'NS&I',val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
@@ -907,6 +955,51 @@ function renderVersionLabels(){
   const ids=['version-header','version-home','version-settings','version-login'];
   for(const id of ids){const el=document.getElementById(id);if(el)el.textContent=APP_VERSION;}
 }
+function openShareModal(year,idx){
+  const row=portfolioRows(year)[idx];
+  if(!row||String(row.type||'').trim().toLowerCase()!=='shares')return;
+  _shareEditor={year,idx};
+  const modal=document.getElementById('share-modal');
+  const title=document.getElementById('share-modal-title-label');
+  const sharesEl=document.getElementById('share-modal-shares');
+  const priceEl=document.getElementById('share-modal-price');
+  const taxEl=document.getElementById('share-modal-taxable');
+  if(title)title.textContent=row.name||'Shares';
+  if(sharesEl)sharesEl.value=parseFloat(row.shares)||0;
+  if(priceEl)priceEl.value=parseFloat(row.sharePrice)||0;
+  if(taxEl)taxEl.checked=!!row.taxable;
+  updateShareModalPreview();
+  if(modal)modal.style.display='flex';
+}
+function closeShareModal(){
+  _shareEditor=null;
+  const modal=document.getElementById('share-modal');
+  if(modal)modal.style.display='none';
+}
+function updateShareModalPreview(){
+  const shares=parseFloat(document.getElementById('share-modal-shares')?.value||0)||0;
+  const price=parseFloat(document.getElementById('share-modal-price')?.value||0)||0;
+  const taxable=!!document.getElementById('share-modal-taxable')?.checked;
+  const amount=(shares*price)*(taxable?0.55:1);
+  const amountEl=document.getElementById('share-modal-amount');
+  if(amountEl)amountEl.textContent='£'+fmtN(amount);
+}
+function saveShareModal(){
+  if(!_shareEditor)return;
+  const editor={..._shareEditor};
+  const rows=portfolioRows(_shareEditor.year);
+  const row=rows[_shareEditor.idx];
+  if(!row)return;
+  row.type='shares';
+  row.shares=parseFloat(document.getElementById('share-modal-shares')?.value||0)||0;
+  row.sharePrice=parseFloat(document.getElementById('share-modal-price')?.value||0)||0;
+  row.taxable=!!document.getElementById('share-modal-taxable')?.checked;
+  row.amount=calcPortfolioShareAmount(row);
+  save();
+  closeShareModal();
+  showLedger(editor.year,document.querySelector('.lyt.active')||undefined);
+  buildRunway();
+}
 function normalizeSpendRow(row){
   if(row===null||row===undefined)return null;
   if(typeof row==='number')return {id:uid('sp'),name:'Bill',type:'General',amount:row};
@@ -1211,14 +1304,12 @@ function showLedger(yr,btn){
         </div>
         <div class="pf-title-wrap">
           <input class="pf-name-input" type="text" value="${escapeHtml(r.name||'')}" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
-          <input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>
+          ${isShares?`<button type="button" class="share-link" onclick="openShareModal('${yr}',${idx});return false;">Shares</button>`:`<input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>`}
         </div>
         <div>
-          ${isShares?`<div class="pf-qty-row">
-            <input class="pf-mini-input" type="number" min="0" step="1" value="${parseFloat(r.shares)||0}" onchange="updatePortfolioItem('${yr}',${idx},'shares',this.value)" placeholder="Shares"/>
-            <input class="pf-mini-input" type="number" min="0" step="0.01" value="${parseFloat(r.sharePrice)||0}" onchange="updatePortfolioItem('${yr}',${idx},'sharePrice',this.value)" placeholder="Share price"/>
-            <label class="pf-taxable"><input type="checkbox" ${r.taxable?'checked':''} onchange="updatePortfolioItem('${yr}',${idx},'taxable',this.checked)"/>Taxable</label>
-            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="number" value="${calcPortfolioShareAmount(r)}" readonly/></div>
+          ${isShares?`<div class="amount-move-row">
+            <div></div>
+            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="text" value="${fmtN(calcPortfolioShareAmount(r))}" readonly/></div>
           </div>`:`<div class="amount-move-row">
             <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${(parseFloat(r.amount)||0)>=0?'amt-pos':'amt-neg'}" type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
             <div></div>
