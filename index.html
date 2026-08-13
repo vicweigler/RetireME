@@ -14,6 +14,20 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;overflow:hidden;}
+#login-screen{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(1200px 500px at 20% -10%,rgba(0,209,122,0.15),transparent 50%),#0d1117;}
+.login-card{width:min(420px,100%);background:#161b22;border:1px solid #21262d;border-radius:16px;padding:22px;}
+.login-logo{font-size:31px;font-weight:800;letter-spacing:-0.7px;color:#e6edf3;}
+.login-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(0,209,122,0.12);border:1px solid rgba(0,209,122,0.3);border-radius:16px;padding:2px 8px;font-size:10px;color:#00d17a;font-weight:700;margin-left:6px;vertical-align:middle;}
+.login-sub{font-size:12px;color:#8b949e;line-height:1.5;margin:6px 0 14px;}
+.login-field{margin-bottom:10px;}
+.login-label{display:block;font-size:11px;color:#8b949e;margin-bottom:5px;}
+.login-input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:11px 12px;color:#e6edf3;font-size:14px;outline:none;}
+.login-input:focus{border-color:#00d17a;}
+.login-actions{display:flex;gap:8px;margin-top:12px;}
+.login-btn{flex:1;padding:11px 10px;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;}
+.login-btn.primary{background:linear-gradient(135deg,#00d17a,#00a85e);color:#0d1117;}
+.login-btn.secondary{background:transparent;border:1px solid #30363d;color:#e6edf3;}
+.login-status{font-size:12px;margin-top:10px;min-height:16px;color:#8b949e;}
 #app{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top,0px);}
 #header{background:#161b22;border-bottom:1px solid #21262d;padding:12px 18px 10px;flex-shrink:0;}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
@@ -293,6 +307,27 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </style>
 </head>
 <body>
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">RetireMe <span class="login-tag">Secure</span></div>
+    <div class="login-sub">Sign in with your email and password to access your portfolio. If needed, reset your password below.</div>
+    <form onsubmit="loginWithPassword(event)">
+      <div class="login-field">
+        <label class="login-label" for="login-email">Email</label>
+        <input class="login-input" id="login-email" type="email" autocomplete="username" required/>
+      </div>
+      <div class="login-field">
+        <label class="login-label" for="login-password">Password</label>
+        <input class="login-input" id="login-password" type="password" autocomplete="current-password" required/>
+      </div>
+      <div class="login-actions">
+        <button class="login-btn primary" type="submit">Login</button>
+        <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
+      </div>
+      <div class="login-status" id="login-status"></div>
+    </form>
+  </div>
+</div>
 <div id="app">
 <div id="header">
   <div class="hdr-top">
@@ -466,6 +501,15 @@ let S={dob:'',retire:'',career:'',salary:85000,pot:132000,contrib:12,growth:4,ta
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
 function uid(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);}
 function cloudStatus(msg,color){const e=document.getElementById('cloud-sync-status');if(e){e.textContent='Sync status: '+msg;if(color)e.style.color=color;}}
+function loginStatus(msg,color){const e=document.getElementById('login-status');if(e){e.textContent=msg||'';if(color)e.style.color=color;}}
+function isAuthed(){return !!(_firebaseUser&&_firebaseUser.uid);}
+function renderAuthGate(){
+  const login=document.getElementById('login-screen');
+  const app=document.getElementById('app');
+  const authed=isAuthed();
+  if(login)login.style.display=authed?'none':'flex';
+  if(app)app.style.display=authed?'flex':'none';
+}
 function initFirebase(){
   try{
     if(window.firebase&&firebase.apps&&firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
@@ -474,13 +518,69 @@ function initFirebase(){
       _authObserverSet=true;
       firebase.auth().onAuthStateChanged((u)=>{
         _firebaseUser=u||null;
-        if(_firebaseUser)sessionStorage.removeItem('rm_login_redirect_attempted');
+        if(_firebaseUser){
+          loginStatus('', '#8b949e');
+          renderAuthHeader();
+          renderAuthGate();
+          syncFromCloud();
+          return;
+        }
         renderAuthHeader();
-        syncFromCloud();
+        renderAuthGate();
+        cloudStatus('local-only (not logged in)', '#848d97');
       });
     }
+    if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){
+      _firebaseUser=firebase.auth().currentUser||null;
+    }
+    renderAuthHeader();
+    renderAuthGate();
     return !!_db;
   }catch(e){return false;}
+}
+async function loginWithPassword(event){
+  if(event)event.preventDefault();
+  try{
+    if(!(window.firebase&&firebase.auth&&typeof firebase.auth==='function')){
+      loginStatus('Auth unavailable right now. Please refresh.', '#f85149');
+      return;
+    }
+    const emailEl=document.getElementById('login-email');
+    const passEl=document.getElementById('login-password');
+    const email=(emailEl&&emailEl.value||'').trim();
+    const password=(passEl&&passEl.value||'').trim();
+    if(!email||!password){
+      loginStatus('Enter email and password.', '#f85149');
+      return;
+    }
+    loginStatus('Signing in...', '#d29922');
+    await firebase.auth().signInWithEmailAndPassword(email,password);
+  }catch(e){
+    loginStatus((e&&e.message)||'Login failed. Please try again.', '#f85149');
+  }
+}
+async function requestPasswordReset(){
+  try{
+    if(!(window.firebase&&firebase.auth&&typeof firebase.auth==='function')){
+      loginStatus('Auth unavailable right now. Please refresh.', '#f85149');
+      return;
+    }
+    const emailEl=document.getElementById('login-email');
+    const email=(emailEl&&emailEl.value||'').trim();
+    if(!email){
+      loginStatus('Enter your email first, then tap Reset Password.', '#f85149');
+      return;
+    }
+    await firebase.auth().sendPasswordResetEmail(email);
+    loginStatus('Password reset email sent.', '#00d17a');
+  }catch(e){
+    loginStatus((e&&e.message)||'Could not send reset email.', '#f85149');
+  }
+}
+function signInUser(){
+  renderAuthGate();
+  const email=document.getElementById('login-email');
+  if(email)email.focus();
 }
 function cloudUserKey(){
   const auth=readAuthSession();
@@ -543,42 +643,6 @@ function forceRefreshApp(){
   };
   run();
 }
-async function forceLoginScreen(){
-  const loopGuardKey='rm_login_redirect_attempted';
-  try{
-    if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){
-      const auth=firebase.auth();
-      const provider=new firebase.auth.GoogleAuthProvider();
-      if(auth&&typeof auth.signInWithPopup==='function'){
-        await auth.signInWithPopup(provider);
-        sessionStorage.removeItem(loopGuardKey);
-        return;
-      }
-      if(auth&&typeof auth.signInWithRedirect==='function'){
-        if(sessionStorage.getItem(loopGuardKey)==='1'){
-          cloudStatus('login retry blocked to avoid loop, tap Sign in again', '#f85149');
-          return;
-        }
-        sessionStorage.setItem(loopGuardKey,'1');
-        await auth.signInWithRedirect(provider);
-        return;
-      }
-    }
-  }catch(e){
-    cloudStatus('login failed, tap Sign in to retry', '#f85149');
-  }
-}
-function enforceLoginGate(){
-  const auth=readAuthSession();
-  if(auth.loggedIn)return;
-  cloudStatus('redirecting to login...', '#d29922');
-  forceLoginScreen();
-}
-function signInUser(){
-  cloudStatus('redirecting to login...', '#d29922');
-  forceLoginScreen();
-}
-
 function safeParseJSON(raw){
   if(!raw)return null;
   try{return JSON.parse(raw);}catch(e){return null;}
@@ -607,7 +671,7 @@ function readAuthSession(){
   const hasFirebaseUser=!!(_firebaseUser&&_firebaseUser.uid);
   const loggedFlag=(readStorageValue('loggedIn')||'').toLowerCase()==='true';
   const hasToken=!!readStorageValue('idToken');
-  const loggedIn=!!(session||primitiveUser||hasFirebaseUser||loggedFlag||hasToken||isAdminHint);
+  const loggedIn=hasFirebaseUser;
   const isAdmin=!!(isAdminHint||role==='admin'||(session&&session.isAdmin===true));
   const rawUserKey=(session&&(session.uid||session.userId||session.email||session.username||(session.user&&session.user.email)))||(_firebaseUser&&(_firebaseUser.uid||_firebaseUser.email))||readStorageValue('userEmail')||readStorageValue('uid')||primitiveUser||'';
   return {loggedIn,isAdmin,userKey:String(rawUserKey||'')};
@@ -643,7 +707,9 @@ async function signOutUser(){
   for(const key of keys){localStorage.removeItem(key);sessionStorage.removeItem(key);}
   localStorage.setItem('loggedIn','false');
   sessionStorage.setItem('loggedIn','false');
+  loginStatus('Signed out. Please log in.', '#d29922');
   renderAuthHeader();
+  renderAuthGate();
   cloudStatus('local-only (signed out)', '#848d97');
 }
 
