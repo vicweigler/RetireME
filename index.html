@@ -207,6 +207,16 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .cashflow-monthly-input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#00d17a;font-size:13px;font-weight:700;outline:none;text-align:right;}
 .cashflow-monthly-input[readonly]{cursor:default;}
 .cashflow-summary-card .summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+.cashflow-model-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.cashflow-model-asset-list{display:grid;gap:6px;max-height:220px;overflow:auto;padding-right:4px;}
+.cashflow-model-asset{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px 10px;}
+.cashflow-model-asset label{display:flex;align-items:center;gap:8px;font-size:12px;color:#e6edf3;min-width:0;}
+.cashflow-model-asset input[type="checkbox"]{accent-color:#00d17a;}
+.cashflow-model-asset .amt{font-size:12px;color:#00d17a;font-weight:700;white-space:nowrap;}
+.cashflow-model-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;}
+.cashflow-model-actions{display:flex;gap:8px;margin-top:10px;}
+.cashflow-model-actions .btn-primary{margin-top:0;flex:1;}
+.cashflow-model-actions .btn-danger{margin-top:0;flex:1;}
 .pf-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
 .pf-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
 .pf-row{position:relative;display:grid;grid-template-columns:18px 1fr 120px;gap:10px;align-items:center;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
@@ -321,6 +331,8 @@ body.light-mode .cashflow-type-select,
 body.light-mode .cashflow-amount-input,
 body.light-mode .cashflow-monthly-input{background:#f8fafc;border-color:#d0d7e2;color:#0f172a;}
 body.light-mode .cashflow-taxable{color:#64748b;}
+body.light-mode .cashflow-model-asset{background:#ffffff;border-color:#d8dee8;}
+body.light-mode .cashflow-model-asset label{color:#0f172a;}
 body.light-mode .share-link{color:#0ea86d;}
 body.light-mode .share-modal{background:#ffffff;border-color:#d8dee8;}
 body.light-mode .share-modal-title{color:#0f172a;}
@@ -492,11 +504,35 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="card-eyebrow">Cashflow Summary</div>
       <div class="summary-grid" id="cashflow-summary"></div>
     </div>
-    <div class="card-eyebrow" style="padding:0 4px;margin-bottom:8px;">2026 - 2030 Capital Escalator Flowsheet</div>
-    <div class="runway-base">
-      <div><div class="runway-base-lbl">July 2026 Base Balance</div><div class="runway-base-sub">Your starting nest-egg</div></div>
-      <div class="runway-base-val" id="base-val">£0</div>
+    <div class="card cashflow-model-card">
+      <div class="card-eyebrow">Asset Income Model</div>
+      <div class="cashflow-model-grid">
+        <div class="form-group">
+          <label>Interest Rate %</label>
+          <input type="number" id="cashflow-model-rate" min="0" step="0.1" value="4" oninput="renderCashflowModelPreview()"/>
+        </div>
+        <div class="form-group">
+          <label>Taxable</label>
+          <div class="toggle-row" style="margin-bottom:0;">
+            <div>
+              <div class="toggle-label">Apply tax</div>
+              <div class="toggle-meta">Taxed models use the 45% reduction</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="cashflow-model-taxable" onchange="renderCashflowModelPreview()"/><span class="slider-round"></span></label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:10px;">
+        <label>Select Portfolio Assets</label>
+        <div class="cashflow-model-asset-list" id="cashflow-model-assets"></div>
+      </div>
+      <div class="cashflow-model-preview" id="cashflow-model-preview"></div>
+      <div class="cashflow-model-actions">
+        <button class="btn-primary" onclick="addCashflowModelIncomeSource()">Add to Income Sources</button>
+        <button class="btn-danger" type="button" onclick="clearCashflowModelSelection()">Clear Selection</button>
+      </div>
     </div>
+    <div class="card-eyebrow" style="padding:0 4px;margin-bottom:8px;">2026 - 2030 Capital Escalator Flowsheet</div>
     <div class="timeline" id="runway-timeline"></div>
   </div>
 
@@ -579,7 +615,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.0.5';
+const APP_VERSION='V3.0.6';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -960,6 +996,8 @@ function applyDOM(){
   renderAuthHeader();
   renderVersionLabels();
   renderInvestments();
+  renderCashflowModelAssets();
+  renderCashflowModelPreview();
   renderSpendAll();
 }
 function initPortfolioData(){
@@ -1075,7 +1113,7 @@ function switchTab(n,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+n).classList.add('active');
   btn.classList.add('active');
-  if(n==='cashflow')buildRunway();
+  if(n==='cashflow'){renderCashflowModelAssets();renderCashflowModelPreview();buildRunway();}
   if(n==='ledger')showLedger(activeLedgerYear(),document.querySelector('.lyt.active')||document.querySelector('.lyt'));
   if(n==='spend')renderSpendAll();
   if(n==='milestones')renderMilestones();
@@ -1131,6 +1169,99 @@ function deleteInvestment(idx){
   S.investments.splice(idx,1);
   save();renderInvestments();recalc();
 }
+function portfolioModelAssets(){
+  return portfolioRows('2026').filter(r=>String(r.type||'').trim().toLowerCase()!=='carry-over');
+}
+function toggleCashflowModelAsset(id,checked){
+  if(!Array.isArray(S.cashflowModelSelection))S.cashflowModelSelection=[];
+  const next=new Set(S.cashflowModelSelection);
+  if(checked)next.add(id);else next.delete(id);
+  S.cashflowModelSelection=Array.from(next);
+  save();
+  renderCashflowModelPreview();
+}
+function clearCashflowModelSelection(){
+  S.cashflowModelSelection=[];
+  save();
+  renderCashflowModelAssets();
+  renderCashflowModelPreview();
+}
+function selectedCashflowModelRows(){
+  const ids=new Set(Array.isArray(S.cashflowModelSelection)?S.cashflowModelSelection:[]);
+  return portfolioModelAssets().filter(r=>ids.has(r.id));
+}
+function cashflowModelPrincipal(){
+  return selectedCashflowModelRows().reduce((sum,row)=>sum+(parseFloat(row.amount)||0),0);
+}
+function cashflowModelRate(){
+  return parseFloat(document.getElementById('cashflow-model-rate')?.value||0)||0;
+}
+function cashflowModelTaxable(){
+  return !!document.getElementById('cashflow-model-taxable')?.checked;
+}
+function cashflowModelAnnualGross(){
+  return cashflowModelPrincipal()*(cashflowModelRate()/100);
+}
+function cashflowModelMonthlyGross(){
+  return cashflowModelAnnualGross()/12;
+}
+function cashflowModelMonthlyNet(){
+  const monthlyGross=cashflowModelMonthlyGross();
+  return cashflowModelTaxable()?monthlyGross*0.55:monthlyGross;
+}
+function renderCashflowModelAssets(){
+  const list=document.getElementById('cashflow-model-assets');
+  if(!list)return;
+  if(!Array.isArray(S.cashflowModelSelection))S.cashflowModelSelection=[];
+  const selected=new Set(S.cashflowModelSelection);
+  const rows=portfolioModelAssets();
+  if(rows.length===0){
+    list.innerHTML='<div class="spend-type-row"><span>No portfolio assets to model yet</span><span class="type-total">£0</span></div>';
+    return;
+  }
+  list.innerHTML=rows.map(row=>`<div class="cashflow-model-asset">
+    <label><input type="checkbox" ${selected.has(row.id)?'checked':''} onchange="toggleCashflowModelAsset('${row.id}',this.checked)"/>${escapeHtml(row.name||'Asset')}</label>
+    <div class="amt">£${fmtN(parseFloat(row.amount)||0)}</div>
+  </div>`).join('');
+}
+function renderCashflowModelPreview(){
+  const el=document.getElementById('cashflow-model-preview');
+  if(!el)return;
+  const principal=cashflowModelPrincipal();
+  const rate=cashflowModelRate();
+  const annualGross=cashflowModelAnnualGross();
+  const monthlyGross=annualGross/12;
+  const monthlyNet=cashflowModelMonthlyNet();
+  el.innerHTML=`
+    <div class="summary-chip"><div class="k">Principal</div><div class="v">£${fmtN(principal)}</div></div>
+    <div class="summary-chip"><div class="k">Annual Gross</div><div class="v">£${fmtN(annualGross)}</div></div>
+    <div class="summary-chip"><div class="k">Monthly Net</div><div class="v ${monthlyNet>=0?'green':'red'}">£${fmtN(monthlyNet)}</div></div>`;
+  const rateLabel=document.getElementById('cashflow-model-rate');
+  if(rateLabel&&rateLabel.value==='')rateLabel.value=rate;
+}
+function addCashflowModelIncomeSource(){
+  const rows=selectedCashflowModelRows();
+  if(rows.length===0)return;
+  const principal=cashflowModelPrincipal();
+  const rate=cashflowModelRate();
+  const taxable=cashflowModelTaxable();
+  const annualGross=principal*(rate/100);
+  const name='Income model: '+rows.map(r=>r.name||'Asset').join(' + ')+' @ '+rate.toFixed(1)+'%';
+  S.investments.push({
+    id:uid('inc'),
+    name,
+    frequency:'annual',
+    amount:annualGross,
+    taxable,
+    modelPrincipal:principal,
+    modelRate:rate,
+    modelAssets:rows.map(r=>r.id),
+  });
+  save();
+  renderInvestments();
+  renderCashflowModelPreview();
+  recalc();
+}
 function normalizeIncomeSource(row){
   if(row===null||row===undefined)return null;
   if(typeof row==='number')return {id:uid('inc'),name:'Income source',frequency:'annual',amount:parseFloat(row)||0,taxable:false};
@@ -1144,14 +1275,23 @@ function normalizeIncomeSource(row){
       frequency:derivedFrequency,
       amount:parseFloat(row.amount)||0,
       taxable:!!row.taxable,
+      modelPrincipal:row.modelPrincipal!==undefined?parseFloat(row.modelPrincipal)||0:undefined,
+      modelRate:row.modelRate!==undefined?parseFloat(row.modelRate)||0:undefined,
+      modelAssets:Array.isArray(row.modelAssets)?row.modelAssets.slice():undefined,
     };
   }
   return null;
 }
 function incomeSourceMonthlyValue(row){
+  const taxable=!!(row&&row.taxable);
+  if(row&&row.modelPrincipal!==undefined&&row.modelRate!==undefined){
+    const annualGross=(parseFloat(row.modelPrincipal)||0)*(parseFloat(row.modelRate)||0)/100;
+    const monthlyGross=annualGross/12;
+    return taxable?monthlyGross*0.55:monthlyGross;
+  }
   const gross=parseFloat(row&&row.amount)||0;
   const monthlyGross=String(row&&row.frequency)==='annual'?gross/12:gross;
-  return row&&row.taxable?monthlyGross*0.55:monthlyGross;
+  return taxable?monthlyGross*0.55:monthlyGross;
 }
 function incomeSourceAnnualValue(row){
   return incomeSourceMonthlyValue(row)*12;
@@ -1163,7 +1303,10 @@ function cashflowIncomeAnnualTotal(){
   return S.investments.reduce((sum,row)=>sum+incomeSourceAnnualValue(row),0);
 }
 function cashflowIncomeAnnualGrossTotal(){
-  return S.investments.reduce((sum,row)=>sum+((String(row&&row.frequency)==='annual')?(parseFloat(row&&row.amount)||0):((parseFloat(row&&row.amount)||0)*12)),0);
+  return S.investments.reduce((sum,row)=>{
+    if(row&&row.modelPrincipal!==undefined&&row.modelRate!==undefined){return sum+((parseFloat(row.modelPrincipal)||0)*(parseFloat(row.modelRate)||0)/100);}
+    return sum+((String(row&&row.frequency)==='annual')?(parseFloat(row&&row.amount)||0):((parseFloat(row&&row.amount)||0)*12));
+  },0);
 }
 function renderCashflowSummary(){
   const el=document.getElementById('cashflow-summary');
@@ -1202,11 +1345,12 @@ function renderInvestments(){
       <button class="btn-inline-danger" onclick="deleteInvestment(${idx})">Delete</button>
     </div>
   </div>`;}).join('');
+  renderCashflowModelAssets();
+  renderCashflowModelPreview();
   renderCashflowSummary();
 }
 
 function addSpend(type){
-  renderCashflowSummary();
   S.spend[type].push({id:uid('sp'),name:'',type:'General',amount:0,_draft:true});
   save();renderSpendAll();
 }
@@ -1336,8 +1480,6 @@ function buildRunway(){
   const incomeAnnualGross=cashflowIncomeAnnualGrossTotal();
   const incomeAnnualNet=cashflowIncomeAnnualTotal();
   let bal=calcBase();
-  document.getElementById('base-val').textContent='£'+fmtN(bal);
-  document.getElementById('liquid-val').textContent='£'+fmtN(bal);
   let html='';
   for(let yr=2027;yr<=2030;yr++){
     const start=bal;
@@ -1356,8 +1498,6 @@ function buildRunway(){
         <div class="rw-carry"><div class="rw-carry-lbl">Rolling Carry-Over Balance</div><div class="rw-carry-val">£${fmtN(p.end)}</div></div>
       </div>
       <div class="rw-boxes">
-        <div class="rw-box"><div class="rw-box-lbl">Start Balance</div><div class="rw-box-val">£${fmtN(start)}</div></div>
-        <div class="rw-box"><div class="rw-box-lbl">${S.useGrowth?'+ '+(gr*100).toFixed(1)+'% Growth / Interest':'Growth / Interest (Off)'}</div><div class="rw-box-val ${S.useGrowth?'green':''}" style="${S.useGrowth?'':'color:#484f58'}">${S.useGrowth?'+£'+fmtN(p.interest):'—'}</div></div>
         <div class="rw-box"><div class="rw-box-lbl">+ Income Sources</div><div class="rw-box-val green">+£${fmtN(p.investments)}</div></div>
         <div class="rw-box"><div class="rw-box-lbl">${S.useDrawdown?'− Drawdown':'Drawdown (Off)'}</div><div class="rw-box-val ${S.useDrawdown?'red':''}" style="${S.useDrawdown?'':'color:#484f58'}">${S.useDrawdown?'−£'+fmtN(p.draw):'—'}</div></div>
       </div>
@@ -1404,7 +1544,7 @@ function showLedger(yr,btn){
             <div></div>
             <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="text" value="${fmtN(calcPortfolioShareAmount(r))}" readonly/></div>
           </div>`:`<div class="amount-move-row">
-            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${(parseFloat(r.amount)||0)>=0?'amt-pos':'amt-neg'}" type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
+            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${(parseFloat(r.amount)||0)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(parseFloat(r.amount)||0)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
             <div></div>
           </div>`}
           ${r._draft?`<div class="draft-actions"><button class="mini-action-btn" onclick="confirmAddPortfolioItem('${yr}',${idx})">Add</button><button class="mini-action-btn cancel" onclick="cancelAddPortfolioItem('${yr}',${idx})">Cancel</button></div>`:''}
@@ -1538,7 +1678,7 @@ function updatePortfolioItem(year,idx,key,val){
     row.taxable=!!val;
     if(isShares)row.amount=calcPortfolioShareAmount(row);
   }else{
-    row[key]=parseFloat(val)||0;
+    row[key]=parseFloat(String(val||'').replace(/,/g,''))||0;
   }
   if(year==='2026'&&row.key&&key==='amount'){S.assets[row.key]=parseFloat(row.amount)||0;}
   save();
