@@ -648,7 +648,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.0';
+const APP_VERSION='V3.1.1';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -1059,11 +1059,16 @@ function portfolioRows(year){
   if(!S.portfolio||!Array.isArray(S.portfolio[year]))S.portfolio[year]=[];
   return S.portfolio[year];
 }
+function calcPortfolioNonShareAmount(row){
+  const gross=parseFloat(row&&row.amount)||0;
+  return (row&&row.taxable)?gross*0.55:gross;
+}
+function calcPortfolioRowAmount(row){
+  const isShares=String(row&&row.type||'').trim().toLowerCase()==='shares';
+  return isShares?calcPortfolioShareAmount(row):calcPortfolioNonShareAmount(row);
+}
 function portfolioYearTotal(year){
-  return portfolioRows(year).reduce((sum,r)=>{
-    const isShares=String(r.type||'').trim().toLowerCase()==='shares';
-    return sum+(isShares?calcPortfolioShareAmount(r):(parseFloat(r.amount)||0));
-  },0);
+  return portfolioRows(year).reduce((sum,r)=>sum+calcPortfolioRowAmount(r),0);
 }
 function renderVersionLabels(){
   const ids=['version-header','version-home','version-settings','version-login'];
@@ -1676,14 +1681,15 @@ function showLedger(yr,btn){
             <div></div>
             <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="text" value="${fmtN(calcPortfolioShareAmount(r))}" readonly/></div>
           </div>`:`<div class="amount-move-row">
-            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${(parseFloat(r.amount)||0)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(parseFloat(r.amount)||0)}" onpointerdown="event.stopPropagation()" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
-            <div></div>
+            <label class="pf-taxable" style="justify-content:flex-start;"><input type="checkbox" ${r.taxable?'checked':''} onchange="updatePortfolioItem('${yr}',${idx},'taxable',this.checked)"/>Tax</label>
+            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${calcPortfolioRowAmount(r)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(parseFloat(r.amount)||0)}" onpointerdown="event.stopPropagation()" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
           </div>`}
           ${r._draft?`<div class="draft-actions"><button class="mini-action-btn" onclick="confirmAddPortfolioItem('${yr}',${idx})">Add</button><button class="mini-action-btn cancel" onclick="cancelAddPortfolioItem('${yr}',${idx})">Cancel</button></div>`:''}
         </div>
       </div>
     </div>`;}).join('')}
     <button class="btn-primary" onclick="addPortfolioItem('${yr}')">+ Add Portfolio Item</button>
+    <div class="pf-total" style="margin-top:10px;"><div class="pf-total-lbl">Annual Total (${yr})</div><div class="pf-total-val">£${fmtN(total)}</div></div>
   </div>`;
 }
 
@@ -1765,6 +1771,7 @@ function confirmAddPortfolioItem(year,idx){
   if(!row)return;
   row.name=String(row.name||'').trim()||'New item';
   row.type=String(row.type||'').trim()||'Asset';
+  if(typeof row.taxable!=='boolean')row.taxable=false;
   if(String(row.type).trim().toLowerCase()==='shares'){
     ensurePortfolioShareFields(row);
   }else{
