@@ -552,12 +552,17 @@ async function forceLoginScreen(){
         return;
       }
     }
-  }catch(e){}
-  window.location.reload();
+  }catch(e){
+    cloudStatus('login failed, tap Sign in to retry', '#f85149');
+  }
 }
 function enforceLoginGate(){
   const auth=readAuthSession();
   if(auth.loggedIn)return;
+  cloudStatus('redirecting to login...', '#d29922');
+  forceLoginScreen();
+}
+function signInUser(){
   cloudStatus('redirecting to login...', '#d29922');
   forceLoginScreen();
 }
@@ -602,9 +607,10 @@ function renderAuthHeader(){
   if(adminBadge)adminBadge.style.display=auth.loggedIn&&auth.isAdmin?'block':'none';
   if(signoutBtn){
     signoutBtn.style.display='inline-flex';
-    signoutBtn.disabled=!auth.loggedIn;
-    signoutBtn.style.opacity=auth.loggedIn?'1':'0.6';
-    signoutBtn.textContent=auth.loggedIn?'Sign out':'Signed out';
+    signoutBtn.disabled=false;
+    signoutBtn.style.opacity='1';
+    signoutBtn.textContent=auth.loggedIn?'Sign out':'Sign in';
+    signoutBtn.onclick=auth.loggedIn?signOutUser:signInUser;
   }
 }
 async function signOutUser(){
@@ -656,7 +662,6 @@ function load(){
   if(typeof S.useDrawdown!=='boolean')S.useDrawdown=true;
   applyDOM();
   initFirebase();
-  enforceLoginGate();
   syncFromCloud();
 }
 let _st;
