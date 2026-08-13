@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-title" content="RetireMe"/>
 <meta name="theme-color" content="#0d1117"/>
 <title>RetireMe</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;overflow:hidden;}
@@ -185,6 +187,67 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .version-note{font-size:10px;color:#484f58;text-align:center;letter-spacing:0.4px;}
 .version-note.home{margin-top:10px;}
 .version-note.settings{margin-top:8px;}
+
+body.light-mode{background:#f6f8fb;color:#0f172a;}
+body.light-mode #header{background:#ffffff;border-bottom-color:#d8dee8;}
+body.light-mode #tabbar{background:#ffffff;border-top-color:#d8dee8;}
+body.light-mode .card,
+body.light-mode .rw-card,
+body.light-mode .stat-box,
+body.light-mode .runway-base,
+body.light-mode .rw-box,
+body.light-mode .rw-tax-row,
+body.light-mode .asset-row,
+body.light-mode .pf-total,
+body.light-mode .toggle-row,
+body.light-mode .year-chip,
+body.light-mode .ck-item,
+body.light-mode .ms-item,
+body.light-mode .liquid-bar,
+body.light-mode .contrib-cell{background:#ffffff;border-color:#d8dee8;}
+body.light-mode .rw-box,
+body.light-mode .rw-tax-row,
+body.light-mode .asset-row,
+body.light-mode .year-chip,
+body.light-mode .toggle-row,
+body.light-mode .ck-item,
+body.light-mode .ms-item,
+body.light-mode .liquid-bar,
+body.light-mode .runway-base,
+body.light-mode .pf-total,
+body.light-mode .pf-row input,
+body.light-mode .invest-row input,
+body.light-mode .invest-row select,
+body.light-mode .spend-row input,
+body.light-mode .form-group input,
+body.light-mode .form-group select{background:#f8fafc;color:#0f172a;border-color:#d0d7e2;}
+body.light-mode .hdr-logo,
+body.light-mode .asset-name,
+body.light-mode .ms-title,
+body.light-mode .rw-box-val,
+body.light-mode .rw-carry-val,
+body.light-mode .rw-net-val,
+body.light-mode .pf-total-val,
+body.light-mode .val,
+body.light-mode .ck-text{color:#0f172a;}
+body.light-mode .card-eyebrow,
+body.light-mode .hdr-id,
+body.light-mode .hdr-version,
+body.light-mode .hdr-admin,
+body.light-mode .version-note,
+body.light-mode .stat-sub,
+body.light-mode .asset-sub2,
+body.light-mode .rw-carry-lbl,
+body.light-mode .rw-net-mo,
+body.light-mode .toggle-meta,
+body.light-mode .spend-head,
+body.light-mode .invest-head,
+body.light-mode .pf-head{color:#64748b;}
+body.light-mode .tab-btn{color:#64748b;}
+body.light-mode .tab-btn.active{color:#0ea86d;}
+body.light-mode .lyt{background:#ffffff;color:#64748b;border-color:#d8dee8;}
+body.light-mode .lyt.active{background:#00d17a;color:#073b24;border-color:#00d17a;}
+body.light-mode .btn-inline-danger{border-color:#d0d7e2;}
 </style>
 </head>
 <body>
@@ -194,7 +257,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V2.7.1</div>
+      <div class="hdr-version" id="version-header">V2.8.0</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -216,7 +279,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home">V2.7.1</div>
+    <div class="version-note home" id="version-home">V2.8.0</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -301,21 +364,21 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
       <div class="form-group"><label>Annual Paid Holidays <span id="s-hols-v">25</span> days</label><input type="range" id="s-hols" min="0" max="35" oninput="document.getElementById('s-hols-v').textContent=this.value;fs('hols',+this.value)"/></div>
     </div>
     <div class="card">
-      <div class="section-title">Pension &amp; Income</div>
-      <div class="form-group"><label>Annual Salary (£)</label><input type="number" id="s-salary" placeholder="85000" oninput="fs('salary',+this.value)"/></div>
-      <div class="form-group"><label>Current Pension Pot (£)</label><input type="number" id="s-pot-n" placeholder="132000" oninput="fs('pot',+this.value)"/></div>
-      <div class="form-group"><label>DB Pension Annual Income (£)</label><input type="number" id="s-db" placeholder="43000" oninput="fs('dbPension',+this.value)"/></div>
-      <div class="form-group"><label>Annual Savings Drawdown (£)</label><input type="number" id="s-draw" placeholder="24000" oninput="fs('drawdown',+this.value)"/></div>
-    </div>
-    <div class="card">
-      <div class="section-title">Asset Balances (2026 Base)</div>
-      <div id="s-assets-form"></div>
+      <div class="section-title">Appearance</div>
+      <div class="toggle-row" style="margin-bottom:0;">
+        <div>
+          <div class="toggle-label">Light Mode</div>
+          <div class="toggle-meta">Switch between dark and light interface</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="theme-light" onchange="setTheme(this.checked?'light':'dark')"/><span class="slider-round"></span></label>
+      </div>
     </div>
     <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
-      <div class="card-eyebrow">Data Privacy</div>
-      <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">All data is stored exclusively in this device's browser storage (localStorage). Nothing is ever transmitted to any server. Your financial details never leave your device.</div>
-      <button class="btn-danger" onclick="clearData()">🗑 Clear All Saved Data</button>
-      <div class="version-note settings" id="version-settings">V2.7.1</div>
+      <div class="card-eyebrow">Secure Cloud Sync</div>
+      <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
+      <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
+      <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
+      <div class="version-note settings" id="version-settings">V2.8.0</div>
     </div>
   </div>
 
@@ -341,14 +404,91 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 </div>
 
 <script>
-const APP_VERSION='V2.7.1';
+const APP_VERSION='V2.8.0';
+const FIREBASE_CONFIG={
+  apiKey:'AIzaSyBTVDEydTgaxxn9P6Xid0yGMYeqZciEULU',
+  authDomain:'invest-in-it.firebaseapp.com',
+  projectId:'invest-in-it'
+};
+let _db=null;
+let _cloudSaveTimer=null;
+let _syncBusy=false;
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:'NS&I',val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:'NS&I',val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
-let S={dob:'',retire:'',career:'',hols:25,salary:85000,pot:132000,contrib:12,growth:4,targetMonthly:3500,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
+let S={dob:'',retire:'',career:'',hols:25,salary:85000,pot:132000,contrib:12,growth:4,targetMonthly:3500,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
 
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
 function uid(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);}
+function cloudStatus(msg,color){const e=document.getElementById('cloud-sync-status');if(e){e.textContent='Sync status: '+msg;if(color)e.style.color=color;}}
+function initFirebase(){
+  try{
+    if(window.firebase&&firebase.apps&&firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
+    if(window.firebase&&firebase.firestore){_db=firebase.firestore();}
+    return !!_db;
+  }catch(e){return false;}
+}
+function cloudUserKey(){
+  const auth=readAuthSession();
+  if(!auth.loggedIn)return null;
+  const key=(auth.userKey||'').trim();
+  if(!key)return null;
+  return key.replaceAll('/','_');
+}
+function cloudDoc(){
+  if(!_db)return null;
+  const key=cloudUserKey();
+  if(!key)return null;
+  return _db.collection('retireme').doc(key);
+}
+async function syncFromCloud(){
+  const ref=cloudDoc();
+  if(!ref){cloudStatus('local-only (not logged in)', '#848d97');return;}
+  try{
+    _syncBusy=true;
+    cloudStatus('syncing...', '#d29922');
+    const snap=await ref.get();
+    if(snap.exists){
+      const remote=snap.data()||{};
+      S={...S,...remote};
+      initPortfolioData();
+      applyDOM();
+      recalc();
+      cloudStatus('synced', '#00d17a');
+    }else{
+      await ref.set(S);
+      cloudStatus('cloud initialized', '#00d17a');
+    }
+  }catch(e){
+    cloudStatus('cloud unavailable, using local cache', '#f85149');
+  }finally{_syncBusy=false;}
+}
+function queueCloudSave(){
+  clearTimeout(_cloudSaveTimer);
+  _cloudSaveTimer=setTimeout(async()=>{
+    const ref=cloudDoc();
+    if(!ref||_syncBusy)return;
+    try{await ref.set(S);cloudStatus('synced', '#00d17a');}catch(e){cloudStatus('sync failed (offline)', '#f85149');}
+  },700);
+}
+function setTheme(mode){
+  S.theme=mode==='light'?'light':'dark';
+  document.body.classList.toggle('light-mode',S.theme==='light');
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute('content',S.theme==='light'?'#f6f8fb':'#0d1117');
+  const t=document.getElementById('theme-light');
+  if(t)t.checked=S.theme==='light';
+  save();
+}
+function forceRefreshApp(){
+  const run=async()=>{
+    try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs){await r.unregister();}}}catch(e){}
+    const u=new URL(window.location.href);
+    u.searchParams.set('v',Date.now().toString());
+    window.location.replace(u.toString());
+  };
+  run();
+}
 
 function safeParseJSON(raw){
   if(!raw)return null;
@@ -366,7 +506,8 @@ function readAuthSession(){
   const role=((session&&session.role)||roleHint||'').toString().toLowerCase();
   const isAdmin=!!(isAdminHint||role==='admin'||(session&&session.isAdmin===true));
   const loggedIn=!!(session||localStorage.getItem('loggedIn')==='true'||sessionStorage.getItem('loggedIn')==='true'||isAdminHint);
-  return {loggedIn,isAdmin};
+  const rawUserKey=(session&&(session.uid||session.userId||session.email||session.username))||localStorage.getItem('userEmail')||localStorage.getItem('uid')||'';
+  return {loggedIn,isAdmin,userKey:String(rawUserKey||'')};
 }
 function renderAuthHeader(){
   const auth=readAuthSession();
@@ -386,6 +527,7 @@ async function signOutUser(){
   const keys=['rm_session','retireme_session','retireme_auth','auth_user','user','loggedIn','role','userRole','isAdmin'];
   for(const key of keys){localStorage.removeItem(key);sessionStorage.removeItem(key);}
   renderAuthHeader();
+  cloudStatus('local-only (signed out)', '#848d97');
 }
 
 function load(){
@@ -409,13 +551,15 @@ function load(){
   }
   if(!S.targetMonthly)S.targetMonthly=3500;
   if(!S.growth)S.growth=4;
+  if(!S.theme)S.theme='dark';
   if(typeof S.useGrowth!=='boolean')S.useGrowth=true;
   if(typeof S.useDrawdown!=='boolean')S.useDrawdown=true;
   applyDOM();
+  initFirebase();
+  syncFromCloud();
 }
 let _st;
-function save(){clearTimeout(_st);_st=setTimeout(()=>{try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}},350);}
-function clearData(){if(!confirm('Clear all saved data?'))return;localStorage.removeItem('retireme_v3');location.reload();}
+function save(){clearTimeout(_st);_st=setTimeout(()=>{try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}queueCloudSave();},350);}
 
 function applyDOM(){
   sv('s-dob',S.dob);sv('s-retire',S.retire);sv('s-career',S.career);
@@ -428,10 +572,11 @@ function applyDOM(){
   sr('r-extra',S.extra||0,'r-extra-v','£'+(S.extra||0).toLocaleString());
   const growthEl=document.getElementById('use-growth');if(growthEl)growthEl.checked=!!S.useGrowth;
   const drawEl=document.getElementById('use-drawdown');if(drawEl)drawEl.checked=!!S.useDrawdown;
+  const themeToggle=document.getElementById('theme-light');if(themeToggle)themeToggle.checked=S.theme==='light';
   document.getElementById('device-id').textContent=devId();
+  setTheme(S.theme||'dark');
   renderAuthHeader();
   renderVersionLabels();
-  renderAssetsForm();
   renderInvestments();
   renderSpendAll();
 }
