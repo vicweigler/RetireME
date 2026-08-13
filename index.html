@@ -32,6 +32,7 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .login-btn.secondary{background:transparent;border:1px solid #30363d;color:#e6edf3;}
 .login-status{font-size:12px;margin-top:10px;min-height:16px;color:#8b949e;}
 .login-version{font-size:11px;color:#6e7681;text-align:center;margin-top:12px;letter-spacing:0.4px;}
+.login-refresh-btn{width:100%;padding:10px;border-radius:10px;border:1px solid #30363d;background:transparent;color:#8b949e;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;}
 #app{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top,0px);}
 #header{background:#161b22;border-bottom:1px solid #21262d;padding:12px 18px 10px;flex-shrink:0;}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
@@ -337,6 +338,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       </div>
       <div class="login-status" id="login-status"></div>
       <div class="login-version" id="version-login">V2.9.1</div>
+      <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
   </div>
 </div>
@@ -494,7 +496,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V2.9.3';
+const APP_VERSION='V2.9.4';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
