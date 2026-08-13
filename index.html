@@ -178,16 +178,15 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .spend-row{display:grid;grid-template-columns:1fr 110px 72px;gap:8px;align-items:center;margin-bottom:8px;}
 .spend-row input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 10px;color:#e6edf3;font-size:13px;}
 .spend-head{display:grid;grid-template-columns:1fr 110px 72px;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;margin-bottom:6px;}
-.pf-head{display:grid;grid-template-columns:1fr 120px;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;margin-bottom:8px;}
 .pf-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
 .pf-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
-.pf-row{position:relative;display:grid;grid-template-columns:1fr 120px;gap:8px;align-items:stretch;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:8px;touch-action:pan-y;transition:transform 0.2s ease;}
-.pf-left-card{border:1px solid #30363d;border-radius:8px;overflow:hidden;background:#161b22;}
-.pf-left-card input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:13px;padding:8px 10px;outline:none;}
-.pf-left-card input:first-child{border-bottom:1px solid #30363d;}
-.pf-amount-wrap{position:relative;display:flex;align-items:center;}
-.pf-pound{position:absolute;left:10px;color:#d29922;font-size:13px;font-weight:700;pointer-events:none;}
-.pf-amount-wrap input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 24px;color:#d29922;font-size:13px;font-weight:700;outline:none;text-align:right;}
+.pf-row{position:relative;display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:center;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
+.pf-title-wrap{min-width:0;}
+.pf-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
+.pf-type-input{width:100%;background:transparent;border:none;color:#8b949e;font-size:11px;line-height:1.2;padding:2px 0 0;outline:none;}
+.pf-amount-wrap{position:relative;display:flex;align-items:center;justify-content:flex-end;}
+.pf-pound{position:absolute;left:10px;color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;}
+.pf-amount-wrap input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#f85149;font-size:13px;font-weight:700;outline:none;text-align:right;}
 .pf-total{display:flex;justify-content:space-between;align-items:center;background:#0d1117;border:1px solid rgba(0,209,122,0.3);border-radius:10px;padding:10px 12px;margin-bottom:10px;}
 .pf-total-lbl{font-size:11px;font-weight:700;color:#00d17a;}
 .pf-total-val{font-size:16px;font-weight:800;color:#00d17a;}
@@ -224,7 +223,8 @@ body.light-mode .liquid-bar,
 body.light-mode .runway-base,
 body.light-mode .pf-total,
 body.light-mode .pf-row input,
-body.light-mode .pf-left-card,
+body.light-mode .pf-name-input,
+body.light-mode .pf-type-input,
 body.light-mode .invest-row input,
 body.light-mode .invest-row select,
 body.light-mode .spend-row input,
@@ -413,7 +413,7 @@ body.light-mode .pf-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V2.8.1';
+const APP_VERSION='V2.8.2';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyBTVDEydTgaxxn9P6Xid0yGMYeqZciEULU',
   authDomain:'invest-in-it.firebaseapp.com',
@@ -850,13 +850,12 @@ function showLedger(yr,btn){
   const total=portfolioYearTotal(yr);
   el.innerHTML=`<div class="card">
     <div class="pf-total"><div class="pf-total-lbl">Total Portfolio Value</div><div class="pf-total-val">£${fmtN(total)}</div></div>
-    <div class="pf-head"><div>Asset</div><div>Amount</div></div>
     ${rows.map((r,idx)=>`<div class="pf-row-wrap">
       <div class="pf-swipe-delete-bg">Swipe left to delete</div>
       <div class="pf-row" data-pf-row="${yr}:${idx}" ontouchstart="pfTouchStart(event,'${yr}',${idx})" ontouchmove="pfTouchMove(event,'${yr}',${idx})" ontouchend="pfTouchEnd(event,'${yr}',${idx})">
-        <div class="pf-left-card">
-          <input type="text" value="${escapeHtml(r.name||'')}" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
-          <input type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>
+        <div class="pf-title-wrap">
+          <input class="pf-name-input" type="text" value="${escapeHtml(r.name||'')}" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
+          <input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>
         </div>
         <div class="pf-amount-wrap"><span class="pf-pound">£</span><input type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
       </div>
