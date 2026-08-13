@@ -547,20 +547,34 @@ function renderAuthHeader(){
   const adminBadge=document.getElementById('admin-badge');
   const signoutBtn=document.getElementById('signout-btn');
   if(adminBadge)adminBadge.style.display=auth.loggedIn&&auth.isAdmin?'block':'none';
-  if(signoutBtn)signoutBtn.style.display='inline-flex';
+  if(signoutBtn){
+    signoutBtn.style.display='inline-flex';
+    signoutBtn.disabled=!auth.loggedIn;
+    signoutBtn.style.opacity=auth.loggedIn?'1':'0.6';
+    signoutBtn.textContent=auth.loggedIn?'Sign out':'Signed out';
+  }
 }
 async function signOutUser(){
-  if(!confirm('Sign out now?'))return;
+  const ok=window.confirm('Sign out now?');
+  if(!ok)return;
   try{
     if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){
       const auth=firebase.auth();
       if(auth&&typeof auth.signOut==='function')await auth.signOut();
     }
   }catch(e){}
-  const keys=['rm_session','retireme_session','retireme_auth','auth_user','user','loggedIn','role','userRole','isAdmin'];
+  _firebaseUser=null;
+  const keys=[
+    'rm_session','retireme_session','retireme_auth','auth_user','user',
+    'loggedIn','role','userRole','accountRole','isAdmin',
+    'idToken','uid','userEmail','firebase:authUser'
+  ];
   for(const key of keys){localStorage.removeItem(key);sessionStorage.removeItem(key);}
+  localStorage.setItem('loggedIn','false');
+  sessionStorage.setItem('loggedIn','false');
   renderAuthHeader();
   cloudStatus('local-only (signed out)', '#848d97');
+  alert('You are now signed out.');
 }
 
 function load(){
