@@ -524,7 +524,7 @@ const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/che
 
 let S={dob:'',retire:'',career:'',salary:85000,pot:132000,contrib:12,growth:4,targetMonthly:3500,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
 
-function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
+function devId(){let i=localStorage.getItem('rm_did');if(!i){i='DV:'+Math.random().toString(36).slice(2,9).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
 function uid(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);}
 function cloudStatus(msg,color){const e=document.getElementById('cloud-sync-status');if(e){e.textContent='Sync status: '+msg;if(color)e.style.color=color;}}
 function loginStatus(msg,color){const e=document.getElementById('login-status');if(e){e.textContent=msg||'';if(color)e.style.color=color;}}
@@ -651,40 +651,50 @@ function cloudUserKey(){
   if(!key)return null;
   return key.replaceAll('/','_');
 }
-function cloudRefs(){
-  if(!_db)return [];
+function cloudPrimaryRef(){
+  if(!_db)return null;
   const key=cloudUserKey();
-  if(!key)return [];
-  return [
-    _db.collection('users').doc(key).collection('apps').doc('retireme'),
-    _db.collection('retireme').doc(key)
-  ];
+  if(!key)return null;
+  return _db.collection('users').doc(key).collection('apps').doc('retireme');
+}
+function cloudLegacyRef(){
+  if(!_db)return null;
+  const key=cloudUserKey();
+  if(!key)return null;
+  return _db.collection('retireme').doc(key);
 }
 async function syncFromCloud(){
-  const refs=cloudRefs();
-  if(refs.length===0){cloudStatus('local-only (not logged in)', '#848d97');return;}
+  const primaryRef=cloudPrimaryRef();
+  if(!primaryRef){cloudStatus('local-only (not logged in)', '#848d97');return;}
   try{
     _syncBusy=true;
     cloudStatus('syncing...', '#d29922');
-    let lastErr=null;
-    for(const ref of refs){
-      try{
-        const snap=await ref.get();
-        if(snap.exists){
-          const remote=snap.data()||{};
-          S={...S,...remote};
-          initPortfolioData();
-          applyDOM();
-          recalc();
-          cloudStatus('synced', '#00d17a');
-          return;
-        }
-        await ref.set(S,{merge:true});
-        cloudStatus('cloud initialized', '#00d17a');
-        return;
-      }catch(e){lastErr=e;}
+    const primarySnap=await primaryRef.get();
+    if(primarySnap.exists){
+      const remote=primarySnap.data()||{};
+      S={...S,...remote};
+      initPortfolioData();
+      applyDOM();
+      recalc();
+      cloudStatus('synced', '#00d17a');
+      return;
     }
-    throw lastErr||new Error('sync failed');
+    const legacyRef=cloudLegacyRef();
+    if(legacyRef){
+      const legacySnap=await legacyRef.get();
+      if(legacySnap.exists){
+        const remote=legacySnap.data()||{};
+        S={...S,...remote};
+        initPortfolioData();
+        applyDOM();
+        recalc();
+        await primaryRef.set(S,{merge:true});
+        cloudStatus('synced (migrated legacy data)', '#00d17a');
+        return;
+      }
+    }
+    await primaryRef.set(S,{merge:true});
+    cloudStatus('cloud initialized', '#00d17a');
   }catch(e){
     const code=(e&&e.code)||'';
     if(code==='permission-denied'){
@@ -699,15 +709,10 @@ async function syncFromCloud(){
 function queueCloudSave(){
   clearTimeout(_cloudSaveTimer);
   _cloudSaveTimer=setTimeout(async()=>{
-    const refs=cloudRefs();
-    if(refs.length===0||_syncBusy)return;
+    const ref=cloudPrimaryRef();
+    if(!ref||_syncBusy)return;
     try{
-      let ok=false;
-      let lastErr=null;
-      for(const ref of refs){
-        try{await ref.set(S,{merge:true});ok=true;break;}catch(e){lastErr=e;}
-      }
-      if(!ok)throw lastErr||new Error('sync failed');
+      await ref.set(S,{merge:true});
       cloudStatus('synced', '#00d17a');
     }
     catch(e){
@@ -773,6 +778,9 @@ function renderAuthHeader(){
   const auth=readAuthSession();
   const adminBadge=document.getElementById('admin-badge');
   const signoutBtn=document.getElementById('signout-btn');
+  const idEl=document.getElementById('device-id');
+  const account=(auth.userKey||'').includes('@')?(auth.userKey||''):'local';
+  if(idEl)idEl.textContent='Acct: '+account+' | Dev: '+devId();
   if(adminBadge)adminBadge.style.display=auth.loggedIn&&auth.isAdmin?'block':'none';
   if(signoutBtn){
     signoutBtn.style.display='inline-flex';
