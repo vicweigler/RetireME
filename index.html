@@ -31,6 +31,7 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .login-btn.primary{background:linear-gradient(135deg,#00d17a,#00a85e);color:#0d1117;}
 .login-btn.secondary{background:transparent;border:1px solid #30363d;color:#e6edf3;}
 .login-status{font-size:12px;margin-top:10px;min-height:16px;color:#8b949e;}
+.login-version{font-size:11px;color:#6e7681;text-align:center;margin-top:12px;letter-spacing:0.4px;}
 #app{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top,0px);}
 #header{background:#161b22;border-bottom:1px solid #21262d;padding:12px 18px 10px;flex-shrink:0;}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
@@ -334,6 +335,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
+      <div class="login-version" id="version-login">V2.9.1</div>
     </form>
   </div>
 </div>
@@ -491,7 +493,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V2.9.1';
+const APP_VERSION='V2.9.2';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyBTVDEydTgaxxn9P6Xid0yGMYeqZciEULU',
   authDomain:'invest-in-it.firebaseapp.com',
@@ -601,30 +603,40 @@ function cloudUserKey(){
   if(!key)return null;
   return key.replaceAll('/','_');
 }
-function cloudDoc(){
-  if(!_db)return null;
+function cloudRefs(){
+  if(!_db)return [];
   const key=cloudUserKey();
-  if(!key)return null;
-  return _db.collection('retireme').doc(key);
+  if(!key)return [];
+  return [
+    _db.collection('users').doc(key).collection('apps').doc('retireme'),
+    _db.collection('retireme').doc(key)
+  ];
 }
 async function syncFromCloud(){
-  const ref=cloudDoc();
-  if(!ref){cloudStatus('local-only (not logged in)', '#848d97');return;}
+  const refs=cloudRefs();
+  if(refs.length===0){cloudStatus('local-only (not logged in)', '#848d97');return;}
   try{
     _syncBusy=true;
     cloudStatus('syncing...', '#d29922');
-    const snap=await ref.get();
-    if(snap.exists){
-      const remote=snap.data()||{};
-      S={...S,...remote};
-      initPortfolioData();
-      applyDOM();
-      recalc();
-      cloudStatus('synced', '#00d17a');
-    }else{
-      await ref.set(S);
-      cloudStatus('cloud initialized', '#00d17a');
+    let lastErr=null;
+    for(const ref of refs){
+      try{
+        const snap=await ref.get();
+        if(snap.exists){
+          const remote=snap.data()||{};
+          S={...S,...remote};
+          initPortfolioData();
+          applyDOM();
+          recalc();
+          cloudStatus('synced', '#00d17a');
+          return;
+        }
+        await ref.set(S,{merge:true});
+        cloudStatus('cloud initialized', '#00d17a');
+        return;
+      }catch(e){lastErr=e;}
     }
+    throw lastErr||new Error('sync failed');
   }catch(e){
     const code=(e&&e.code)||'';
     if(code==='permission-denied'){
@@ -639,9 +651,17 @@ async function syncFromCloud(){
 function queueCloudSave(){
   clearTimeout(_cloudSaveTimer);
   _cloudSaveTimer=setTimeout(async()=>{
-    const ref=cloudDoc();
-    if(!ref||_syncBusy)return;
-    try{await ref.set(S);cloudStatus('synced', '#00d17a');}
+    const refs=cloudRefs();
+    if(refs.length===0||_syncBusy)return;
+    try{
+      let ok=false;
+      let lastErr=null;
+      for(const ref of refs){
+        try{await ref.set(S,{merge:true});ok=true;break;}catch(e){lastErr=e;}
+      }
+      if(!ok)throw lastErr||new Error('sync failed');
+      cloudStatus('synced', '#00d17a');
+    }
     catch(e){
       const code=(e&&e.code)||'';
       if(code==='permission-denied')cloudStatus('sync blocked by Firestore rules (permission denied)', '#f85149');
@@ -808,7 +828,7 @@ function portfolioYearTotal(year){
   return portfolioRows(year).reduce((sum,r)=>sum+(parseFloat(r.amount)||0),0);
 }
 function renderVersionLabels(){
-  const ids=['version-header','version-home','version-settings'];
+  const ids=['version-header','version-home','version-settings','version-login'];
   for(const id of ids){const el=document.getElementById(id);if(el)el.textContent=APP_VERSION;}
 }
 function normalizeSpendRow(row){
