@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#0d1117"/>
 <title>RetireMe</title>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -177,9 +178,16 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .spend-row{display:grid;grid-template-columns:1fr 110px 72px;gap:8px;align-items:center;margin-bottom:8px;}
 .spend-row input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 10px;color:#e6edf3;font-size:13px;}
 .spend-head{display:grid;grid-template-columns:1fr 110px 72px;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;margin-bottom:6px;}
-.pf-head{display:grid;grid-template-columns:1fr 1fr 120px 72px;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;margin-bottom:8px;}
-.pf-row{display:grid;grid-template-columns:1fr 1fr 120px 72px;gap:8px;align-items:center;margin-bottom:8px;}
-.pf-row input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 10px;color:#e6edf3;font-size:13px;}
+.pf-head{display:grid;grid-template-columns:1fr 120px;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#484f58;margin-bottom:8px;}
+.pf-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
+.pf-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
+.pf-row{position:relative;display:grid;grid-template-columns:1fr 120px;gap:8px;align-items:stretch;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:8px;touch-action:pan-y;transition:transform 0.2s ease;}
+.pf-left-card{border:1px solid #30363d;border-radius:8px;overflow:hidden;background:#161b22;}
+.pf-left-card input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:13px;padding:8px 10px;outline:none;}
+.pf-left-card input:first-child{border-bottom:1px solid #30363d;}
+.pf-amount-wrap{position:relative;display:flex;align-items:center;}
+.pf-pound{position:absolute;left:10px;color:#d29922;font-size:13px;font-weight:700;pointer-events:none;}
+.pf-amount-wrap input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 24px;color:#d29922;font-size:13px;font-weight:700;outline:none;text-align:right;}
 .pf-total{display:flex;justify-content:space-between;align-items:center;background:#0d1117;border:1px solid rgba(0,209,122,0.3);border-radius:10px;padding:10px 12px;margin-bottom:10px;}
 .pf-total-lbl{font-size:11px;font-weight:700;color:#00d17a;}
 .pf-total-val{font-size:16px;font-weight:800;color:#00d17a;}
@@ -216,6 +224,7 @@ body.light-mode .liquid-bar,
 body.light-mode .runway-base,
 body.light-mode .pf-total,
 body.light-mode .pf-row input,
+body.light-mode .pf-left-card,
 body.light-mode .invest-row input,
 body.light-mode .invest-row select,
 body.light-mode .spend-row input,
@@ -248,6 +257,7 @@ body.light-mode .tab-btn.active{color:#0ea86d;}
 body.light-mode .lyt{background:#ffffff;color:#64748b;border-color:#d8dee8;}
 body.light-mode .lyt.active{background:#00d17a;color:#073b24;border-color:#00d17a;}
 body.light-mode .btn-inline-danger{border-color:#d0d7e2;}
+body.light-mode .pf-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </style>
 </head>
 <body>
@@ -361,7 +371,6 @@ body.light-mode .btn-inline-danger{border-color:#d0d7e2;}
       <div class="form-group"><label>Date of Birth</label><input type="date" id="s-dob" oninput="fs('dob',this.value)"/></div>
       <div class="form-group"><label>Retirement Date</label><input type="date" id="s-retire" oninput="fs('retire',this.value)"/></div>
       <div class="form-group"><label>Career Start Date</label><input type="date" id="s-career" oninput="fs('career',this.value)"/></div>
-      <div class="form-group"><label>Annual Paid Holidays <span id="s-hols-v">25</span> days</label><input type="range" id="s-hols" min="0" max="35" oninput="document.getElementById('s-hols-v').textContent=this.value;fs('hols',+this.value)"/></div>
     </div>
     <div class="card">
       <div class="section-title">Appearance</div>
@@ -378,7 +387,7 @@ body.light-mode .btn-inline-danger{border-color:#d0d7e2;}
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V2.8.0</div>
+      <div class="version-note settings" id="version-settings">V2.8.1</div>
     </div>
   </div>
 
@@ -404,7 +413,7 @@ body.light-mode .btn-inline-danger{border-color:#d0d7e2;}
 </div>
 
 <script>
-const APP_VERSION='V2.8.0';
+const APP_VERSION='V2.8.1';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyBTVDEydTgaxxn9P6Xid0yGMYeqZciEULU',
   authDomain:'invest-in-it.firebaseapp.com',
@@ -413,10 +422,12 @@ const FIREBASE_CONFIG={
 let _db=null;
 let _cloudSaveTimer=null;
 let _syncBusy=false;
+let _authObserverSet=false;
+let _firebaseUser=null;
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:'NS&I',val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:'NS&I',val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
-let S={dob:'',retire:'',career:'',hols:25,salary:85000,pot:132000,contrib:12,growth:4,targetMonthly:3500,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
+let S={dob:'',retire:'',career:'',salary:85000,pot:132000,contrib:12,growth:4,targetMonthly:3500,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
 
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='ID:'+Math.random().toString(36).slice(2,11).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
 function uid(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);}
@@ -425,6 +436,14 @@ function initFirebase(){
   try{
     if(window.firebase&&firebase.apps&&firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
     if(window.firebase&&firebase.firestore){_db=firebase.firestore();}
+    if(window.firebase&&firebase.auth&&!_authObserverSet){
+      _authObserverSet=true;
+      firebase.auth().onAuthStateChanged((u)=>{
+        _firebaseUser=u||null;
+        renderAuthHeader();
+        syncFromCloud();
+      });
+    }
     return !!_db;
   }catch(e){return false;}
 }
@@ -494,19 +513,33 @@ function safeParseJSON(raw){
   if(!raw)return null;
   try{return JSON.parse(raw);}catch(e){return null;}
 }
+function readStorageValue(key){
+  const ls=localStorage.getItem(key);
+  if(ls!==null&&ls!==undefined&&ls!=='')return ls;
+  const ss=sessionStorage.getItem(key);
+  if(ss!==null&&ss!==undefined&&ss!=='')return ss;
+  return null;
+}
 function readAuthSession(){
   const keys=['rm_session','retireme_session','retireme_auth','auth_user','user'];
   let session=null;
+  let primitiveUser='';
   for(const key of keys){
-    const parsed=safeParseJSON(localStorage.getItem(key))||safeParseJSON(sessionStorage.getItem(key));
+    const raw=readStorageValue(key);
+    const parsed=safeParseJSON(raw);
     if(parsed&&typeof parsed==='object'){session=parsed;break;}
+    if(raw&&typeof raw==='string'&&!primitiveUser)primitiveUser=raw;
   }
-  const roleHint=(localStorage.getItem('role')||localStorage.getItem('userRole')||'').toLowerCase();
-  const isAdminHint=(localStorage.getItem('isAdmin')||sessionStorage.getItem('isAdmin')||'').toLowerCase()==='true';
-  const role=((session&&session.role)||roleHint||'').toString().toLowerCase();
+  const roleHint=(readStorageValue('role')||readStorageValue('userRole')||readStorageValue('accountRole')||'').toLowerCase();
+  const isAdminHint=(readStorageValue('isAdmin')||'').toLowerCase()==='true';
+  const sessionRole=(session&&((session.role)||(session.user&&session.user.role)||(session.profile&&session.profile.role)))||'';
+  const role=(sessionRole||roleHint||'').toString().toLowerCase();
+  const hasFirebaseUser=!!(_firebaseUser&&_firebaseUser.uid);
+  const loggedFlag=(readStorageValue('loggedIn')||'').toLowerCase()==='true';
+  const hasToken=!!readStorageValue('idToken');
+  const loggedIn=!!(session||primitiveUser||hasFirebaseUser||loggedFlag||hasToken||isAdminHint);
   const isAdmin=!!(isAdminHint||role==='admin'||(session&&session.isAdmin===true));
-  const loggedIn=!!(session||localStorage.getItem('loggedIn')==='true'||sessionStorage.getItem('loggedIn')==='true'||isAdminHint);
-  const rawUserKey=(session&&(session.uid||session.userId||session.email||session.username))||localStorage.getItem('userEmail')||localStorage.getItem('uid')||'';
+  const rawUserKey=(session&&(session.uid||session.userId||session.email||session.username||(session.user&&session.user.email)))||(_firebaseUser&&(_firebaseUser.uid||_firebaseUser.email))||readStorageValue('userEmail')||readStorageValue('uid')||primitiveUser||'';
   return {loggedIn,isAdmin,userKey:String(rawUserKey||'')};
 }
 function renderAuthHeader(){
@@ -563,7 +596,6 @@ function save(){clearTimeout(_st);_st=setTimeout(()=>{try{localStorage.setItem('
 
 function applyDOM(){
   sv('s-dob',S.dob);sv('s-retire',S.retire);sv('s-career',S.career);
-  sr('s-hols',S.hols,'s-hols-v',String(S.hols));
   sv('s-salary',S.salary||'');sv('s-pot-n',S.pot||'');sv('s-db',S.dbPension||'');sv('s-draw',S.drawdown||'');
   sr('r-gr',S.growth||4,'r-gr-v',(S.growth||4).toFixed(1)+'%');
   sr('r-db',S.dbPension||43000,'r-db-v','£'+(S.dbPension||43000).toLocaleString());
@@ -804,15 +836,50 @@ function showLedger(yr,btn){
   const total=portfolioYearTotal(yr);
   el.innerHTML=`<div class="card">
     <div class="pf-total"><div class="pf-total-lbl">Total Portfolio Value</div><div class="pf-total-val">£${fmtN(total)}</div></div>
-    <div class="pf-head"><div>Name</div><div>Type</div><div>Amount (£)</div><div>Delete</div></div>
-    ${rows.map((r,idx)=>`<div class="pf-row">
-      <input type="text" value="${escapeHtml(r.name||'')}" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
-      <input type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>
-      <input type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)" style="text-align:right;"/>
-      <button class="btn-inline-danger" onclick="deletePortfolioItem('${yr}',${idx})">Delete</button>
+    <div class="pf-head"><div>Asset</div><div>Amount</div></div>
+    ${rows.map((r,idx)=>`<div class="pf-row-wrap">
+      <div class="pf-swipe-delete-bg">Swipe left to delete</div>
+      <div class="pf-row" data-pf-row="${yr}:${idx}" ontouchstart="pfTouchStart(event,'${yr}',${idx})" ontouchmove="pfTouchMove(event,'${yr}',${idx})" ontouchend="pfTouchEnd(event,'${yr}',${idx})">
+        <div class="pf-left-card">
+          <input type="text" value="${escapeHtml(r.name||'')}" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
+          <input type="text" value="${escapeHtml(r.type||'')}" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>
+        </div>
+        <div class="pf-amount-wrap"><span class="pf-pound">£</span><input type="number" value="${parseFloat(r.amount)||0}" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
+      </div>
     </div>`).join('')}
     <button class="btn-primary" onclick="addPortfolioItem('${yr}')">+ Add Portfolio Item</button>
   </div>`;
+}
+
+const PF_SWIPE={};
+function pfTouchStart(e,year,idx){
+  const t=e.touches&&e.touches[0];
+  if(!t)return;
+  PF_SWIPE[year+':'+idx]={startX:t.clientX,startY:t.clientY,dx:0};
+}
+function pfTouchMove(e,year,idx){
+  const key=year+':'+idx;
+  const s=PF_SWIPE[key];
+  const t=e.touches&&e.touches[0];
+  if(!s||!t)return;
+  const dx=t.clientX-s.startX;
+  const dy=t.clientY-s.startY;
+  if(Math.abs(dy)>Math.abs(dx))return;
+  s.dx=Math.min(0,dx);
+  const row=document.querySelector('[data-pf-row="'+key+'"]');
+  if(row)row.style.transform='translateX('+Math.max(-110,s.dx)+'px)';
+}
+function pfTouchEnd(e,year,idx){
+  const key=year+':'+idx;
+  const s=PF_SWIPE[key];
+  const row=document.querySelector('[data-pf-row="'+key+'"]');
+  if(s&&s.dx<-70){
+    delete PF_SWIPE[key];
+    deletePortfolioItem(year,idx);
+    return;
+  }
+  if(row)row.style.transform='translateX(0px)';
+  delete PF_SWIPE[key];
 }
 
 function addPortfolioItem(year){
