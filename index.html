@@ -599,7 +599,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.0.7';
+const APP_VERSION='V3.0.8';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -835,13 +835,20 @@ function setTheme(mode){
 }
 async function forceRefreshApp(){
   try{
+    const wipeKeys=(storage,keys)=>{for(const key of keys){try{storage.removeItem(key);}catch(e){}}};
+    wipeKeys(localStorage,['retireme_v3','rm_session','retireme_session','retireme_auth','auth_user','user','loggedIn','role','userRole','accountRole','isAdmin','idToken','uid','userEmail']);
+    wipeKeys(sessionStorage,['rm_session','retireme_session','retireme_auth','auth_user','user','loggedIn','role','userRole','accountRole','isAdmin','idToken','uid','userEmail']);
     if('caches' in window){
       const keys=await caches.keys();
       await Promise.all(keys.map(key=>caches.delete(key)));
     }
     if('serviceWorker' in navigator){
       const regs=await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(reg=>reg.unregister()));
+      await Promise.all(regs.map(reg=>{
+        try{reg.active&&reg.active.postMessage({type:'PURGE_CACHES'});}catch(e){}
+        try{reg.waiting&&reg.waiting.postMessage({type:'PURGE_CACHES'});}catch(e){}
+        return reg.unregister();
+      }));
     }
   }catch(e){}
   const u=new URL(window.location.href);
@@ -1646,8 +1653,8 @@ function confirmAddPortfolioItem(year,idx){
   const rows=portfolioRows(year);
   const row=rows[idx];
   if(!row)return;
-  row.name=(row.name||'').trim()||'New item';
-  row.type=(row.type||'').trim()||'Asset';
+  row.name=String(row.name||'').trim()||'New item';
+  row.type=String(row.type||'').trim()||'Asset';
   if(String(row.type).trim().toLowerCase()==='shares'){
     ensurePortfolioShareFields(row);
   }else{
