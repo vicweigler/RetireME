@@ -1046,7 +1046,7 @@ function setTheme(mode){
   save();
 }
 function registerServiceWorker(){
-  if(!('serviceWorker' in navigator) || _swRegistrationAttempted)return;
+  if(location.protocol === 'file:' || !('serviceWorker' in navigator) || _swRegistrationAttempted)return;
   _swRegistrationAttempted=true;
   const swUrl='./sw.js?v='+SW_CACHE_BUST+'&r='+Date.now();
   navigator.serviceWorker.register(swUrl,{scope:'./'}).then(reg=>{
@@ -1054,6 +1054,11 @@ function registerServiceWorker(){
   }).catch(()=>{});
 }
 async function forceRefreshApp(){
+  if(location.protocol === 'file:'){
+    try{for(const key of Object.keys(localStorage)){if(key.startsWith('retireme_v3_')||key==='retireme_v3'||key==='retireme_v3_ts')localStorage.removeItem(key);}}catch(e){}
+    window.location.reload();
+    return;
+  }
   try{
     const wipeKeys=(storage,keys)=>{for(const key of keys){try{storage.removeItem(key);}catch(e){}}};
     // Clear every stale portfolio cache key so old data cannot survive a refresh for a different user.
