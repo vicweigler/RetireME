@@ -443,13 +443,6 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <label>Share price</label>
       <input id="share-modal-price" type="number" min="0" step="0.01" oninput="updateShareModalPreview()"/>
     </div>
-    <div class="toggle-row" style="margin-bottom:10px;">
-      <div>
-        <div class="toggle-label">Taxable</div>
-        <div class="toggle-meta">If selected, 45% tax is deducted from the total</div>
-      </div>
-      <label class="switch"><input type="checkbox" id="share-modal-taxable" onchange="updateShareModalPreview()"/><span class="slider-round"></span></label>
-    </div>
     <div class="pf-total share-preview">
       <div class="pf-total-lbl">Calculated Amount</div>
       <div class="pf-total-val" id="share-modal-amount">£0</div>
@@ -648,7 +641,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.1';
+const APP_VERSION='V3.1.2';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -1060,12 +1053,20 @@ function portfolioRows(year){
   return S.portfolio[year];
 }
 function calcPortfolioNonShareAmount(row){
-  const gross=parseFloat(row&&row.amount)||0;
+  const gross=parseFloat(row&&(row.nonShareGross!==undefined?row.nonShareGross:row.amount))||0;
   return (row&&row.taxable)?gross*0.55:gross;
 }
 function calcPortfolioRowAmount(row){
   const isShares=String(row&&row.type||'').trim().toLowerCase()==='shares';
   return isShares?calcPortfolioShareAmount(row):calcPortfolioNonShareAmount(row);
+}
+function isPortfolioCarryOverRow(row){
+  const type=String(row&&row.type||'').trim().toLowerCase();
+  const name=String(row&&row.name||'').trim().toLowerCase();
+  return type==='carry-over'||type==='carry over'||name==='opening carry-over'||name==='opening carry over';
+}
+function portfolioYearInvestmentTotal(year){
+  return portfolioRows(year).reduce((sum,row)=>sum+(isPortfolioCarryOverRow(row)?0:calcPortfolioRowAmount(row)),0);
 }
 function portfolioYearTotal(year){
   return portfolioRows(year).reduce((sum,r)=>sum+calcPortfolioRowAmount(r),0);
@@ -1082,11 +1083,9 @@ function openShareModal(year,idx){
   const title=document.getElementById('share-modal-title-label');
   const sharesEl=document.getElementById('share-modal-shares');
   const priceEl=document.getElementById('share-modal-price');
-  const taxEl=document.getElementById('share-modal-taxable');
   if(title)title.textContent=row.name||'Shares';
   if(sharesEl)sharesEl.value=parseFloat(row.shares)||0;
   if(priceEl)priceEl.value=parseFloat(row.sharePrice)||0;
-  if(taxEl)taxEl.checked=!!row.taxable;
   updateShareModalPreview();
   if(modal)modal.style.display='flex';
 }
@@ -1141,7 +1140,8 @@ function saveIncomeModelModal(){
 function updateShareModalPreview(){
   const shares=parseFloat(document.getElementById('share-modal-shares')?.value||0)||0;
   const price=parseFloat(document.getElementById('share-modal-price')?.value||0)||0;
-  const taxable=!!document.getElementById('share-modal-taxable')?.checked;
+  const row=_shareEditor?portfolioRows(_shareEditor.year)[_shareEditor.idx]:null;
+  const taxable=!!(row&&row.taxable);
   const amount=(shares*price)*(taxable?0.55:1);
   const amountEl=document.getElementById('share-modal-amount');
   if(amountEl)amountEl.textContent='£'+fmtN(amount);
@@ -1155,7 +1155,6 @@ function saveShareModal(){
   row.type='shares';
   row.shares=parseFloat(document.getElementById('share-modal-shares')?.value||0)||0;
   row.sharePrice=parseFloat(document.getElementById('share-modal-price')?.value||0)||0;
-  row.taxable=!!document.getElementById('share-modal-taxable')?.checked;
   row.amount=calcPortfolioShareAmount(row);
   save();
   closeShareModal();
@@ -1663,6 +1662,7 @@ function showLedger(yr,btn){
   const el=document.getElementById('ledger-content');if(!el)return;
   const rows=portfolioRows(yr);
   const total=portfolioYearTotal(yr);
+  const annualInvestmentTotal=portfolioYearInvestmentTotal(yr);
   el.innerHTML=`<div class="card">
     <div class="pf-total"><div class="pf-total-lbl">Total Portfolio Value</div><div class="pf-total-val">£${fmtN(total)}</div></div>
     ${rows.map((r,idx)=>{const isShares=String(r.type||'').trim().toLowerCase()==='shares';return `<div class="pf-row-wrap">
@@ -1677,19 +1677,18 @@ function showLedger(yr,btn){
           ${isShares?`<button type="button" class="share-link" onclick="openShareModal('${yr}',${idx});return false;">Shares</button>`:`<input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onpointerdown="event.stopPropagation()" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>`}
         </div>
         <div>
-          ${isShares?`<div class="amount-move-row">
-            <div></div>
-            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="text" value="${fmtN(calcPortfolioShareAmount(r))}" readonly/></div>
-          </div>`:`<div class="amount-move-row">
+          <div class="amount-move-row">
             <label class="pf-taxable" style="justify-content:flex-start;"><input type="checkbox" ${r.taxable?'checked':''} onchange="updatePortfolioItem('${yr}',${idx},'taxable',this.checked)"/>Tax</label>
-            <div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${calcPortfolioRowAmount(r)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(parseFloat(r.amount)||0)}" onpointerdown="event.stopPropagation()" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>
-          </div>`}
+            ${isShares
+              ?`<div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="text" value="${fmtN(calcPortfolioShareAmount(r))}" readonly/></div>`
+              :`<div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${calcPortfolioNonShareAmount(r)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(calcPortfolioNonShareAmount(r))}" onpointerdown="event.stopPropagation()" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>`}
+          </div>
           ${r._draft?`<div class="draft-actions"><button class="mini-action-btn" onclick="confirmAddPortfolioItem('${yr}',${idx})">Add</button><button class="mini-action-btn cancel" onclick="cancelAddPortfolioItem('${yr}',${idx})">Cancel</button></div>`:''}
         </div>
       </div>
     </div>`;}).join('')}
     <button class="btn-primary" onclick="addPortfolioItem('${yr}')">+ Add Portfolio Item</button>
-    <div class="pf-total" style="margin-top:10px;"><div class="pf-total-lbl">Annual Total (${yr})</div><div class="pf-total-val">£${fmtN(total)}</div></div>
+    <div class="pf-total" style="margin-top:10px;"><div class="pf-total-lbl">Annual Total (${yr})</div><div class="pf-total-val">£${fmtN(annualInvestmentTotal)}</div></div>
   </div>`;
 }
 
@@ -1807,19 +1806,37 @@ function updatePortfolioItem(year,idx,key,val){
   if(!row)return;
   const incomingType=key==='type'?String(val||'').trim().toLowerCase():String(row.type||'').trim().toLowerCase();
   const isShares=incomingType==='shares';
+  const currentGross=parseFloat(row.nonShareGross!==undefined?row.nonShareGross:row.amount)||0;
   if(key==='name'){
     row.name=String(val||'');
   }else if(key==='type'){
     row.type=val;
+    if(String(row.type||'').trim().toLowerCase()==='shares'){
+      delete row.nonShareGross;
+    }else if(row.nonShareGross===undefined){
+      row.nonShareGross=parseFloat(row.amount)||0;
+    }
     ensurePortfolioShareFields(row);
   }else if(key==='shares' || key==='sharePrice'){
     row[key]=parseFloat(val)||0;
     if(isShares)row.amount=calcPortfolioShareAmount(row);
   }else if(key==='taxable'){
     row.taxable=!!val;
-    if(isShares)row.amount=calcPortfolioShareAmount(row);
+    if(isShares){
+      row.amount=calcPortfolioShareAmount(row);
+    }else{
+      row.nonShareGross=currentGross;
+      row.amount=currentGross;
+    }
   }else if(key==='amount'){
-    row.amount=parseFloat(String(val||'').replace(/,/g,''))||0;
+    const entered=parseFloat(String(val||'').replace(/,/g,''))||0;
+    if(isShares){
+      row.amount=entered;
+    }else{
+      const gross=row.taxable?entered/0.55:entered;
+      row.nonShareGross=gross;
+      row.amount=gross;
+    }
   }else{
     row[key]=val;
   }
