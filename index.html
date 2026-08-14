@@ -400,6 +400,16 @@ body.light-mode .lyt.active{background:#00d17a;color:#073b24;border-color:#00d17
 body.light-mode .btn-inline-danger{border-color:#d0d7e2;}
 body.light-mode .pf-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
+
+@media (max-width: 700px){
+  .cashflow-row{grid-template-columns:minmax(0,1fr) 56px 88px 120px 120px;padding:10px 10px;gap:6px;}
+  .cashflow-head-grid{grid-template-columns:minmax(0,1fr) 56px 88px 120px 120px;gap:6px;}
+  .cashflow-model-link{font-size:13px;line-height:1.15;}
+  .cashflow-model-meta{font-size:10px;line-height:1.15;}
+  .cashflow-model-sublist{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+  .cashflow-model-subitem{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:rgba(0,209,122,0.08);border:1px solid rgba(0,209,122,0.18);font-size:10px;line-height:1.2;white-space:nowrap;word-break:normal;}
+  body.light-mode .cashflow-model-subitem{background:rgba(14,168,109,0.08);border-color:rgba(14,168,109,0.15);}
+}
 </style>
 </head>
 <body>
@@ -541,22 +551,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     </div>
     <div class="card cashflow-model-card">
       <div class="card-eyebrow">Asset Income Model</div>
-      <div class="cashflow-model-grid">
-        <div class="form-group">
-          <label>Interest Rate %</label>
-          <input type="number" id="cashflow-model-rate" min="0" step="0.1" value="4" oninput="renderCashflowModelPreview()"/>
-        </div>
-        <div class="form-group">
-          <label>Taxable</label>
-          <div class="toggle-row" style="margin-bottom:0;">
-            <div>
-              <div class="toggle-label">Apply tax</div>
-              <div class="toggle-meta">Taxed models use the 45% reduction</div>
-            </div>
-            <label class="switch"><input type="checkbox" id="cashflow-model-taxable" onchange="renderCashflowModelPreview()"/><span class="slider-round"></span></label>
-          </div>
-        </div>
-      </div>
+      <div class="version-note settings" style="text-align:left;margin:8px 0 10px;">All Income Models start with 4% Interest Rate - Edit the Models to change this</div>
       <div class="form-group" style="margin-top:10px;">
         <label>Select Portfolio Assets</label>
         <div class="cashflow-model-asset-list" id="cashflow-model-assets"></div>
@@ -648,7 +643,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.5';
+const APP_VERSION='V3.1.6';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -1227,7 +1222,7 @@ function fs(key,val){
   save();
   recalc();
 }
-function recalc(){buildRunway();showLedger(activeLedgerYear());renderMilestones();}
+function recalc(){buildRunway();showLedger(activeLedgerYear(),document.querySelector('.lyt.active')||document.querySelector('.lyt'));renderMilestones();}
 
 function switchTab(n,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
@@ -1335,10 +1330,10 @@ function cashflowModelPrincipal(){
   return selectedCashflowModelRows().reduce((sum,row)=>sum+(parseFloat(row.amount)||0),0);
 }
 function cashflowModelRate(){
-  return parseFloat(document.getElementById('cashflow-model-rate')?.value||0)||0;
+  return 4;
 }
 function cashflowModelTaxable(){
-  return !!document.getElementById('cashflow-model-taxable')?.checked;
+  return false;
 }
 function cashflowModelAnnualGross(){
   return cashflowModelPrincipal()*(cashflowModelRate()/100);
@@ -1347,8 +1342,7 @@ function cashflowModelMonthlyGross(){
   return cashflowModelAnnualGross()/12;
 }
 function cashflowModelMonthlyNet(){
-  const monthlyGross=cashflowModelMonthlyGross();
-  return cashflowModelTaxable()?monthlyGross*0.55:monthlyGross;
+  return cashflowModelMonthlyGross();
 }
 function renderCashflowModelAssets(){
   const list=document.getElementById('cashflow-model-assets');
@@ -1371,24 +1365,13 @@ function renderCashflowModelAssets(){
 function renderCashflowModelPreview(){
   const el=document.getElementById('cashflow-model-preview');
   if(!el)return;
-  const principal=cashflowModelPrincipal();
-  const rate=cashflowModelRate();
-  const annualGross=cashflowModelAnnualGross();
-  const monthlyGross=annualGross/12;
-  const monthlyNet=cashflowModelMonthlyNet();
-  el.innerHTML=`
-    <div class="summary-chip"><div class="k">Principal</div><div class="v">£${fmtN(principal)}</div></div>
-    <div class="summary-chip"><div class="k">Annual Gross</div><div class="v">£${fmtN(annualGross)}</div></div>
-    <div class="summary-chip"><div class="k">Monthly Net</div><div class="v ${monthlyNet>=0?'green':'red'}">£${fmtN(monthlyNet)}</div></div>`;
-  const rateLabel=document.getElementById('cashflow-model-rate');
-  if(rateLabel&&rateLabel.value==='')rateLabel.value=rate;
+  el.innerHTML='';
 }
 function addCashflowModelIncomeSource(){
   const rows=selectedCashflowModelRows().filter(r=>!isAssetUsedInIncomeModel(r.id));
   if(rows.length===0)return;
   const principal=cashflowModelPrincipal();
   const rate=cashflowModelRate();
-  const taxable=cashflowModelTaxable();
   const annualGross=principal*(rate/100);
   const modelCount=S.investments.filter(item=>/^Income Model\s+\d+$/i.test(String(item&&item.name||''))).length+1;
   const name='Income Model '+modelCount;
@@ -1397,9 +1380,9 @@ function addCashflowModelIncomeSource(){
     name,
     frequency:'annual',
     amount:annualGross,
-    taxable,
-    modelTaxBracket:taxable?'additional':'none',
-    taxBracket:taxable?'additional':'none',
+    taxable:false,
+    modelTaxBracket:'none',
+    taxBracket:'none',
     plannedInvestmentType:'Pension',
     modelPrincipal:principal,
     modelRate:rate,
