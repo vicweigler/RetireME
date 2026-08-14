@@ -732,7 +732,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.12';
+const APP_VERSION='V3.1.13';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -779,7 +779,18 @@ function authErrorMessage(e,forLogin){
   if(forLogin)return 'Login failed. Check your email/password or create a new account.';
   return (e&&e.message)||'Action failed. Please try again.';
 }
-function isAuthed(){return !!(_firebaseUser&&_firebaseUser.uid);}
+function currentFirebaseUser(){
+  try{
+    const auth=safeFirebaseAuth();
+    if(auth && auth.currentUser && auth.currentUser.uid){return auth.currentUser;}
+  }catch(e){}
+  return (_firebaseUser&&_firebaseUser.uid) ? _firebaseUser : null;
+}
+function currentFirebaseUid(){
+  const user=currentFirebaseUser();
+  return (user&&user.uid ? String(user.uid).trim() : '');
+}
+function isAuthed(){return !!currentFirebaseUid();}
 function safeFirebaseAuth(){
   try{
     if(!(window.firebase && firebase.apps && firebase.apps.length && firebase.auth && typeof firebase.auth==='function'))return null;
@@ -852,8 +863,7 @@ function initFirebase(){
   }catch(e){return false;}
 }
 function activePortfolioCacheKey(){
-  const authObj=safeFirebaseAuth();
-  const uid=(((_firebaseUser&&_firebaseUser.uid)||(authObj&&authObj.currentUser&&authObj.currentUser.uid)||localStorage.getItem('uid')||sessionStorage.getItem('uid')||'')).toString().trim();
+  const uid=currentFirebaseUid();
   const safe = uid ? uid.replace(/[^a-zA-Z0-9_-]/g,'_') : 'local';
   return 'retireme_v3_' + safe;
 }
@@ -937,14 +947,11 @@ function signInUser(){
   if(email)email.focus();
 }
 function cloudUserKey(){
-  if(_firebaseUser&&_firebaseUser.uid){
-    return String(_firebaseUser.uid).trim().replaceAll('/','_');
+  const uid=currentFirebaseUid();
+  if(uid){
+    return String(uid).trim().replaceAll('/','_');
   }
-  const auth=readAuthSession();
-  if(!auth.loggedIn)return null;
-  const key=(auth.userKey||'').trim();
-  if(!key)return null;
-  return key.replaceAll('/','_');
+  return null;
 }
 function cloudPrimaryRef(){
   if(!_db)return null;
@@ -1092,13 +1099,14 @@ function readAuthSession(){
   const isAdminHint=(readStorageValue('isAdmin')||'').toLowerCase()==='true';
   const sessionRole=(session&&((session.role)||(session.user&&session.user.role)||(session.profile&&session.profile.role)))||'';
   const role=(sessionRole||roleHint||'').toString().toLowerCase();
-  const hasFirebaseUser=!!(_firebaseUser&&_firebaseUser.uid);
+  const currentUser=currentFirebaseUser();
+  const hasFirebaseUser=!!(currentUser&&currentUser.uid);
   const loggedFlag=(readStorageValue('loggedIn')||'').toLowerCase()==='true';
   const hasToken=!!readStorageValue('idToken');
   const hasStoredUser=!!(readStorageValue('uid')||readStorageValue('userEmail'));
-  const loggedIn=hasFirebaseUser || (loggedFlag && hasStoredUser);
+  const loggedIn = hasFirebaseUser || (!!currentUser && !!(currentUser.email || currentUser.uid));
   const isAdmin=!!(isAdminHint||role==='admin'||(session&&session.isAdmin===true));
-  const rawUserKey=(session&&(session.uid||session.userId||session.email||session.username||(session.user&&session.user.email)))||(_firebaseUser&&(_firebaseUser.uid||_firebaseUser.email))||readStorageValue('userEmail')||readStorageValue('uid')||primitiveUser||'';
+  const rawUserKey=(currentUser&&(currentUser.uid||currentUser.email))||(session&&(session.uid||session.userId||session.email||session.username||(session.user&&session.user.email)))||readStorageValue('userEmail')||readStorageValue('uid')||primitiveUser||'';
   return {loggedIn,isAdmin,userKey:String(rawUserKey||'')};
 }
 function renderAuthHeader(){
@@ -1156,8 +1164,7 @@ async function signOutUser(){
 
 function readCachedPortfolioSnapshot(){
   try{
-    const authObj=safeFirebaseAuth();
-    const currentUid = ((_firebaseUser&&_firebaseUser.uid)||(authObj&&authObj.currentUser&&authObj.currentUser.uid)||'').toString().trim();
+    const currentUid=currentFirebaseUid();
     if(!currentUid) return null;
     const userKey = 'retireme_v3_' + currentUid.replace(/[^a-zA-Z0-9_-]/g,'_');
     const raw = localStorage.getItem(userKey);
@@ -1187,7 +1194,11 @@ async function hydrateFromCachedPortfolioBeforeHome(){
 function load(){
   initFirebase();
   const cached = isAuthed() ? readCachedPortfolioSnapshot() : null;
-  if(cached){S={...DEFAULT_S, theme:S&&S.theme==='light'?'light':'dark', ...cached};}
+  if(cached){
+    S={...DEFAULT_S, theme:S&&S.theme==='light'?'light':'dark', ...cached};
+  } else {
+    resetAppState({preserveTheme:true});
+  }
   if(!S.assets)S.assets={};
   for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
   initPortfolioData();
@@ -1219,7 +1230,9 @@ function load(){
   if(typeof S.useDrawdown!=='boolean')S.useDrawdown=true;
   applyDOM();
   renderHomeOverview();
-  syncFromCloud();
+  if(isAuthed()){
+    syncFromCloud();
+  }
   registerServiceWorker();
 }
 let _st;
