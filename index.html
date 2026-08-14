@@ -254,6 +254,8 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .pf-mini-input:focus{border-color:#00d17a;}
 .pf-taxable{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:#8b949e;white-space:nowrap;}
 .pf-taxable input{accent-color:#00d17a;}
+#portfolio-type-taxable{width:14px;height:14px;min-width:14px;min-height:14px;accent-color:#00d17a;cursor:pointer;margin:0;display:inline-block;vertical-align:middle;}
+#portfolio-type-taxable + span{display:inline-block;}
 .pf-amount-wrap{position:relative;display:flex;align-items:center;justify-content:flex-end;}
 .pf-pound{position:absolute;left:10px;color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;}
 .pf-amount-wrap input{width:100%;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 10px 8px 22px;color:#f85149;font-size:13px;font-weight:700;outline:none;text-align:right;}
@@ -277,6 +279,22 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .summary-chip .v{font-size:14px;color:#f85149;font-weight:700;margin-top:3px;}
 .summary-chip .v.green{color:#00d17a;}
 .summary-chip .v.red{color:#f85149;}
+.home-card{padding:16px 18px;}
+.home-brand-row{display:flex;align-items:center;gap:14px;}
+.home-logo-wrap{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#0d1117,#161b22);display:flex;align-items:center;justify-content:center;border:1px solid #30363d;overflow:hidden;box-shadow:0 8px 22px rgba(0,209,122,0.18);}
+.home-logo-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.home-welcome-title{margin:4px 0 0;color:#e6edf3;font-size:clamp(24px,3vw,32px);line-height:1.2;}
+.home-overview-grid{display:grid;grid-template-columns:minmax(220px, 1.1fr) minmax(180px, 0.9fr);gap:18px;align-items:center;}
+.home-chart-wrap{display:flex;align-items:center;justify-content:center;min-height:220px;background:linear-gradient(180deg,rgba(13,17,23,0.2),rgba(13,17,23,0.45));border-radius:16px;border:1px solid #21262d;padding:8px;}
+#home-portfolio-chart{width:100%;max-width:320px;height:auto;display:block;}
+.home-legend{display:grid;gap:8px;}
+.home-legend-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:8px 10px;}
+.home-legend-label{display:flex;align-items:center;gap:8px;min-width:0;}
+.home-legend-swatch{width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.home-legend-name{font-size:12px;color:#c9d1d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.home-legend-value{font-size:12px;font-weight:700;color:#e6edf3;}
+.home-chart-label{text-anchor:middle;font-size:10px;fill:#e6edf3;font-weight:700;letter-spacing:0.2px;}
+.home-chart-border{fill:none;stroke:#30363d;stroke-width:1;}
 .spend-type-list{display:grid;gap:6px;margin-top:8px;}
 .spend-type-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#c9d1d9;background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:7px 10px;}
 .spend-type-row .type-total{color:#f85149;font-weight:700;}
@@ -445,14 +463,14 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     </form>
   </div>
 </div>
-<div id="portfolio-type-modal" class="modal-backdrop" onclick="if(event.target===this)closePortfolioTypeModal()">
+<div id="portfolio-type-modal" class="modal-backdrop" onclick="if(event.target===this)closePortfolioTypeModal(true)">
   <div class="share-modal" role="dialog" aria-modal="true" aria-labelledby="portfolio-type-title-label">
     <div class="share-modal-head">
       <div>
         <div class="share-modal-k">Portfolio Item</div>
         <div class="share-modal-title" id="portfolio-type-title-label">Asset</div>
       </div>
-      <button class="share-modal-close" type="button" onclick="closePortfolioTypeModal()">&times;</button>
+      <button class="share-modal-close" type="button" onclick="closePortfolioTypeModal(true)">&times;</button>
     </div>
     <div class="form-group">
       <label>Type</label>
@@ -470,7 +488,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     </div>
     <div class="login-actions" style="margin-top:12px;">
       <button class="login-btn primary" type="button" onclick="savePortfolioTypeModal()">Save</button>
-      <button class="login-btn secondary" type="button" onclick="closePortfolioTypeModal()">Cancel</button>
+      <button class="login-btn secondary" type="button" onclick="closePortfolioTypeModal(false)">Cancel</button>
     </div>
   </div>
 </div>
@@ -555,8 +573,33 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <div id="content">
+  <!-- HOME -->
+  <div class="tab-panel" id="tab-home">
+    <div class="card home-card">
+      <div class="home-brand-row">
+        <div class="home-logo-wrap">
+          <img src="icon.png" alt="RetireMe logo" onerror="this.src='apple-touch-icon.png'"/>
+        </div>
+        <div>
+          <div class="card-eyebrow">RetireMe</div>
+          <h2 class="home-welcome-title">Welcome, <span id="home-user-name">User</span></h2>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">Portfolio Overview</div>
+      <div class="home-overview-grid">
+        <div class="home-chart-wrap">
+          <svg id="home-portfolio-chart" viewBox="0 0 320 230" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+        <div id="home-portfolio-legend" class="home-legend"></div>
+      </div>
+    </div>
+    <div class="version-note home" id="version-home">V2.8.0</div>
+  </div>
+
   <!-- LEDGER / HOME -->
-  <div class="tab-panel active" id="tab-ledger">
+  <div class="tab-panel" id="tab-ledger">
     <div class="ledger-yr-tabs" id="ledger-yr-tabs">
       <div class="lyt active" onclick="showLedger('2026',this)">2026</div>
       <div class="lyt" onclick="showLedger('2027',this)">2027</div>
@@ -565,7 +608,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home">V2.8.0</div>
+    <div class="version-note home" id="version-home-ledger">V2.8.0</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -655,10 +698,13 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <div id="tabbar">
-  <button class="tab-btn active" onclick="switchTab('ledger',this)">
+  <button class="tab-btn" data-tab="home" onclick="switchTab('home',this)">
+    <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-6h6v6"/></svg>Home
+  </button>
+  <button class="tab-btn active" data-tab="ledger" onclick="switchTab('ledger',this)">
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Portfolio View
   </button>
-  <button class="tab-btn" onclick="switchTab('spend',this)">
+  <button class="tab-btn" data-tab="spend" onclick="switchTab('spend',this)">
     <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>Spend
   </button>
   <button class="tab-btn" onclick="switchTab('cashflow',this)">
@@ -674,7 +720,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.8';
+const APP_VERSION='V3.1.9';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -690,10 +736,18 @@ let _authObserverSet=false;
 let _firebaseUser=null;
 let _shareEditor=null;
 let _incomeModelEditor=null;
+const SW_CACHE_BUST = encodeURIComponent(APP_VERSION || 'dev');
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:'NS&I',val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:'NS&I',val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
-let S={dob:'',retire:'',career:'',salary:85000,pot:132000,contrib:12,growth:4,targetMonthly:3500,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
+const DEFAULT_S={dob:'',retire:'',career:'',salary:85000,pot:132000,contrib:12,growth:4,targetMonthly:3500,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
+let S={...DEFAULT_S};
+
+function resetAppState({preserveTheme=true}={}){
+  const theme=(S&&S.theme)||'dark';
+  S={...DEFAULT_S, ...(preserveTheme?{theme}:{}), assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{} };
+  if(preserveTheme)S.theme=theme;
+}
 
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='DV:'+Math.random().toString(36).slice(2,9).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
 function uid(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);}
@@ -736,12 +790,20 @@ function initFirebase(){
           loginStatus('', '#8b949e');
           renderAuthHeader();
           renderAuthGate();
+          setTimeout(()=>{
+            renderHomeOverview();
+            switchTab('home', document.querySelector('.tab-btn[data-tab="home"]'));
+          },0);
           syncFromCloud();
           return;
         }
         try{localStorage.setItem('loggedIn','false');}catch(e){}
         renderAuthHeader();
         renderAuthGate();
+        setTimeout(()=>{
+          switchTab('ledger', document.querySelector('.tab-btn[data-tab="ledger"]'));
+          renderHomeOverview();
+        },0);
         cloudStatus('local-only (not logged in)', '#848d97');
       });
     }
@@ -849,7 +911,7 @@ async function syncFromCloud(){
     const primarySnap=await primaryRef.get();
     if(primarySnap.exists){
       const remote=primarySnap.data()||{};
-      S={...S,...remote};
+      S={...DEFAULT_S, ...S, ...remote};
       initPortfolioData();
       applyDOM();
       recalc();
@@ -861,7 +923,7 @@ async function syncFromCloud(){
       const legacySnap=await legacyRef.get();
       if(legacySnap.exists){
         const remote=legacySnap.data()||{};
-        S={...S,...remote};
+        S={...DEFAULT_S, ...S, ...remote};
         initPortfolioData();
         applyDOM();
         recalc();
@@ -909,6 +971,16 @@ function setTheme(mode){
   if(t)t.checked=S.theme==='light';
   save();
 }
+function registerServiceWorker(){
+  if(!('serviceWorker' in navigator))return;
+  const swUrl='./sw.js?v='+SW_CACHE_BUST+'&r='+Date.now();
+  navigator.serviceWorker.register(swUrl,{scope:'./'}).then(reg=>{
+    reg.update();
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+      window.location.reload();
+    },{once:true});
+  }).catch(()=>{});
+}
 async function forceRefreshApp(){
   try{
     const wipeKeys=(storage,keys)=>{for(const key of keys){try{storage.removeItem(key);}catch(e){}}};
@@ -921,12 +993,12 @@ async function forceRefreshApp(){
     }
     if('serviceWorker' in navigator){
       const regs=await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(reg=>{
+      await Promise.all(regs.map(async reg=>{
         try{reg.active&&reg.active.postMessage({type:'PURGE_CACHES'});}catch(e){}
         try{reg.waiting&&reg.waiting.postMessage({type:'PURGE_CACHES'});}catch(e){}
-        return reg.unregister();
+        try{await reg.unregister();}catch(e){}
       }));
-      try{await Promise.race([navigator.serviceWorker.ready,new Promise(r=>setTimeout(r,1200))]);}catch(e){}
+      try{await navigator.serviceWorker.register('./sw.js?v='+Date.now(),{scope:'./'});}catch(e){}
     }
     // Probe the latest HTML with no-store to break through browser/proxy caches before navigation.
     try{await fetch('./index.html?refresh_probe='+Date.now(),{cache:'no-store',credentials:'same-origin'});}catch(e){}
@@ -1003,19 +1075,26 @@ async function signOutUser(){
   const keys=[
     'rm_session','retireme_session','retireme_auth','auth_user','user',
     'loggedIn','role','userRole','accountRole','isAdmin',
-    'idToken','uid','userEmail','firebase:authUser'
+    'idToken','uid','userEmail','firebase:authUser','retireme_v3'
   ];
   for(const key of keys){localStorage.removeItem(key);sessionStorage.removeItem(key);}
+  resetAppState({preserveTheme:true});
   localStorage.setItem('loggedIn','false');
   sessionStorage.setItem('loggedIn','false');
   loginStatus('Signed out. Please log in.', '#d29922');
   renderAuthHeader();
   renderAuthGate();
   cloudStatus('local-only (signed out)', '#848d97');
+  setTimeout(()=>{
+    switchTab('ledger', document.querySelector('.tab-btn[data-tab="ledger"]'));
+    renderHomeOverview();
+  },0);
+  applyDOM();
+  recalc();
 }
 
 function load(){
-  try{const r=localStorage.getItem('retireme_v3');if(r){const p=JSON.parse(r);S={...S,...p};}}catch(e){}
+  try{const r=localStorage.getItem('retireme_v3');if(r){const p=JSON.parse(r);S={...DEFAULT_S, ...S, ...p};}}catch(e){}
   if(!S.assets)S.assets={};
   for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
   initPortfolioData();
@@ -1046,8 +1125,10 @@ function load(){
   if(typeof S.useGrowth!=='boolean')S.useGrowth=true;
   if(typeof S.useDrawdown!=='boolean')S.useDrawdown=true;
   applyDOM();
+  renderHomeOverview();
   initFirebase();
   syncFromCloud();
+  registerServiceWorker();
 }
 let _st;
 function save(){
@@ -1131,8 +1212,82 @@ function syncPortfolioCarryOvers(){
   }
 }
 function renderVersionLabels(){
-  const ids=['version-header','version-home','version-settings','version-login'];
+  const ids=['version-header','version-home','version-home-ledger','version-settings','version-login'];
   for(const id of ids){const el=document.getElementById(id);if(el)el.textContent=APP_VERSION;}
+}
+function getHomePortfolioSummary(){
+  const totals=new Map();
+  const palette=['#00d17a','#3b82f6','#f59e0b','#ec4899','#8b5cf6','#f97316','#14b8a6','#f43f5e'];
+  const years=['2026','2027','2028','2029','2030'];
+  for(const year of years){
+    for(const row of portfolioRows(year)){
+      if(isPortfolioCarryOverRow(row))continue;
+      const rawType=(row&&row.type)?String(row.type).trim():'';
+      const label=(rawType || 'Asset').trim() || 'Asset';
+      const amount=Number(calcPortfolioRowAmount(row)||0);
+      if(amount<=0)continue;
+      totals.set(label,(totals.get(label)||0)+amount);
+    }
+  }
+  const total=Array.from(totals.values()).reduce((sum,v)=>sum+v,0);
+  const entries=[...totals.entries()].map(([label,value],index)=>({
+    label,
+    value,
+    color:palette[index % palette.length],
+    share: total>0 ? value/total : 0
+  })).sort((a,b)=>b.value-a.value);
+  return {total,entries};
+}
+function renderHomeOverview(){
+  const userEmail=((window.firebase&&firebase.auth&&firebase.auth().currentUser&&firebase.auth().currentUser.email)||readStorageValue('userEmail')||'User').toString();
+  const nameEl=document.getElementById('home-user-name');
+  if(nameEl){
+    const base=userEmail.includes('@')?userEmail.split('@')[0]:userEmail;
+    const display=base.replace(/[._-]+/g,' ').trim() || 'User';
+    nameEl.textContent=display;
+  }
+  const chart=document.getElementById('home-portfolio-chart');
+  const legend=document.getElementById('home-portfolio-legend');
+  const summary=getHomePortfolioSummary();
+  if(!chart || !legend){return;}
+  const {entries,total}=summary;
+  if(!entries.length || total<=0){
+    chart.innerHTML='<circle cx="160" cy="110" r="72" fill="rgba(22,27,34,0.8)" stroke="#30363d" stroke-width="1"/><text x="160" y="115" fill="#8b949e" font-size="16" text-anchor="middle">No holdings yet</text>';
+    legend.innerHTML='<div class="home-legend-row"><div class="home-legend-label"><span class="home-legend-swatch" style="background:#8b949e"></span><span class="home-legend-name">No data</span></div><span class="home-legend-value">£0</span></div>';
+    return;
+  }
+  const cx=160, cy=110, radius=78, labelRadius=108;
+  let startAngle=-Math.PI/2;
+  const arcs=[];
+  for(const item of entries){
+    const angle=item.share*Math.PI*2;
+    const endAngle=startAngle+angle;
+    const x1=cx + radius*Math.cos(startAngle);
+    const y1=cy + radius*Math.sin(startAngle);
+    const x2=cx + radius*Math.cos(endAngle);
+    const y2=cy + radius*Math.sin(endAngle);
+    const largeArc=angle>Math.PI ? 1 : 0;
+    arcs.push({
+      item,
+      path:`M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`,
+      mid:(startAngle+endAngle)/2,
+      labelX:cx + labelRadius*Math.cos((startAngle+endAngle)/2),
+      labelY:cy + labelRadius*Math.sin((startAngle+endAngle)/2)
+    });
+    startAngle=endAngle;
+  }
+  const arcMarkup=arcs.map(({path,item,mid,labelX,labelY})=>`
+    <path d="${path}" fill="${item.color}" opacity="0.9"></path>
+    <text class="home-chart-label" x="${labelX}" y="${labelY}" transform="rotate(${(mid*180/Math.PI)+90}, ${labelX}, ${labelY})">£${fmtN(item.value)}</text>
+  `).join('');
+  chart.innerHTML=`
+    <circle cx="${cx}" cy="${cy}" r="${radius}" class="home-chart-border"></circle>
+    ${arcMarkup}
+    <circle cx="${cx}" cy="${cy}" r="38" fill="#0d1117" stroke="#30363d" stroke-width="1"></circle>
+    <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="10" fill="#8b949e">Total</text>
+    <text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="17" font-weight="700" fill="#e6edf3">£${fmtN(total)}</text>
+  `;
+  legend.innerHTML=entries.map(item=>`<div class="home-legend-row"><div class="home-legend-label"><span class="home-legend-swatch" style="background:${item.color}"></span><span class="home-legend-name">${escapeHtml(item.label)}</span></div><span class="home-legend-value">£${fmtN(item.value)}</span></div>`).join('');
 }
 function openPortfolioTypeModal(year,idx){
   const row=portfolioRows(year)[idx];
@@ -1148,7 +1303,11 @@ function openPortfolioTypeModal(year,idx){
   updatePortfolioTypeModalPreview();
   if(modal)modal.style.display='flex';
 }
-function closePortfolioTypeModal(){
+function closePortfolioTypeModal(saveCurrent=true){
+  if(saveCurrent && _portfolioTypeEditor){
+    savePortfolioTypeModal();
+    return;
+  }
   _portfolioTypeEditor=null;
   const modal=document.getElementById('portfolio-type-modal');
   if(modal)modal.style.display='none';
@@ -1169,7 +1328,8 @@ function updatePortfolioTypeModalPreview(){
 }
 function savePortfolioTypeModal(){
   if(!_portfolioTypeEditor)return;
-  const row=portfolioRows(_portfolioTypeEditor.year)[_portfolioTypeEditor.idx];
+  const editor={..._portfolioTypeEditor};
+  const row=portfolioRows(editor.year)[editor.idx];
   if(!row)return;
   const typeVal=String(document.getElementById('portfolio-type-name')?.value||row.type||'Asset').trim()||'Asset';
   const taxable=!!document.getElementById('portfolio-type-taxable')?.checked;
@@ -1185,8 +1345,10 @@ function savePortfolioTypeModal(){
     row.name=row.name||'Asset';
   }
   save();
-  closePortfolioTypeModal();
-  showLedger(_portfolioTypeEditor.year,document.querySelector('.lyt.active')||undefined);
+  const modal=document.getElementById('portfolio-type-modal');
+  if(modal)modal.style.display='none';
+  _portfolioTypeEditor=null;
+  showLedger(editor.year,document.querySelector('.lyt.active')||undefined);
   buildRunway();
 }
 function openShareModal(year,idx){
@@ -1313,10 +1475,13 @@ function recalc(){buildRunway();showLedger(activeLedgerYear(),document.querySele
 function switchTab(n,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+n).classList.add('active');
-  btn.classList.add('active');
+  const panel=document.getElementById('tab-'+n);
+  if(panel)panel.classList.add('active');
+  const targetBtn=btn || document.querySelector('.tab-btn[data-tab="'+n+'"]');
+  if(targetBtn)targetBtn.classList.add('active');
   if(n==='cashflow'){renderCashflowModelAssets();renderCashflowModelPreview();buildRunway();}
   if(n==='ledger')showLedger(activeLedgerYear(),document.querySelector('.lyt.active')||document.querySelector('.lyt'));
+  if(n==='home')renderHomeOverview();
   if(n==='spend')renderSpendAll();
   if(n==='milestones')renderMilestones();
 }
