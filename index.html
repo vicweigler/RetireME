@@ -460,7 +460,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
-      <div class="login-version" id="version-login">V3.1.20</div>
+      <div class="login-version" id="version-login">V3.1.21</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
   </div>
@@ -573,7 +573,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V3.1.20</div>
+      <div class="hdr-version" id="version-header">V3.1.21</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -607,7 +607,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
-    <div class="version-note home" id="version-home">V3.1.20</div>
+    <div class="version-note home" id="version-home">V3.1.21</div>
   </div>
 
   <!-- LEDGER / HOME -->
@@ -620,7 +620,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home-ledger">V3.1.20</div>
+    <div class="version-note home" id="version-home-ledger">V3.1.21</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -703,7 +703,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V3.1.20</div>
+      <div class="version-note settings" id="version-settings">V3.1.21</div>
     </div>
   </div>
 
@@ -732,7 +732,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.20';
+const APP_VERSION='V3.1.21';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -988,6 +988,10 @@ async function createAccountWithPassword(){
     if(userCred && userCred.user){
       clearLegacyPortfolioCache();
       resetAppState({preserveTheme:true});
+      const emptySeed={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{} };
+      S={...emptySeed};
+      const key=activePortfolioCacheKey();
+      try{localStorage.setItem(key, JSON.stringify(S));localStorage.setItem(key+'_ts', String(Date.now()));}catch(e){}
       try{localStorage.setItem('uid', userCred.user.uid);}catch(e){}
       try{localStorage.setItem('userEmail', email);}catch(e){}
       try{localStorage.setItem('loggedIn','true');}catch(e){}
@@ -1235,7 +1239,13 @@ function readCachedPortfolioSnapshot(){
     const raw = localStorage.getItem(userKey);
     if(!raw) return null;
     const parsed=JSON.parse(raw);
-    return parsed && typeof parsed==='object' ? normalizeLegacyCloudState(parsed) : null;
+    if(!parsed || typeof parsed!=='object')return null;
+    if(!hasMeaningfulState(parsed)){
+      localStorage.removeItem(userKey);
+      localStorage.removeItem(userKey+'_ts');
+      return null;
+    }
+    return normalizeLegacyCloudState(parsed);
   }catch(e){return null;}
 }
 function cachedPortfolioAgeMs(){
@@ -1266,6 +1276,9 @@ function load(){
     resetAppState({preserveTheme:true});
   }
   if(!S.assets)S.assets={};
+  if(isBlankUserState()){
+    S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{}};
+  }
   initPortfolioData();
   if(!Array.isArray(S.investments))S.investments=[];
   if(Array.isArray(S.monthlyAmounts) && S.investments.length===0){
@@ -1339,15 +1352,34 @@ function applyDOM(){
   renderCashflowModelPreview();
   renderSpendAll();
 }
+function hasMeaningfulState(snapshot){
+  if(!snapshot || typeof snapshot !== 'object')return false;
+  const hasAssets = Object.values(snapshot.assets || {}).some(v => Number(v) > 0);
+  const hasPortfolioRows = Object.values(snapshot.portfolio || {}).some(rows => Array.isArray(rows) && rows.some(r => r && (Number(r.amount) > 0 || String(r.type||'').toLowerCase().includes('carry'))));
+  const hasFinance = [snapshot.salary,snapshot.pot,snapshot.dbPension,snapshot.drawdown,snapshot.targetMonthly,snapshot.extra].some(v => Number(v) > 0);
+  const hasInvestments = Array.isArray(snapshot.investments) && snapshot.investments.some(row => Number(row && row.amount) > 0 || Array.isArray(row && row.modelAssets) && row.modelAssets.length > 0);
+  const hasSpend = ['monthly','quarterly','annual'].some(key => Array.isArray(snapshot.spend && snapshot.spend[key]) && snapshot.spend[key].some(row => Number(row && row.amount) > 0));
+  return hasAssets || hasPortfolioRows || hasFinance || hasInvestments || hasSpend;
+}
+function isBlankUserState(){
+  return !hasMeaningfulState(S);
+}
 function initPortfolioData(){
   if(!S.portfolio||typeof S.portfolio!=='object')S.portfolio={};
   const years=['2026','2027','2028','2029','2030'];
-  if(!Array.isArray(S.portfolio['2026'])||S.portfolio['2026'].length===0){
-    S.portfolio['2026']=Object.keys(DA).map(k=>({id:uid('pf'),key:k,name:DA[k].label,type:DA[k].sub,amount:parseFloat(S.assets[k])||0}));
-  }
   for(const y of years){
     if(!Array.isArray(S.portfolio[y]))S.portfolio[y]=[];
     S.portfolio[y]=S.portfolio[y].map(r=>ensurePortfolioShareFields(r));
+  }
+  if(isBlankUserState()){
+    for(const y of years){S.portfolio[y]=[];}
+    return;
+  }
+  if(!Array.isArray(S.portfolio['2026'])||S.portfolio['2026'].length===0){
+    const hasUserAssets = Object.keys(S.assets||{}).length > 0 || Object.values(S.assets||{}).some(v => Number(v) > 0);
+    if(hasUserAssets){
+      S.portfolio['2026']=Object.keys(S.assets||{}).map(k=>({id:uid('pf'),key:k,name:(DA[k]&&DA[k].label)?DA[k].label:String(k),type:(DA[k]&&DA[k].sub)?DA[k].sub:'Asset',amount:parseFloat(S.assets[k])||0})).filter(row => Number(row.amount) > 0);
+    }
   }
   syncPortfolioCarryOvers();
 }
@@ -1376,6 +1408,11 @@ function portfolioYearTotal(year){
 }
 function syncPortfolioCarryOvers(){
   if(!S.portfolio||typeof S.portfolio!=='object')return;
+  if(isBlankUserState()){
+    const years=['2026','2027','2028','2029','2030'];
+    for(const year of years){S.portfolio[year]=[];}
+    return;
+  }
   const years=['2027','2028','2029','2030'];
   for(const year of years){
     const prev=String(parseInt(year,10)-1);
