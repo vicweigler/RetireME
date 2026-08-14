@@ -460,7 +460,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
-      <div class="login-version" id="version-login">V2.9.1</div>
+      <div class="login-version" id="version-login">V3.1.19</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
   </div>
@@ -573,7 +573,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V2.8.0</div>
+      <div class="hdr-version" id="version-header">V3.1.19</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -607,7 +607,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
-    <div class="version-note home" id="version-home">V2.8.0</div>
+    <div class="version-note home" id="version-home">V3.1.19</div>
   </div>
 
   <!-- LEDGER / HOME -->
@@ -620,7 +620,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home-ledger">V2.8.0</div>
+    <div class="version-note home" id="version-home-ledger">V3.1.19</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -703,7 +703,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V2.8.1</div>
+      <div class="version-note settings" id="version-settings">V3.1.19</div>
     </div>
   </div>
 
@@ -732,7 +732,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.17';
+const APP_VERSION='V3.1.19';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -761,6 +761,54 @@ function resetAppState({preserveTheme=true}={}){
   const theme=(S&&S.theme)||'dark';
   S={...DEFAULT_S, ...(preserveTheme?{theme}:{}), assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{} };
   if(preserveTheme)S.theme=theme;
+}
+function normalizeLegacyCloudState(remote){
+  if(!remote || typeof remote !== 'object')return remote;
+  const next={...remote};
+  const nextPortfolio = next.portfolio && typeof next.portfolio === 'object' ? {...next.portfolio} : {};
+  const nextAssets = next.assets && typeof next.assets === 'object' ? {...next.assets} : {};
+  const legacyCustom = next.customItems && typeof next.customItems === 'object' ? next.customItems : null;
+  const isPortfolioEmpty = !Array.isArray(nextPortfolio['2026']) || nextPortfolio['2026'].length === 0 || nextPortfolio['2026'].every(row => !row || !(parseFloat(row.amount)||0));
+  if(legacyCustom){
+    for(const [year,items] of Object.entries(legacyCustom)){
+      if(!Array.isArray(items))continue;
+      const rows=[];
+      for(const item of items){
+        if(!item || typeof item !== 'object')continue;
+        const name=String(item.name||item.label||'Item').trim();
+        const type=String(item.type||'Asset').trim();
+        const value=parseFloat(item.value ?? item.amount ?? 0) || 0;
+        const key=String(item.key || item.id || name || type || 'legacy_item').trim();
+        if(key && value>0)nextAssets[key]=value;
+        rows.push({id:item.id||uid('pf'),key,name,type,amount:value,taxable:!!item.taxable,nonShareGross:value});
+      }
+      if(rows.length>0 && (isPortfolioEmpty || !Array.isArray(nextPortfolio[year]) || nextPortfolio[year].length===0)){
+        nextPortfolio[year]=rows;
+      }
+    }
+  }
+  if(Array.isArray(next.assetOrder) && next.assetOrder.length>0){
+    for(const key of next.assetOrder){
+      const match = Array.isArray(legacyCustom && legacyCustom['2026']) ? legacyCustom['2026'].find(item => String(item.key || item.id || item.name || '').trim() === String(key).trim()) : null;
+      const value = match ? (parseFloat(match.value ?? match.amount ?? 0) || 0) : 0;
+      if(key && value>0)nextAssets[key]=value;
+    }
+  }
+  if(Object.keys(nextAssets).length>0){
+    next.assets=nextAssets;
+  }
+  const custom2026 = Array.isArray(legacyCustom && legacyCustom['2026']) ? legacyCustom['2026'] : [];
+  if(custom2026.length>0 && (isPortfolioEmpty || !Array.isArray(nextPortfolio['2026']) || nextPortfolio['2026'].length===0 || nextPortfolio['2026'].every(row => !row || !(parseFloat(row.amount)||0)))){
+    nextPortfolio['2026']=custom2026.map(item => {
+      if(!item || typeof item !== 'object')return null;
+      const name=String(item.name||item.label||'Asset').trim();
+      const type=String(item.type||'Asset').trim();
+      const amount=parseFloat(item.value ?? item.amount ?? 0) || 0;
+      return {id:item.id||uid('pf'),key:String(item.key || item.id || name || type || 'legacy_asset').trim(),name,type,amount,taxable:!!item.taxable,nonShareGross:amount};
+    }).filter(Boolean);
+  }
+  next.portfolio=nextPortfolio;
+  return next;
 }
 
 function devId(){let i=localStorage.getItem('rm_did');if(!i){i='DV:'+Math.random().toString(36).slice(2,9).toUpperCase();localStorage.setItem('rm_did',i);}return i;}
@@ -881,26 +929,17 @@ function clearLegacyPortfolioCache(){
   }
 }
 function clearStaleAuthStateForStartup(){
-  const currentUid=currentFirebaseUid();
+  const auth=safeFirebaseAuth();
+  if(!auth){return;}
+  const currentUid=(auth.currentUser && auth.currentUser.uid) ? String(auth.currentUser.uid).trim() : '';
   const storedUid=(localStorage.getItem('uid')||'').trim();
-  const storedEmail=(localStorage.getItem('userEmail')||'').trim();
-  if(!currentUid){
-    clearLegacyPortfolioCache();
-    for(const key of ['userEmail','uid','loggedIn','retireme_session','retireme_auth','auth_user','user','role','userRole','accountRole','isAdmin','idToken']){
-      try{localStorage.removeItem(key);}catch(e){}
-      try{sessionStorage.removeItem(key);}catch(e){}
-    }
-    return;
-  }
+  if(!currentUid){return;}
   if(storedUid && storedUid !== currentUid){
     clearLegacyPortfolioCache();
     for(const key of ['userEmail','uid','loggedIn','retireme_session','retireme_auth','auth_user','user','role','userRole','accountRole','isAdmin','idToken']){
       try{localStorage.removeItem(key);}catch(e){}
       try{sessionStorage.removeItem(key);}catch(e){}
     }
-  }
-  if(storedEmail && !currentUid){
-    try{localStorage.removeItem('userEmail');}catch(e){}
   }
 }
 async function loginWithPassword(event){
@@ -998,7 +1037,7 @@ async function syncFromCloud(){
     cloudStatus('syncing...', '#d29922');
     const primarySnap=await primaryRef.get();
     if(primarySnap.exists){
-      const remote=primarySnap.data()||{};
+      const remote=normalizeLegacyCloudState(primarySnap.data()||{});
       S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', ...remote};
       initPortfolioData();
       applyDOM();
@@ -1186,7 +1225,7 @@ function readCachedPortfolioSnapshot(){
     const raw = localStorage.getItem(userKey);
     if(!raw) return null;
     const parsed=JSON.parse(raw);
-    return parsed && typeof parsed==='object' ? parsed : null;
+    return parsed && typeof parsed==='object' ? normalizeLegacyCloudState(parsed) : null;
   }catch(e){return null;}
 }
 function cachedPortfolioAgeMs(){
