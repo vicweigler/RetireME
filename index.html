@@ -245,6 +245,8 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .pf-title-wrap{min-width:0;}
 .pf-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
 .pf-type-input{width:100%;background:transparent;border:none;color:#8b949e;font-size:11px;line-height:1.2;padding:2px 0 0;outline:none;}
+.pf-type-button{background:transparent;border:none;color:#8b949e;font-size:11px;line-height:1.2;padding:2px 0 0;cursor:pointer;text-align:left;font-family:inherit;display:block;}
+.pf-type-button:hover{text-decoration:underline;color:#00d17a;}
 .share-link{background:transparent;border:none;color:#00d17a;font-size:11px;font-weight:700;padding:2px 0 0;cursor:pointer;text-align:left;}
 .share-link:hover{text-decoration:underline;}
 .pf-qty-row{display:grid;grid-template-columns:72px 86px 74px 1fr;gap:6px;align-items:center;}
@@ -441,6 +443,35 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="login-version" id="version-login">V2.9.1</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
+  </div>
+</div>
+<div id="portfolio-type-modal" class="modal-backdrop" onclick="if(event.target===this)closePortfolioTypeModal()">
+  <div class="share-modal" role="dialog" aria-modal="true" aria-labelledby="portfolio-type-title-label">
+    <div class="share-modal-head">
+      <div>
+        <div class="share-modal-k">Portfolio Item</div>
+        <div class="share-modal-title" id="portfolio-type-title-label">Asset</div>
+      </div>
+      <button class="share-modal-close" type="button" onclick="closePortfolioTypeModal()">&times;</button>
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <input id="portfolio-type-name" type="text" oninput="updatePortfolioTypeModalPreview()"/>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span>Taxable</span>
+        <input id="portfolio-type-taxable" type="checkbox" onchange="updatePortfolioTypeModalPreview()"/>
+      </label>
+    </div>
+    <div class="pf-total share-preview">
+      <div class="pf-total-lbl">Calculated Amount</div>
+      <div class="pf-total-val" id="portfolio-type-amount">£0</div>
+    </div>
+    <div class="login-actions" style="margin-top:12px;">
+      <button class="login-btn primary" type="button" onclick="savePortfolioTypeModal()">Save</button>
+      <button class="login-btn secondary" type="button" onclick="closePortfolioTypeModal()">Cancel</button>
+    </div>
   </div>
 </div>
 <div id="share-modal" class="modal-backdrop" onclick="if(event.target===this)closeShareModal()">
@@ -643,7 +674,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.7';
+const APP_VERSION='V3.1.8';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -1102,6 +1133,61 @@ function syncPortfolioCarryOvers(){
 function renderVersionLabels(){
   const ids=['version-header','version-home','version-settings','version-login'];
   for(const id of ids){const el=document.getElementById(id);if(el)el.textContent=APP_VERSION;}
+}
+function openPortfolioTypeModal(year,idx){
+  const row=portfolioRows(year)[idx];
+  if(!row)return;
+  _portfolioTypeEditor={year,idx};
+  const modal=document.getElementById('portfolio-type-modal');
+  const title=document.getElementById('portfolio-type-title-label');
+  const nameEl=document.getElementById('portfolio-type-name');
+  const taxableEl=document.getElementById('portfolio-type-taxable');
+  if(title)title.textContent=row.name||'Asset';
+  if(nameEl)nameEl.value=String(row.type||'Asset');
+  if(taxableEl)taxableEl.checked=!!row.taxable;
+  updatePortfolioTypeModalPreview();
+  if(modal)modal.style.display='flex';
+}
+function closePortfolioTypeModal(){
+  _portfolioTypeEditor=null;
+  const modal=document.getElementById('portfolio-type-modal');
+  if(modal)modal.style.display='none';
+}
+function updatePortfolioTypeModalPreview(){
+  if(!_portfolioTypeEditor)return;
+  const row=portfolioRows(_portfolioTypeEditor.year)[_portfolioTypeEditor.idx];
+  if(!row)return;
+  const typeValue=String(document.getElementById('portfolio-type-name')?.value||row.type||'Asset').trim()||'Asset';
+  const taxable=!!document.getElementById('portfolio-type-taxable')?.checked;
+  const typePreview=document.getElementById('portfolio-type-title-label');
+  if(typePreview)typePreview.textContent=typeValue;
+  const previewAmount=(String(typeValue).trim().toLowerCase()==='shares')
+    ?calcPortfolioShareAmount({...row,taxable,shares:row.shares||0,sharePrice:row.sharePrice||0})
+    :calcPortfolioNonShareAmount({...row,taxable,nonShareGross:(parseFloat(row.nonShareGross!==undefined?row.nonShareGross:row.amount)||0)});
+  const amountEl=document.getElementById('portfolio-type-amount');
+  if(amountEl)amountEl.textContent='£'+fmtN(previewAmount);
+}
+function savePortfolioTypeModal(){
+  if(!_portfolioTypeEditor)return;
+  const row=portfolioRows(_portfolioTypeEditor.year)[_portfolioTypeEditor.idx];
+  if(!row)return;
+  const typeVal=String(document.getElementById('portfolio-type-name')?.value||row.type||'Asset').trim()||'Asset';
+  const taxable=!!document.getElementById('portfolio-type-taxable')?.checked;
+  row.type=typeVal;
+  row.taxable=taxable;
+  if(String(typeVal).trim().toLowerCase()==='shares'){
+    ensurePortfolioShareFields(row);
+    row.amount=calcPortfolioShareAmount(row);
+  }else{
+    const gross=parseFloat(row.nonShareGross!==undefined?row.nonShareGross:row.amount)||0;
+    row.nonShareGross=gross;
+    row.amount=gross;
+    row.name=row.name||'Asset';
+  }
+  save();
+  closePortfolioTypeModal();
+  showLedger(_portfolioTypeEditor.year,document.querySelector('.lyt.active')||undefined);
+  buildRunway();
 }
 function openShareModal(year,idx){
   const row=portfolioRows(year)[idx];
@@ -1738,13 +1824,11 @@ function showLedger(yr,btn){
         </div>
         <div class="pf-title-wrap">
           <input class="pf-name-input" type="text" value="${escapeHtml(r.name||'')}" onpointerdown="event.stopPropagation()" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
-          ${isShares?`<button type="button" class="share-link" onclick="openShareModal('${yr}',${idx});return false;">Shares</button>`:`<input class="pf-type-input" type="text" value="${escapeHtml(r.type||'')}" onpointerdown="event.stopPropagation()" onchange="updatePortfolioItem('${yr}',${idx},'type',this.value)"/>`}
+          <button type="button" class="pf-type-button" onclick="openPortfolioTypeModal('${yr}',${idx});return false;">${escapeHtml(isShares? 'Shares' : (r.type||'Asset'))}</button>
         </div>
         <div>
           <div class="amount-move-row">
-            ${isCarry
-              ?`<div></div>`
-              :`<label class="pf-taxable" style="justify-content:flex-start;"><input type="checkbox" ${r.taxable?'checked':''} onchange="updatePortfolioItem('${yr}',${idx},'taxable',this.checked)"/>Tax</label>`}
+            ${isCarry?`<div></div>`:``}
             ${isShares
               ?`<div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="text" value="${fmtN(calcPortfolioShareAmount(r))}" readonly/></div>`
               :`<div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${calcPortfolioNonShareAmount(r)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(calcPortfolioNonShareAmount(r))}" ${isCarry?'readonly':''} onpointerdown="event.stopPropagation()" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>`}
