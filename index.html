@@ -710,10 +710,10 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <div id="tabbar">
-  <button class="tab-btn" data-tab="home" onclick="switchTab('home',this)">
+  <button class="tab-btn active" data-tab="home" onclick="switchTab('home',this)">
     <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-6h6v6"/></svg>Home
   </button>
-  <button class="tab-btn active" data-tab="ledger" onclick="switchTab('ledger',this)">
+  <button class="tab-btn" data-tab="ledger" onclick="switchTab('ledger',this)">
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Portfolio View
   </button>
   <button class="tab-btn" data-tab="spend" onclick="switchTab('spend',this)">
@@ -903,7 +903,7 @@ function initFirebase(){
         renderAuthHeader();
         renderAuthGate();
         setTimeout(()=>{
-          switchTab('ledger', document.querySelector('.tab-btn[data-tab="ledger"]'));
+          switchTab('home', document.querySelector('.tab-btn[data-tab="home"]'));
           renderHomeOverview();
         },0);
         cloudStatus('local-only (not logged in)', '#848d97');
@@ -1224,7 +1224,7 @@ async function signOutUser(){
   renderAuthGate();
   cloudStatus('local-only (signed out)', '#848d97');
   setTimeout(()=>{
-    switchTab('ledger', document.querySelector('.tab-btn[data-tab="ledger"]'));
+    switchTab('home', document.querySelector('.tab-btn[data-tab="home"]'));
     renderHomeOverview();
   },0);
   applyDOM();
@@ -1308,6 +1308,7 @@ function load(){
   if(typeof S.useDrawdown!=='boolean')S.useDrawdown=false;
   applyDOM();
   renderHomeOverview();
+  switchTab('home', document.querySelector('.tab-btn[data-tab="home"]'));
   if(isAuthed()){
     syncFromCloud();
   }
@@ -1709,7 +1710,14 @@ function fs(key,val){
   save();
   recalc();
 }
-function recalc(){buildRunway();showLedger(activeLedgerYear(),document.querySelector('.lyt.active')||document.querySelector('.lyt'));renderMilestones();}
+function recalc(){
+  buildRunway();
+  const activeTab = document.querySelector('.tab-btn.active')?.dataset?.tab || 'home';
+  if(activeTab === 'ledger'){
+    showLedger(activeLedgerYear(), document.querySelector('.lyt.active') || document.querySelector('.lyt'));
+  }
+  renderMilestones();
+}
 
 function switchTab(n,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
@@ -1753,7 +1761,14 @@ function activeLedgerYear(){
 function applyDefaultLedgerYear(){
   const year=defaultLedgerYear();
   const btn=Array.from(document.querySelectorAll('.lyt')).find(b=>b.textContent.trim()===year) || document.querySelector('.lyt');
-  showLedger(year,btn||undefined);
+  if(btn){
+    document.querySelectorAll('.lyt').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const activeTab = document.querySelector('.tab-btn.active')?.dataset?.tab || 'home';
+  if(activeTab === 'ledger'){
+    showLedger(year,btn||undefined);
+  }
 }
 
 function setUseGrowth(v){S.useGrowth=!!v;save();recalc();}
