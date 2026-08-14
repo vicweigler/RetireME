@@ -766,6 +766,12 @@ function authErrorMessage(e,forLogin){
   return (e&&e.message)||'Action failed. Please try again.';
 }
 function isAuthed(){return !!(_firebaseUser&&_firebaseUser.uid);}
+function safeFirebaseAuth(){
+  try{
+    if(!(window.firebase && firebase.apps && firebase.apps.length && firebase.auth && typeof firebase.auth==='function'))return null;
+    return firebase.auth();
+  }catch(e){return null;}
+}
 function renderAuthGate(){
   const login=document.getElementById('login-screen');
   const app=document.getElementById('app');
@@ -775,11 +781,12 @@ function renderAuthGate(){
 }
 function initFirebase(){
   try{
-    if(window.firebase&&firebase.apps&&firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
-    if(window.firebase&&firebase.firestore){_db=firebase.firestore();}
-    if(window.firebase&&firebase.auth&&!_authObserverSet){
+    if(window.firebase && firebase.apps && firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
+    if(window.firebase && firebase.firestore){_db=firebase.firestore();}
+    const auth=safeFirebaseAuth();
+    if(window.firebase && auth && !_authObserverSet){
       _authObserverSet=true;
-      firebase.auth().onAuthStateChanged((u)=>{
+      auth.onAuthStateChanged((u)=>{
         _firebaseUser=u||null;
         if(_firebaseUser){
           try{
@@ -807,7 +814,7 @@ function initFirebase(){
         cloudStatus('local-only (not logged in)', '#848d97');
       });
     }
-    if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){
+    if(window.firebase && firebase.apps && firebase.apps.length && firebase.auth && typeof firebase.auth==='function'){
       _firebaseUser=firebase.auth().currentUser||null;
     }
     renderAuthHeader();
@@ -818,7 +825,9 @@ function initFirebase(){
 async function loginWithPassword(event){
   if(event)event.preventDefault();
   try{
-    if(!(window.firebase&&firebase.auth&&typeof firebase.auth==='function')){
+    if(window.firebase && firebase.apps && firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
+    const auth=safeFirebaseAuth();
+    if(!auth){
       loginStatus('Auth unavailable right now. Please refresh.', '#f85149');
       return;
     }
@@ -831,14 +840,16 @@ async function loginWithPassword(event){
       return;
     }
     loginStatus('Signing in...', '#d29922');
-    await firebase.auth().signInWithEmailAndPassword(email,password);
+    await auth.signInWithEmailAndPassword(email,password);
   }catch(e){
     loginStatus(authErrorMessage(e,true), '#f85149');
   }
 }
 async function createAccountWithPassword(){
   try{
-    if(!(window.firebase&&firebase.auth&&typeof firebase.auth==='function')){
+    if(window.firebase && firebase.apps && firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
+    const auth=safeFirebaseAuth();
+    if(!auth){
       loginStatus('Auth unavailable right now. Please refresh.', '#f85149');
       return;
     }
@@ -851,7 +862,7 @@ async function createAccountWithPassword(){
       return;
     }
     loginStatus('Creating account...', '#d29922');
-    await firebase.auth().createUserWithEmailAndPassword(email,password);
+    await auth.createUserWithEmailAndPassword(email,password);
     loginStatus('Account created. You are now signed in.', '#00d17a');
   }catch(e){
     loginStatus(authErrorMessage(e,false), '#f85149');
@@ -859,7 +870,9 @@ async function createAccountWithPassword(){
 }
 async function requestPasswordReset(){
   try{
-    if(!(window.firebase&&firebase.auth&&typeof firebase.auth==='function')){
+    if(window.firebase && firebase.apps && firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
+    const auth=safeFirebaseAuth();
+    if(!auth){
       loginStatus('Auth unavailable right now. Please refresh.', '#f85149');
       return;
     }
@@ -869,7 +882,7 @@ async function requestPasswordReset(){
       loginStatus('Enter your email first, then tap Reset Password.', '#f85149');
       return;
     }
-    await firebase.auth().sendPasswordResetEmail(email);
+    await auth.sendPasswordResetEmail(email);
     loginStatus('Password reset email sent.', '#00d17a');
   }catch(e){
     loginStatus(authErrorMessage(e,false), '#f85149');
@@ -984,8 +997,8 @@ function registerServiceWorker(){
 async function forceRefreshApp(){
   try{
     const wipeKeys=(storage,keys)=>{for(const key of keys){try{storage.removeItem(key);}catch(e){}}};
-    // Keep auth/session intact; only clear app data/cache so one-click refresh does not force relogin.
-    wipeKeys(localStorage,['retireme_v3']);
+    // Preserve the user's saved portfolio data. Clearing retireme_v3 here causes data loss.
+    wipeKeys(localStorage,['retireme_v3','retireme_session','retireme_auth','auth_user','user','loggedIn','role','userRole','accountRole','isAdmin','idToken','uid','userEmail','firebase:authUser']);
     wipeKeys(sessionStorage,[]);
     if('caches' in window){
       const keys=await caches.keys();
@@ -1048,7 +1061,10 @@ function renderAuthHeader(){
   const signoutBtn=document.getElementById('signout-btn');
   const idEl=document.getElementById('device-id');
   let liveUser=null;
-  try{if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){liveUser=firebase.auth().currentUser;}}catch(e){}
+  try{
+    const authObj=safeFirebaseAuth();
+    if(authObj)liveUser=authObj.currentUser;
+  }catch(e){}
   const liveAccount=(liveUser&&(liveUser.email||liveUser.uid))||(_firebaseUser&&(_firebaseUser.email||_firebaseUser.uid))||'';
   const storedAccount=readStorageValue('userEmail')||readStorageValue('uid')||'';
   const account=(liveAccount||storedAccount||auth.userKey||'local').toString();
@@ -1066,16 +1082,14 @@ async function signOutUser(){
   const ok=window.confirm('Sign out now?');
   if(!ok)return;
   try{
-    if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){
-      const auth=firebase.auth();
-      if(auth&&typeof auth.signOut==='function')await auth.signOut();
-    }
+    const auth=safeFirebaseAuth();
+    if(auth&&typeof auth.signOut==='function')await auth.signOut();
   }catch(e){}
   _firebaseUser=null;
   const keys=[
     'rm_session','retireme_session','retireme_auth','auth_user','user',
     'loggedIn','role','userRole','accountRole','isAdmin',
-    'idToken','uid','userEmail','firebase:authUser','retireme_v3'
+    'idToken','uid','userEmail','firebase:authUser'
   ];
   for(const key of keys){localStorage.removeItem(key);sessionStorage.removeItem(key);}
   resetAppState({preserveTheme:true});
@@ -1239,7 +1253,14 @@ function getHomePortfolioSummary(){
   return {total,entries};
 }
 function renderHomeOverview(){
-  const userEmail=((window.firebase&&firebase.auth&&firebase.auth().currentUser&&firebase.auth().currentUser.email)||readStorageValue('userEmail')||'User').toString();
+  let userEmail='User';
+  try{
+    if(window.firebase&&firebase.auth&&typeof firebase.auth==='function'){
+      const currentUser=firebase.auth().currentUser;
+      if(currentUser&&currentUser.email)userEmail=currentUser.email;
+    }
+  }catch(e){}
+  userEmail=(readStorageValue('userEmail')||userEmail).toString();
   const nameEl=document.getElementById('home-user-name');
   if(nameEl){
     const base=userEmail.includes('@')?userEmail.split('@')[0]:userEmail;
