@@ -880,6 +880,29 @@ function clearLegacyPortfolioCache(){
     }
   }
 }
+function clearStaleAuthStateForStartup(){
+  const currentUid=currentFirebaseUid();
+  const storedUid=(localStorage.getItem('uid')||'').trim();
+  const storedEmail=(localStorage.getItem('userEmail')||'').trim();
+  if(!currentUid){
+    clearLegacyPortfolioCache();
+    for(const key of ['userEmail','uid','loggedIn','retireme_session','retireme_auth','auth_user','user','role','userRole','accountRole','isAdmin','idToken']){
+      try{localStorage.removeItem(key);}catch(e){}
+      try{sessionStorage.removeItem(key);}catch(e){}
+    }
+    return;
+  }
+  if(storedUid && storedUid !== currentUid){
+    clearLegacyPortfolioCache();
+    for(const key of ['userEmail','uid','loggedIn','retireme_session','retireme_auth','auth_user','user','role','userRole','accountRole','isAdmin','idToken']){
+      try{localStorage.removeItem(key);}catch(e){}
+      try{sessionStorage.removeItem(key);}catch(e){}
+    }
+  }
+  if(storedEmail && !currentUid){
+    try{localStorage.removeItem('userEmail');}catch(e){}
+  }
+}
 async function loginWithPassword(event){
   if(event)event.preventDefault();
   try{
@@ -1181,6 +1204,7 @@ async function hydrateFromCachedPortfolioBeforeHome(){
 }
 function load(){
   initFirebase();
+  clearStaleAuthStateForStartup();
   const cached = isAuthed() ? readCachedPortfolioSnapshot() : null;
   if(cached){
     S={...DEFAULT_S, theme:S&&S.theme==='light'?'light':'dark', ...cached};
