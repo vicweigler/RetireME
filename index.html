@@ -1733,8 +1733,15 @@ function switchTab(n,btn){
   if(n==='milestones')renderMilestones();
 }
 
-function getA(k){return S.assets&&S.assets[k]!==undefined?S.assets[k]:(DA[k]?.val||0);}
-function calcBase(){return portfolioYearTotal('2026')||Object.keys(DA).reduce((s,k)=>s+getA(k),0);}
+function getA(k){
+  if(!S || typeof S !== 'object')return 0;
+  if(S.assets && Object.prototype.hasOwnProperty.call(S.assets,k)){
+    const v=Number(S.assets[k]);
+    return Number.isFinite(v)?v:0;
+  }
+  return 0;
+}
+function calcBase(){return portfolioYearTotal('2026') || 0;}
 function growthRate(){return (Number.parseFloat(document.getElementById('r-gr')?.value || '0') || 0)/100;}
 function drawdownRaw(){return Number.parseInt(document.getElementById('r-draw')?.value || '0',10) || 0;}
 function drawdownUsed(){return S.useDrawdown?drawdownRaw():0;}
