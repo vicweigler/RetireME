@@ -460,7 +460,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
-      <div class="login-version" id="version-login">V3.1.19</div>
+      <div class="login-version" id="version-login">V3.1.20</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
   </div>
@@ -573,7 +573,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V3.1.19</div>
+      <div class="hdr-version" id="version-header">V3.1.20</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -607,7 +607,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
-    <div class="version-note home" id="version-home">V3.1.19</div>
+    <div class="version-note home" id="version-home">V3.1.20</div>
   </div>
 
   <!-- LEDGER / HOME -->
@@ -620,7 +620,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home-ledger">V3.1.19</div>
+    <div class="version-note home" id="version-home-ledger">V3.1.20</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -703,7 +703,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V3.1.19</div>
+      <div class="version-note settings" id="version-settings">V3.1.20</div>
     </div>
   </div>
 
@@ -732,7 +732,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.19';
+const APP_VERSION='V3.1.20';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -754,13 +754,14 @@ const SW_CACHE_BUST = encodeURIComponent(APP_VERSION || 'dev');
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:'NS&I',val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:'NS&I',val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
-const DEFAULT_S={dob:'',retire:'',career:'',salary:85000,pot:132000,contrib:12,growth:4,targetMonthly:3500,dbPension:43000,drawdown:24000,extra:0,useGrowth:true,useDrawdown:true,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
+const DEFAULT_S={dob:'',retire:'',career:'',salary:0,pot:0,contrib:0,growth:0,targetMonthly:0,dbPension:0,drawdown:0,extra:0,useGrowth:false,useDrawdown:false,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
 let S={...DEFAULT_S};
 
 function resetAppState({preserveTheme=true}={}){
   const theme=(S&&S.theme)||'dark';
   S={...DEFAULT_S, ...(preserveTheme?{theme}:{}), assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{} };
   if(preserveTheme)S.theme=theme;
+  try{if(currentFirebaseUid()){const key=activePortfolioCacheKey();localStorage.setItem(key, JSON.stringify(S));localStorage.setItem(key+'_ts', String(Date.now()));}}catch(e){}
 }
 function normalizeLegacyCloudState(remote){
   if(!remote || typeof remote !== 'object')return remote;
@@ -983,7 +984,14 @@ async function createAccountWithPassword(){
       return;
     }
     loginStatus('Creating account...', '#d29922');
-    await auth.createUserWithEmailAndPassword(email,password);
+    const userCred=await auth.createUserWithEmailAndPassword(email,password);
+    if(userCred && userCred.user){
+      clearLegacyPortfolioCache();
+      resetAppState({preserveTheme:true});
+      try{localStorage.setItem('uid', userCred.user.uid);}catch(e){}
+      try{localStorage.setItem('userEmail', email);}catch(e){}
+      try{localStorage.setItem('loggedIn','true');}catch(e){}
+    }
     loginStatus('Account created. You are now signed in.', '#00d17a');
   }catch(e){
     loginStatus(authErrorMessage(e,false), '#f85149');
@@ -1045,7 +1053,9 @@ async function syncFromCloud(){
       cloudStatus('synced', '#00d17a');
       return;
     }
-    await primaryRef.set(S,{merge:true});
+    const emptySeed={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{} };
+    await primaryRef.set(emptySeed,{merge:true});
+    S={...emptySeed};
     cloudStatus('cloud initialized', '#00d17a');
   }catch(e){
     const code=(e&&e.code)||'';
@@ -1256,7 +1266,6 @@ function load(){
     resetAppState({preserveTheme:true});
   }
   if(!S.assets)S.assets={};
-  for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
   initPortfolioData();
   if(!Array.isArray(S.investments))S.investments=[];
   if(Array.isArray(S.monthlyAmounts) && S.investments.length===0){
@@ -1279,11 +1288,11 @@ function load(){
     if((!S.spend.quarterly||S.spend.quarterly.length===0) && Array.isArray(S.bills.quarterly)){S.spend.quarterly=S.bills.quarterly.map(normalizeSpendRow).filter(Boolean);}
     if((!S.spend.annual||S.spend.annual.length===0) && Array.isArray(S.bills.annual)){S.spend.annual=S.bills.annual.map(normalizeSpendRow).filter(Boolean);}
   }
-  if(!S.targetMonthly)S.targetMonthly=3500;
-  if(!S.growth)S.growth=4;
+  if(!S.targetMonthly && S.targetMonthly !== 0)S.targetMonthly=0;
+  if(!S.growth && S.growth !== 0)S.growth=0;
   if(!S.theme)S.theme='dark';
-  if(typeof S.useGrowth!=='boolean')S.useGrowth=true;
-  if(typeof S.useDrawdown!=='boolean')S.useDrawdown=true;
+  if(typeof S.useGrowth!=='boolean')S.useGrowth=false;
+  if(typeof S.useDrawdown!=='boolean')S.useDrawdown=false;
   applyDOM();
   renderHomeOverview();
   if(isAuthed()){
@@ -1307,12 +1316,16 @@ function save(){
 }
 
 function applyDOM(){
+  const growthValue=Number.isFinite(Number(S.growth)) ? Number(S.growth) : 0;
+  const dbValue=Number.isFinite(Number(S.dbPension)) ? Number(S.dbPension) : 0;
+  const drawValue=Number.isFinite(Number(S.drawdown)) ? Number(S.drawdown) : 0;
+  const targetValue=Number.isFinite(Number(S.targetMonthly)) ? Number(S.targetMonthly) : 0;
   sv('s-dob',S.dob);sv('s-retire',S.retire);sv('s-career',S.career);
   sv('s-salary',S.salary||'');sv('s-pot-n',S.pot||'');sv('s-db',S.dbPension||'');sv('s-draw',S.drawdown||'');
-  sr('r-gr',S.growth||4,'r-gr-v',(S.growth||4).toFixed(1)+'%');
-  sr('r-db',S.dbPension||43000,'r-db-v','£'+(S.dbPension||43000).toLocaleString());
-  sr('r-draw',S.drawdown||24000,'r-draw-v','£'+(S.drawdown||24000).toLocaleString());
-  sr('r-tgt',S.targetMonthly||3500,'r-tgt-v','£'+(S.targetMonthly||3500).toLocaleString());
+  sr('r-gr',growthValue,'r-gr-v',growthValue.toFixed(1)+'%');
+  sr('r-db',dbValue,'r-db-v','£'+dbValue.toLocaleString());
+  sr('r-draw',drawValue,'r-draw-v','£'+drawValue.toLocaleString());
+  sr('r-tgt',targetValue,'r-tgt-v','£'+targetValue.toLocaleString());
   sr('r-extra',S.extra||0,'r-extra-v','£'+(S.extra||0).toLocaleString());
   const growthEl=document.getElementById('use-growth');if(growthEl)growthEl.checked=!!S.useGrowth;
   const drawEl=document.getElementById('use-drawdown');if(drawEl)drawEl.checked=!!S.useDrawdown;
@@ -1648,8 +1661,14 @@ function sr(id,v,lbl,txt){const e=document.getElementById(id);if(e)e.value=v;con
 
 function fs(key,val){
   S[key]=val;
-  if(key==='dbPension')sr('r-db',S.dbPension||43000,'r-db-v','£'+(S.dbPension||43000).toLocaleString());
-  if(key==='drawdown')sr('r-draw',S.drawdown||24000,'r-draw-v','£'+(S.drawdown||24000).toLocaleString());
+  if(key==='dbPension'){
+    const dbValue=Number.isFinite(Number(S.dbPension)) ? Number(S.dbPension) : 0;
+    sr('r-db',dbValue,'r-db-v','£'+dbValue.toLocaleString());
+  }
+  if(key==='drawdown'){
+    const drawValue=Number.isFinite(Number(S.drawdown)) ? Number(S.drawdown) : 0;
+    sr('r-draw',drawValue,'r-draw-v','£'+drawValue.toLocaleString());
+  }
   save();
   recalc();
 }
@@ -1671,8 +1690,8 @@ function switchTab(n,btn){
 
 function getA(k){return S.assets&&S.assets[k]!==undefined?S.assets[k]:(DA[k]?.val||0);}
 function calcBase(){return portfolioYearTotal('2026')||Object.keys(DA).reduce((s,k)=>s+getA(k),0);}
-function growthRate(){return parseFloat(document.getElementById('r-gr')?.value||4)/100;}
-function drawdownRaw(){return parseInt(document.getElementById('r-draw')?.value||24000,10);}
+function growthRate(){return (Number.parseFloat(document.getElementById('r-gr')?.value || '0') || 0)/100;}
+function drawdownRaw(){return Number.parseInt(document.getElementById('r-draw')?.value || '0',10) || 0;}
 function drawdownUsed(){return S.useDrawdown?drawdownRaw():0;}
 function growthUsed(){return S.useGrowth?growthRate():0;}
 function investmentTotal(year){
@@ -2110,8 +2129,8 @@ function buildRunway(){
   const tgtEl=document.getElementById('r-tgt');
   if(!timeline || !dbEl || !tgtEl){return;}
   const gr=growthRate();
-  const db=parseInt(dbEl.value||43000,10);
-  const tgt=parseInt(tgtEl.value||3500,10);
+  const db=Number.parseInt(dbEl.value || '0',10) || 0;
+  const tgt=Number.parseInt(tgtEl.value || '0',10) || 0;
   const incomeAnnualGross=cashflowIncomeAnnualGrossTotal();
   const incomeAnnualNet=cashflowIncomeAnnualTotal();
   let bal=calcBase();
