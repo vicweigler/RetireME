@@ -1356,10 +1356,15 @@ function applyDOM(){
 function hasMeaningfulState(snapshot){
   if(!snapshot || typeof snapshot !== 'object')return false;
   const hasAssets = Object.values(snapshot.assets || {}).some(v => Number(v) > 0);
-  const hasPortfolioRows = Object.values(snapshot.portfolio || {}).some(rows => Array.isArray(rows) && rows.some(r => r && (Number(r.amount) > 0 || String(r.type||'').toLowerCase().includes('carry'))));
+  const hasPortfolioRows = Object.values(snapshot.portfolio || {}).some(rows => Array.isArray(rows) && rows.some(r => r && (
+    r._draft === true ||
+    Number(r.amount) > 0 ||
+    String(r.type||'').toLowerCase().includes('carry') ||
+    String(r.name||'').trim().length > 0
+  )));
   const hasFinance = [snapshot.salary,snapshot.pot,snapshot.dbPension,snapshot.drawdown,snapshot.targetMonthly,snapshot.extra].some(v => Number(v) > 0);
-  const hasInvestments = Array.isArray(snapshot.investments) && snapshot.investments.some(row => Number(row && row.amount) > 0 || Array.isArray(row && row.modelAssets) && row.modelAssets.length > 0);
-  const hasSpend = ['monthly','quarterly','annual'].some(key => Array.isArray(snapshot.spend && snapshot.spend[key]) && snapshot.spend[key].some(row => Number(row && row.amount) > 0));
+  const hasInvestments = Array.isArray(snapshot.investments) && snapshot.investments.some(row => Number(row && row.amount) > 0 || Array.isArray(row && row.modelAssets) && row.modelAssets.length > 0 || row && row._draft === true);
+  const hasSpend = ['monthly','quarterly','annual'].some(key => Array.isArray(snapshot.spend && snapshot.spend[key]) && snapshot.spend[key].some(row => Number(row && row.amount) > 0 || row && row._draft === true));
   return hasAssets || hasPortfolioRows || hasFinance || hasInvestments || hasSpend;
 }
 function isBlankUserState(){
@@ -1409,7 +1414,8 @@ function portfolioYearTotal(year){
 }
 function syncPortfolioCarryOvers(){
   if(!S.portfolio||typeof S.portfolio!=='object')return;
-  if(isBlankUserState()){
+  const hasDraftRows = Object.values(S.portfolio||{}).some(rows => Array.isArray(rows) && rows.some(r => r && r._draft === true));
+  if(isBlankUserState() && !hasDraftRows){
     const years=['2026','2027','2028','2029','2030'];
     for(const year of years){S.portfolio[year]=[];}
     return;
