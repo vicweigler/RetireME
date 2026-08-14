@@ -27,7 +27,24 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
-  // Cache-first for all other assets
+  // For app shell assets, prefer network first so new versions land immediately.
+  const url = new URL(e.request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+  const isAppShell = isSameOrigin && (
+    url.pathname.endsWith('/index.html') ||
+    url.pathname.endsWith('/manifest.json') ||
+    url.pathname.endsWith('/icon.png') ||
+    url.pathname.endsWith('/apple-touch-icon.png')
+  );
+  if (isAppShell) {
+    e.respondWith(
+      fetch(new Request(e.request.url, {cache: 'no-store', credentials: 'include'}))
+        .then(r => { const cl = r.clone(); caches.open(CACHE).then(c => c.put(e.request, cl)); return r; })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+  // Cache-first fallback for everything else.
   e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request)));
 });
 
