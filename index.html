@@ -732,7 +732,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.13';
+const APP_VERSION='V3.1.14';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -955,7 +955,7 @@ function signInUser(){
 function cloudUserKey(){
   const uid=currentFirebaseUid();
   if(uid){
-    return String(uid).trim().replaceAll('/','_');
+    return String(uid).trim();
   }
   return null;
 }
@@ -964,12 +964,6 @@ function cloudPrimaryRef(){
   const key=cloudUserKey();
   if(!key)return null;
   return _db.collection('users').doc(key).collection('apps').doc('retireme');
-}
-function cloudLegacyRef(){
-  if(!_db)return null;
-  const key=cloudUserKey();
-  if(!key)return null;
-  return _db.collection('retireme').doc(key);
 }
 async function syncFromCloud(){
   const uid=currentFirebaseUid();
