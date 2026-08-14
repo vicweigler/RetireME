@@ -238,11 +238,6 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .cashflow-model-asset .cashflow-model-name{font-size:12px;color:#e6edf3;font-weight:600;line-height:1.2;word-break:break-word;text-align:left;display:block;}
 .cashflow-model-asset .cashflow-model-type{font-size:10px;color:#8b949e;line-height:1.2;word-break:break-word;text-align:left;display:block;}
 .cashflow-model-asset .amt{font-size:12px;color:#00d17a;font-weight:700;white-space:nowrap;margin-left:auto;}
-.cashflow-model-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px;}
-.cashflow-model-summary-item{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px 10px;min-height:58px;display:flex;flex-direction:column;justify-content:space-between;}
-.cashflow-model-summary-item .k{font-size:9px;text-transform:uppercase;letter-spacing:0.6px;color:#8b949e;font-weight:700;}
-.cashflow-model-summary-item .v{font-size:12px;color:#e6edf3;font-weight:800;line-height:1.2;word-break:break-word;}
-.cashflow-model-summary-item .v.green{color:#00d17a;}
 .cashflow-model-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;}
 .cashflow-model-title-row{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;}
 .cashflow-model-title-row .cashflow-model-link{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -294,12 +289,7 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .mini-action-btn{background:#00d17a;border:1px solid #00d17a;color:#073b24;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;}
 .mini-action-btn.cancel{background:transparent;border-color:#30363d;color:#8b949e;}
 .spend-summary-card{margin-bottom:10px;}
-.summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px;}
-.summary-chip{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px;}
-.summary-chip .k{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.6px;}
-.summary-chip .v{font-size:14px;color:#f85149;font-weight:700;margin-top:3px;}
-.summary-chip .v.green{color:#00d17a;}
-.summary-chip .v.red{color:#f85149;}
+...
 .home-card{padding:16px 18px;}
 .home-brand-row{display:flex;align-items:center;gap:14px;}
 .home-logo-wrap{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#0d1117,#161b22);display:flex;align-items:center;justify-content:center;border:1px solid #30363d;overflow:hidden;box-shadow:0 8px 22px rgba(0,209,122,0.18);}
@@ -314,10 +304,15 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .home-legend-swatch{width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .home-legend-name{font-size:12px;color:#c9d1d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .home-legend-value{font-size:12px;font-weight:700;color:#e6edf3;}
-body.light-mode .home-chart-wrap{background:linear-gradient(180deg,rgba(13,17,23,0.96),rgba(13,17,23,0.98));border-color:#121a22;}
-body.light-mode .home-legend-row{background:#0d1117;border-color:#21262d;}
+body.light-mode .home-chart-wrap{background:#ffffff;border:1px solid #000000;box-shadow:none;}
+body.light-mode .home-legend-row{background:#ffffff;border:1px solid #000000;}
+body.light-mode .home-legend-name,
+body.light-mode .home-legend-value,
 body.light-mode .home-welcome-title,
-body.light-mode #home-user-name{color:#000000;}
+body.light-mode #home-user-name,
+body.light-mode .home-chart-label{color:#000000;}
+body.light-mode .home-chart-border{stroke:#000000;}
+body.light-mode .home-chart-wrap svg .home-chart-label{fill:#000000;}
 .home-chart-label{text-anchor:middle;font-size:10px;fill:#e6edf3;font-weight:700;letter-spacing:0.2px;}
 .home-chart-border{fill:none;stroke:#30363d;stroke-width:1;}
 .spend-type-list{display:grid;gap:6px;margin-top:8px;}
@@ -411,9 +406,14 @@ body.light-mode .cashflow-model-asset .cashflow-model-name{color:#0f172a;}
 body.light-mode .cashflow-model-asset .cashflow-model-type{color:#64748b;}
 body.light-mode .cashflow-model-asset input[type="checkbox"]{background:#ffffff;border-color:#94a3b8;}
 body.light-mode .share-link{color:#0ea86d;}
-body.light-mode .share-modal{background:#ffffff;border-color:#d8dee8;}
+body.light-mode .share-modal{background:#f3f4f6;border-color:#d8dee8;}
 body.light-mode .share-modal-title{color:#0f172a;}
 body.light-mode .share-modal-close{color:#64748b;}
+body.light-mode .income-model-metric{background:#eafaf1;border:1px solid #9ad7b2;color:#000000;}
+body.light-mode .income-model-metric label,
+body.light-mode .income-model-metric .income-model-metric-value{color:#000000;}
+body.light-mode .income-model-metric select,
+body.light-mode .income-model-metric input{background:#f6fff8;border-color:#a8d7b8;color:#000000;}
 body.light-mode .spend-type-row .type-total,
 body.light-mode .summary-chip .v{color:#dc2626;}
 body.light-mode .summary-chip .v.green{color:#0f9f64;}
@@ -494,7 +494,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
-      <div class="login-version" id="version-login">V3.1.31</div>
+      <div class="login-version" id="version-login">V3.1.32</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
   </div>
@@ -623,7 +623,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V3.1.31</div>
+      <div class="hdr-version" id="version-header">V3.1.32</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -657,7 +657,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
-    <div class="version-note home" id="version-home">V3.1.31</div>
+    <div class="version-note home" id="version-home">V3.1.32</div>
   </div>
 
   <!-- LEDGER / HOME -->
@@ -670,7 +670,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home-ledger">V3.1.31</div>
+    <div class="version-note home" id="version-home-ledger">V3.1.32</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -753,7 +753,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V3.1.31</div>
+      <div class="version-note settings" id="version-settings">V3.1.32</div>
     </div>
   </div>
 
@@ -782,7 +782,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.31';
+const APP_VERSION='V3.1.32';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -2168,10 +2168,10 @@ const INC_SWIPE={};
 function renderInvestments(){
   const list=document.getElementById('income-sources-list');
   if(!list)return;
-  list.innerHTML=S.investments.map((i,idx)=>{const monthly=incomeSourceMonthlyValue(i);const annualValue=parseFloat(i.amount)||0;const rowKey='inc:'+idx;const assetNames=incomeSourceAssetNames(i);const isModel=assetNames.length>0;const heading=isModel?incomeModelHeading(idx):String(i.name||'');const grossPrincipal=isModel?incomeModelGrossPrincipal(i):0;const headingWithGross=isModel?heading+' (£'+fmtN(grossPrincipal)+')':heading;const bracket=String((i.modelTaxBracket!==undefined?i.modelTaxBracket:i.taxBracket)||'none');const taxLabel = bracket==='none'?'No Tax':bracket==='basic'?'Basic 20%':bracket==='higher'?'Higher 40%':bracket==='additional'?'Additional 45%':bracket==='pa-taper'?'PA Taper 60%':String(bracket);const annualDisplay = isModel ? '£'+fmtN(incomeSourceAnnualValue(i)) : '£'+fmtN(annualValue);const monthlyDisplay = '£'+fmt2(monthly);const summaryGrid = isModel ? `<div class="cashflow-model-summary-grid"><div class="cashflow-model-summary-item"><div class="k">Tax</div><div class="v">${escapeHtml(taxLabel)}</div></div><div class="cashflow-model-summary-item"><div class="k">Rate</div><div class="v green">${Number(i.modelRate||0).toFixed(1)}%</div></div><div class="cashflow-model-summary-item"><div class="k">Total</div><div class="v">${annualDisplay}</div></div><div class="cashflow-model-summary-item"><div class="k">Monthly</div><div class="v green">${monthlyDisplay}</div></div></div>` : '';return `<div class="cashflow-row-wrap">
+  list.innerHTML=S.investments.map((i,idx)=>{const monthly=incomeSourceMonthlyValue(i);const annualValue=parseFloat(i.amount)||0;const rowKey='inc:'+idx;const assetNames=incomeSourceAssetNames(i);const isModel=assetNames.length>0;const heading=isModel?incomeModelHeading(idx):String(i.name||'');const grossPrincipal=isModel?incomeModelGrossPrincipal(i):0;const headingWithGross=isModel?heading+' (£'+fmtN(grossPrincipal)+')':heading;const bracket=String((i.modelTaxBracket!==undefined?i.modelTaxBracket:i.taxBracket)||'none');const taxLabel = bracket==='none'?'No Tax':bracket==='basic'?'Basic 20%':bracket==='higher'?'Higher 40%':bracket==='additional'?'Additional 45%':bracket==='pa-taper'?'PA Taper 60%':String(bracket);const annualDisplay = isModel ? '£'+fmtN(incomeSourceAnnualValue(i)) : '£'+fmtN(annualValue);const monthlyDisplay = '£'+fmt2(monthly);return `<div class="cashflow-row-wrap">
     <div class="cashflow-swipe-delete-bg">Swipe left to delete</div>
     <div class="cashflow-row" data-inc-row="${rowKey}" onpointerdown="incPointerStart(event,${idx})" onpointermove="incPointerMove(event,${idx})" onpointerup="incPointerEnd(event,${idx})" onpointercancel="incPointerEnd(event,${idx})">
-      <div class="cashflow-title-wrap">${isModel?`<div class="cashflow-model-title-row"><button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(headingWithGross)}</button><div class="cashflow-frequency-toggle"><span>Mon</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency)==='annual'?'checked':''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>Ann</span></div></div>${i.plannedInvestmentType?`<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate||0).toFixed(1)}%</div>`:''}${assetNames.length>0?`<div class="cashflow-model-sublist">${assetNames.map(name=>`<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>${summaryGrid}`:''}`:`<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name||'')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/>`}</div>
+      <div class="cashflow-title-wrap">${isModel?`<div class="cashflow-model-title-row"><button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(headingWithGross)}</button><div class="cashflow-frequency-toggle"><span>Mon</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency)==='annual'?'checked':''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>Ann</span></div></div>${i.plannedInvestmentType?`<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate||0).toFixed(1)}%</div>`:''}${assetNames.length>0?`<div class="cashflow-model-sublist">${assetNames.map(name=>`<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>`:''}`:`<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name||'')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/>`}</div>
       <div class="cashflow-frequency-toggle" style="display:${isModel?'none':''};"><span>M</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency)==='annual'?'checked':''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>A</span></div>
       <select class="cashflow-tax-select" onchange="updateInvestment(${idx},'taxBracket',this.value)"><option value="none" ${bracket==='none'?'selected':''}>No Tax</option><option value="basic" ${bracket==='basic'?'selected':''}>Basic 20%</option><option value="higher" ${bracket==='higher'?'selected':''}>Higher 40%</option><option value="additional" ${bracket==='additional'?'selected':''}>Additional 45%</option><option value="pa-taper" ${bracket==='pa-taper'?'selected':''}>PA Taper 60%</option></select>
       <input class="cashflow-amount-input" type="text" inputmode="decimal" value="${fmt2(annualValue)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmt2(parseFloat(this.value||0))" onchange="updateInvestment(${idx},'amount',this.value)"/>
@@ -2279,7 +2279,7 @@ function renderSpendSummary(){
     totals.innerHTML=`
       <div class="summary-chip"><div class="k">Total Monthly</div><div class="v">£${fmtN(monthly)}</div></div>
       <div class="summary-chip"><div class="k">Total Quarterly</div><div class="v">£${fmtN(quarterly)}</div></div>
-      <div class="summary-chip"><div class="k">Total Annual</div><div class="v">£${fmtN(annual)}</div></div>`;
+      <div class="summary-chip"><div class="k">Total<br>Annual</div><div class="v">£${fmtN(annual)}</div></div>`;
   }
   const byType=document.getElementById('spend-by-type');
   if(!byType){renderCashflowSummary();return;}
