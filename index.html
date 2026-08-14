@@ -197,6 +197,8 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .cashflow-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
 .cashflow-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
 .cashflow-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 64px 98px 132px 132px;gap:8px;align-items:flex-start;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
+.cashflow-row-model{grid-template-columns:1fr;}
+.cashflow-row-model > *:not(.cashflow-title-wrap){display:none;}
 .cashflow-title-wrap{min-width:0;}
 .cashflow-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
 .cashflow-model-link{background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;cursor:pointer;text-align:left;display:block;width:100%;}
@@ -225,6 +227,12 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .cashflow-amount-input{color:#e6edf3;}
 .cashflow-monthly-input{color:#00d17a;}
 .cashflow-monthly-input[readonly]{cursor:default;}
+.summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+.summary-chip{background:#0d1117;border:1px solid #21262d;border-radius:9px;padding:8px 8px;min-height:74px;display:flex;flex-direction:column;justify-content:center;}
+.summary-chip .k{font-size:8px;letter-spacing:0.75px;text-transform:uppercase;color:#8b949e;font-weight:700;line-height:1.15;margin-bottom:4px;}
+.summary-chip .v{font-size:10px;line-height:1.2;font-weight:800;letter-spacing:-0.1px;color:#e6edf3;word-break:break-word;}
+.summary-chip .v.green{color:#00d17a;}
+.summary-chip .v.red{color:#f85149;}
 .cashflow-summary-card .summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
 .cashflow-model-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
 .cashflow-model-asset-list{display:grid;gap:6px;max-height:220px;overflow:auto;padding-right:4px;}
@@ -238,10 +246,10 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .cashflow-model-asset .cashflow-model-name{font-size:12px;color:#e6edf3;font-weight:600;line-height:1.2;word-break:break-word;text-align:left;display:block;}
 .cashflow-model-asset .cashflow-model-type{font-size:10px;color:#8b949e;line-height:1.2;word-break:break-word;text-align:left;display:block;}
 .cashflow-model-asset .amt{font-size:12px;color:#00d17a;font-weight:700;white-space:nowrap;margin-left:auto;}
-.cashflow-model-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px;}
-.cashflow-model-summary-item{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px 10px;min-height:58px;display:flex;flex-direction:column;justify-content:space-between;}
-.cashflow-model-summary-item .k{font-size:9px;text-transform:uppercase;letter-spacing:0.6px;color:#8b949e;font-weight:700;}
-.cashflow-model-summary-item .v{font-size:12px;color:#e6edf3;font-weight:800;line-height:1.2;word-break:break-word;}
+.cashflow-model-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:6px;}
+.cashflow-model-summary-item{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:6px 8px;min-height:46px;display:flex;flex-direction:column;justify-content:space-between;}
+.cashflow-model-summary-item .k{font-size:8px;text-transform:uppercase;letter-spacing:0.5px;color:#8b949e;font-weight:700;}
+.cashflow-model-summary-item .v{font-size:9px;color:#e6edf3;font-weight:800;line-height:1.15;word-break:break-word;}
 .cashflow-model-summary-item .v.green{color:#00d17a;}
 .cashflow-model-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;}
 .cashflow-model-title-row{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;}
@@ -410,6 +418,11 @@ body.light-mode .cashflow-model-asset label{color:#0f172a;}
 body.light-mode .cashflow-model-asset .cashflow-model-name{color:#0f172a;}
 body.light-mode .cashflow-model-asset .cashflow-model-type{color:#64748b;}
 body.light-mode .cashflow-model-asset input[type="checkbox"]{background:#ffffff;border-color:#94a3b8;}
+body.light-mode .cashflow-model-summary-grid{gap:6px;}
+body.light-mode .cashflow-model-summary-item{background:#eef2f6;border-color:#d0d7e2;box-shadow:none;}
+body.light-mode .cashflow-model-summary-item .k{color:#475569;}
+body.light-mode .cashflow-model-summary-item .v{color:#000000;}
+body.light-mode .cashflow-model-summary-item .v.green{color:#0f9f64;}
 body.light-mode .share-link{color:#0ea86d;}
 body.light-mode .share-modal{background:#f3f4f6;border-color:#d8dee8;}
 body.light-mode .share-modal-title{color:#0f172a;}
@@ -499,7 +512,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
-      <div class="login-version" id="version-login">V3.1.33</div>
+      <div class="login-version" id="version-login">V3.1.36</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
   </div>
@@ -604,11 +617,11 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <input id="income-model-rate" type="number" min="0" step="0.1" oninput="updateIncomeModelModalPreview()"/>
       </div>
       <div class="income-model-metric">
-        <label>Total Amount</label>
+        <label>Annual Income</label>
         <div class="income-model-metric-value" id="income-model-annual">£0</div>
       </div>
       <div class="income-model-metric">
-        <label>Monthly Amount</label>
+        <label>Monthly Income</label>
         <div class="income-model-metric-value" id="income-model-monthly">£0.00</div>
       </div>
     </div>
@@ -628,7 +641,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V3.1.33</div>
+      <div class="hdr-version" id="version-header">V3.1.36</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -662,7 +675,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
-    <div class="version-note home" id="version-home">V3.1.33</div>
+    <div class="version-note home" id="version-home">V3.1.36</div>
   </div>
 
   <!-- LEDGER / HOME -->
@@ -675,7 +688,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home-ledger">V3.1.33</div>
+    <div class="version-note home" id="version-home-ledger">V3.1.36</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -758,7 +771,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V3.1.33</div>
+      <div class="version-note settings" id="version-settings">V3.1.36</div>
     </div>
   </div>
 
@@ -787,7 +800,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.33';
+const APP_VERSION='V3.1.41';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -1688,7 +1701,6 @@ function openIncomeModelModal(idx){
   const typeEl=document.getElementById('income-model-type');
   const rateEl=document.getElementById('income-model-rate');
   const taxEl=document.getElementById('income-model-tax-band');
-  if(title)title.textContent=String(row.name||'Income Model');
   if(typeEl)typeEl.value=String(row.plannedInvestmentType||'Pension');
   if(rateEl)rateEl.value=(parseFloat(row.modelRate)||0).toFixed(1);
   if(taxEl)taxEl.value=String((row.modelTaxBracket!==undefined?row.modelTaxBracket:row.taxBracket)||'none');
@@ -1777,6 +1789,8 @@ function updateIncomeModelModalPreview(){
   const monthly=annualNet/12;
   const annualEl=document.getElementById('income-model-annual');
   const monthlyEl=document.getElementById('income-model-monthly');
+  const title=document.getElementById('income-model-title-label');
+  if(title)title.textContent=`${String(row.name||'Income Model')} (£${fmtN(principal)})`;
   if(annualEl)annualEl.textContent='£'+fmtN(annualNet);
   if(monthlyEl)monthlyEl.textContent='£'+fmt2(monthly);
 }
@@ -1865,6 +1879,7 @@ function fs(key,val){
   recalc();
 }
 function recalc(){
+  syncIncomeModelAnnualPortfolioItems();
   buildRunway();
   const activeTab = document.querySelector('.tab-btn.active')?.dataset?.tab || 'home';
   if(activeTab === 'ledger'){
@@ -1952,6 +1967,7 @@ function updateInvestment(idx,key,val){
   else if(key==='modelTaxBracket')S.investments[idx][key]=String(val||'none');
   else if(key==='frequency')S.investments[idx][key]=val?'annual':'monthly';
   else S.investments[idx][key]=val;
+  syncIncomeModelAnnualPortfolioItems();
   save();renderInvestments();recalc();
 }
 function deleteInvestment(idx){
@@ -2123,9 +2139,56 @@ function incomeModelTaxRate(row){
   if(b==='none')return 0;
   return (row&&row.taxable)?0.45:0;
 }
+function incomeModelAnnualIncome(row){
+  if(!row)return 0;
+  if(row.modelPrincipal!==undefined&&row.modelRate!==undefined){
+    const principal=parseFloat(row.modelPrincipal)||0;
+    const gross=principal*(parseFloat(row.modelRate)||0)/100;
+    return gross*(1-incomeModelTaxRate(row));
+  }
+  const gross=parseFloat(row.amount)||0;
+  return String(row.frequency)==='annual'?gross:gross*12;
+}
+function syncIncomeModelAnnualPortfolioItems(){
+  if(!S.portfolio || typeof S.portfolio!=='object')return;
+  const years=['2027','2028','2029','2030'];
+  for(const year of years){
+    const rows=Array.isArray(S.portfolio[year]) ? S.portfolio[year] : [];
+    const seen=new Set();
+    const next=[];
+    for(const row of rows){
+      if(row && row.incomeModelId){
+        const source=S.investments.find(inv=>inv && inv.id===row.incomeModelId);
+        const shouldKeep=source && Array.isArray(source.modelAssets) && source.modelAssets.length>0 && String(source.frequency||'monthly').toLowerCase()==='annual';
+        if(!shouldKeep){continue;}
+        const annualAmount=incomeModelAnnualIncome(source);
+        row.name=source.name||row.name||'Income Model';
+        row.type='Interest';
+        row.amount=annualAmount;
+        row.nonShareGross=annualAmount;
+        row.taxable=false;
+        row.incomeModelId=source.id;
+        next.push(row);
+        seen.add(source.id);
+      }else{
+        next.push(row);
+      }
+    }
+    for(const source of S.investments){
+      if(!source || !Array.isArray(source.modelAssets) || source.modelAssets.length===0)continue;
+      if(String(source.frequency||'monthly').toLowerCase()!=='annual')continue;
+      if(seen.has(source.id))continue;
+      const amount=incomeModelAnnualIncome(source);
+      next.push({id:uid('pf'),name:source.name||'Income Model',type:'Interest',amount,nonShareGross:amount,taxable:false,incomeModelId:source.id});
+      seen.add(source.id);
+    }
+    S.portfolio[year]=next;
+  }
+}
 function incomeSourceMonthlyValue(row){
   const rate=incomeModelTaxRate(row);
-  if(row&&row.modelPrincipal!==undefined&&row.modelRate!==undefined){
+  if(row&&Array.isArray(row.modelAssets)&&row.modelAssets.length>0){
+    if(String(row.frequency||'monthly').toLowerCase()==='annual')return 0;
     const annualGross=(parseFloat(row.modelPrincipal)||0)*(parseFloat(row.modelRate)||0)/100;
     const annualNet=annualGross*(1-rate);
     return annualNet/12;
@@ -2135,7 +2198,11 @@ function incomeSourceMonthlyValue(row){
   return monthlyGross*(1-rate);
 }
 function incomeSourceAnnualValue(row){
-  return incomeSourceMonthlyValue(row)*12;
+  if(row&&Array.isArray(row.modelAssets)&&row.modelAssets.length>0){
+    return incomeModelAnnualIncome(row);
+  }
+  const gross=parseFloat(row&&row.amount)||0;
+  return String(row&&row.frequency)==='annual'?gross:gross*12;
 }
 function cashflowIncomeMonthlyTotal(){
   return S.investments.reduce((sum,row)=>sum+incomeSourceMonthlyValue(row),0);
@@ -2158,14 +2225,14 @@ function renderCashflowSummary(){
   const spendQuarterly=spendTotal('quarterly');
   const spendAnnual=spendTotal('annual');
   const spendMonthlyEquivalent=spendMonthly;
-  const spendAnnualEquivalent=spendMonthly*12;
+  const spendAnnualEquivalent=spendAnnual;
   const leftMonthly=incomeMonthly-spendMonthlyEquivalent;
   const leftAnnual=incomeAnnual-spendAnnualEquivalent;
   el.innerHTML=`
-    <div class="summary-chip"><div class="k">Income / Month</div><div class="v green">£${fmtN(incomeMonthly)}</div></div>
     <div class="summary-chip"><div class="k">Spend / Month</div><div class="v red">£${fmtN(spendMonthlyEquivalent)}</div></div>
     <div class="summary-chip"><div class="k">Spend / Quarter</div><div class="v red">£${fmtN(spendQuarterly)}</div></div>
     <div class="summary-chip"><div class="k">Spend / Year</div><div class="v red">£${fmtN(spendAnnualEquivalent)}</div></div>
+    <div class="summary-chip"><div class="k">Income / Month</div><div class="v green">£${fmtN(incomeMonthly)}</div></div>
     <div class="summary-chip"><div class="k">Left Over / Month</div><div class="v green">£${fmtN(leftMonthly)}</div></div>
     <div class="summary-chip"><div class="k">Left Over / Year</div><div class="v green">£${fmtN(leftAnnual)}</div></div>`;
 }
@@ -2173,14 +2240,14 @@ const INC_SWIPE={};
 function renderInvestments(){
   const list=document.getElementById('income-sources-list');
   if(!list)return;
-  list.innerHTML=S.investments.map((i,idx)=>{const monthly=incomeSourceMonthlyValue(i);const annualValue=parseFloat(i.amount)||0;const rowKey='inc:'+idx;const assetNames=incomeSourceAssetNames(i);const isModel=assetNames.length>0;const heading=isModel?incomeModelHeading(idx):String(i.name||'');const grossPrincipal=isModel?incomeModelGrossPrincipal(i):0;const headingWithGross=isModel?heading+' (£'+fmtN(grossPrincipal)+')':heading;const bracket=String((i.modelTaxBracket!==undefined?i.modelTaxBracket:i.taxBracket)||'none');const taxLabel = bracket==='none'?'No Tax':bracket==='basic'?'Basic 20%':bracket==='higher'?'Higher 40%':bracket==='additional'?'Additional 45%':bracket==='pa-taper'?'PA Taper 60%':String(bracket);const annualDisplay = isModel ? '£'+fmtN(incomeSourceAnnualValue(i)) : '£'+fmtN(annualValue);const monthlyDisplay = '£'+fmt2(monthly);const summaryGrid = isModel ? `<div class="cashflow-model-summary-grid"><div class="cashflow-model-summary-item"><div class="k">Tax</div><div class="v">${escapeHtml(taxLabel)}</div></div><div class="cashflow-model-summary-item"><div class="k">Rate</div><div class="v green">${Number(i.modelRate||0).toFixed(1)}%</div></div><div class="cashflow-model-summary-item"><div class="k">Total</div><div class="v">${annualDisplay}</div></div><div class="cashflow-model-summary-item"><div class="k">Monthly</div><div class="v green">${monthlyDisplay}</div></div></div>` : '';return `<div class="cashflow-row-wrap">
+  list.innerHTML=S.investments.map((i,idx)=>{const monthly=incomeSourceMonthlyValue(i);const annualValue=parseFloat(i.amount)||0;const rowKey='inc:'+idx;const assetNames=incomeSourceAssetNames(i);const isModel=assetNames.length>0;const heading=isModel?incomeModelHeading(idx):String(i.name||'');const grossPrincipal=isModel?incomeModelGrossPrincipal(i):0;const headingWithGross=isModel?heading+' (£'+fmtN(grossPrincipal)+')':heading;const bracket=String((i.modelTaxBracket!==undefined?i.modelTaxBracket:i.taxBracket)||'none');const taxLabel = bracket==='none'?'No Tax':bracket==='basic'?'Basic 20%':bracket==='higher'?'Higher 40%':bracket==='additional'?'Additional 45%':bracket==='pa-taper'?'PA Taper 60%':String(bracket);const annualDisplay = isModel ? '£'+fmtN(incomeSourceAnnualValue(i)) : '£'+fmtN(annualValue);const monthlyDisplay = '£'+fmt2(monthly);const summaryGrid = isModel ? `<div class="cashflow-model-summary-grid"><div class="cashflow-model-summary-item"><div class="k">Tax</div><div class="v">${escapeHtml(taxLabel)}</div></div><div class="cashflow-model-summary-item"><div class="k">Rate</div><div class="v green">${Number(i.modelRate||0).toFixed(1)}%</div></div><div class="cashflow-model-summary-item"><div class="k">Annual Income</div><div class="v">${annualDisplay}</div></div><div class="cashflow-model-summary-item"><div class="k">Monthly Income</div><div class="v green">${monthlyDisplay}</div></div></div>` : '';return `<div class="cashflow-row-wrap">
     <div class="cashflow-swipe-delete-bg">Swipe left to delete</div>
-    <div class="cashflow-row" data-inc-row="${rowKey}" onpointerdown="incPointerStart(event,${idx})" onpointermove="incPointerMove(event,${idx})" onpointerup="incPointerEnd(event,${idx})" onpointercancel="incPointerEnd(event,${idx})">
-      <div class="cashflow-title-wrap">${isModel?`<div class="cashflow-model-title-row"><button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(headingWithGross)}</button><div class="cashflow-frequency-toggle"><span>Mon</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency)==='annual'?'checked':''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>Ann</span></div></div>${i.plannedInvestmentType?`<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate||0).toFixed(1)}%</div>`:''}${assetNames.length>0?`<div class="cashflow-model-sublist">${assetNames.map(name=>`<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>${summaryGrid}`:''}`:`<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name||'')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/>`}</div>
-      <div class="cashflow-frequency-toggle" style="display:${isModel?'none':''};"><span>M</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency)==='annual'?'checked':''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>A</span></div>
+    <div class="cashflow-row${isModel?' cashflow-row-model':''}" data-inc-row="${rowKey}" onpointerdown="incPointerStart(event,${idx})" onpointermove="incPointerMove(event,${idx})" onpointerup="incPointerEnd(event,${idx})" onpointercancel="incPointerEnd(event,${idx})">
+      <div class="cashflow-title-wrap">${isModel?`<div class="cashflow-model-title-row"><button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(headingWithGross)}</button><div class="cashflow-frequency-toggle"><span>Mon</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency)==='annual'?'checked':''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>Ann</span></div></div>${i.plannedInvestmentType?`<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate||0).toFixed(1)}%</div>`:''}${assetNames.length>0?`<div class="cashflow-model-sublist">${assetNames.map(name=>`<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>`:''}${summaryGrid}`:`<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name||'')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/>`}</div>
+      ${isModel?'':`<div class="cashflow-frequency-toggle"><span>M</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency)==='annual'?'checked':''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>A</span></div>
       <select class="cashflow-tax-select" onchange="updateInvestment(${idx},'taxBracket',this.value)"><option value="none" ${bracket==='none'?'selected':''}>No Tax</option><option value="basic" ${bracket==='basic'?'selected':''}>Basic 20%</option><option value="higher" ${bracket==='higher'?'selected':''}>Higher 40%</option><option value="additional" ${bracket==='additional'?'selected':''}>Additional 45%</option><option value="pa-taper" ${bracket==='pa-taper'?'selected':''}>PA Taper 60%</option></select>
       <input class="cashflow-amount-input" type="text" inputmode="decimal" value="${fmt2(annualValue)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmt2(parseFloat(this.value||0))" onchange="updateInvestment(${idx},'amount',this.value)"/>
-      <div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-monthly-input ${monthly>=0?'amt-pos':'amt-neg'}" type="text" value="${fmt2(monthly)}" readonly/></div>
+      <div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-monthly-input ${monthly>=0?'amt-pos':'amt-neg'}" type="text" value="${fmt2(monthly)}" readonly/></div>`}
     </div>
   </div>`;}).join('');
   renderCashflowModelAssets();
