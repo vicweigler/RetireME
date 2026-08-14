@@ -286,10 +286,10 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .home-logo-wrap{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#0d1117,#161b22);display:flex;align-items:center;justify-content:center;border:1px solid #30363d;overflow:hidden;box-shadow:0 8px 22px rgba(0,209,122,0.18);}
 .home-logo-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
 .home-welcome-title{margin:4px 0 0;color:#e6edf3;font-size:clamp(24px,3vw,32px);line-height:1.2;}
-.home-overview-grid{display:grid;grid-template-columns:minmax(220px, 1.1fr) minmax(180px, 0.9fr);gap:18px;align-items:center;}
-.home-chart-wrap{display:flex;align-items:center;justify-content:center;min-height:220px;background:linear-gradient(180deg,rgba(13,17,23,0.2),rgba(13,17,23,0.45));border-radius:16px;border:1px solid #21262d;padding:8px;}
+.home-overview-grid{display:grid;grid-template-columns:1fr;gap:18px;align-items:start;}
+.home-chart-wrap{display:flex;align-items:center;justify-content:center;min-height:220px;background:linear-gradient(180deg,rgba(13,17,23,0.2),rgba(13,17,23,0.45));border-radius:16px;border:1px solid #21262d;padding:8px;max-width:520px;width:100%;margin:0 auto;}
 #home-portfolio-chart{width:100%;max-width:320px;height:auto;display:block;}
-.home-legend{display:grid;gap:8px;}
+.home-legend{display:grid;gap:8px;max-width:520px;width:100%;margin:0 auto;}
 .home-legend-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:8px 10px;}
 .home-legend-label{display:flex;align-items:center;gap:8px;min-width:0;}
 .home-legend-swatch{width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0;}
@@ -460,7 +460,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
-      <div class="login-version" id="version-login">V3.1.25</div>
+      <div class="login-version" id="version-login">V3.1.26</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
   </div>
@@ -573,7 +573,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V3.1.25</div>
+      <div class="hdr-version" id="version-header">V3.1.26</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -607,7 +607,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
-    <div class="version-note home" id="version-home">V3.1.25</div>
+    <div class="version-note home" id="version-home">V3.1.26</div>
   </div>
 
   <!-- LEDGER / HOME -->
@@ -620,7 +620,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home-ledger">V3.1.25</div>
+    <div class="version-note home" id="version-home-ledger">V3.1.26</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -703,7 +703,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V3.1.25</div>
+      <div class="version-note settings" id="version-settings">V3.1.26</div>
     </div>
   </div>
 
@@ -732,7 +732,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.25';
+const APP_VERSION='V3.1.26';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
