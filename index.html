@@ -788,7 +788,7 @@ function initFirebase(){
     const auth=safeFirebaseAuth();
     if(window.firebase && auth && !_authObserverSet){
       _authObserverSet=true;
-      auth.onAuthStateChanged((u)=>{
+      auth.onAuthStateChanged(async (u)=>{
         const nextKey = u && u.uid ? 'user:'+u.uid : 'logged-out';
         if(_lastAuthStateKey === nextKey){
           return;
@@ -804,11 +804,19 @@ function initFirebase(){
           loginStatus('', '#8b949e');
           renderAuthHeader();
           renderAuthGate();
+          const cached=readCachedPortfolioSnapshot();
+          const shouldRefreshCache = !cached || cachedPortfolioAgeMs() > 5*60*60*1000;
+          if(shouldRefreshCache){
+            await syncFromCloud();
+          }else{
+            S={...DEFAULT_S, ...S, ...cached};
+            initPortfolioData();
+            applyDOM();
+          }
           setTimeout(()=>{
             renderHomeOverview();
             switchTab('home', document.querySelector('.tab-btn[data-tab="home"]'));
           },0);
-          syncFromCloud();
           return;
         }
         try{localStorage.setItem('loggedIn','false');}catch(e){}
@@ -1112,8 +1120,34 @@ async function signOutUser(){
   recalc();
 }
 
+function readCachedPortfolioSnapshot(){
+  try{
+    const raw=localStorage.getItem('retireme_v3');
+    if(!raw)return null;
+    const parsed=JSON.parse(raw);
+    return parsed && typeof parsed==='object' ? parsed : null;
+  }catch(e){return null;}
+}
+function cachedPortfolioAgeMs(){
+  const val=parseInt(localStorage.getItem('retireme_v3_ts')||'0',10);
+  if(!val||Number.isNaN(val))return Number.MAX_SAFE_INTEGER;
+  return Date.now()-val;
+}
+async function hydrateFromCachedPortfolioBeforeHome(){
+  const cached=readCachedPortfolioSnapshot();
+  if(!cached){return;}
+  const stale = cachedPortfolioAgeMs() > 5*60*60*1000;
+  if(stale){
+    await syncFromCloud();
+    return;
+  }
+  S={...DEFAULT_S, ...S, ...cached};
+  initPortfolioData();
+  applyDOM();
+}
 function load(){
-  try{const r=localStorage.getItem('retireme_v3');if(r){const p=JSON.parse(r);S={...DEFAULT_S, ...S, ...p};}}catch(e){}
+  const cached=readCachedPortfolioSnapshot();
+  if(cached){S={...DEFAULT_S, ...S, ...cached};}
   if(!S.assets)S.assets={};
   for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
   initPortfolioData();
@@ -1153,7 +1187,13 @@ let _st;
 function save(){
   if(S.portfolio&&typeof S.portfolio==='object')syncPortfolioCarryOvers();
   clearTimeout(_st);
-  _st=setTimeout(()=>{try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}queueCloudSave();},350);
+  _st=setTimeout(()=>{
+    try{
+      localStorage.setItem('retireme_v3',JSON.stringify(S));
+      localStorage.setItem('retireme_v3_ts', String(Date.now()));
+    }catch(e){}
+    queueCloudSave();
+  },350);
 }
 
 function applyDOM(){
@@ -1278,40 +1318,35 @@ function renderHomeOverview(){
   if(!chart || !legend){return;}
   const {entries,total}=summary;
   if(!entries.length || total<=0){
-    chart.innerHTML='<circle cx="160" cy="110" r="72" fill="rgba(22,27,34,0.8)" stroke="#30363d" stroke-width="1"/><text x="160" y="115" fill="#8b949e" font-size="16" text-anchor="middle">No holdings yet</text>';
+    chart.innerHTML='<rect x="20" y="20" width="280" height="150" rx="12" fill="rgba(22,27,34,0.8)" stroke="#30363d" stroke-width="1"/><text x="160" y="110" fill="#8b949e" font-size="16" text-anchor="middle">No holdings yet</text>';
     legend.innerHTML='<div class="home-legend-row"><div class="home-legend-label"><span class="home-legend-swatch" style="background:#8b949e"></span><span class="home-legend-name">No data</span></div><span class="home-legend-value">£0</span></div>';
     return;
   }
-  const cx=160, cy=110, radius=78, labelRadius=108;
-  let startAngle=-Math.PI/2;
-  const arcs=[];
-  for(const item of entries){
-    const angle=item.share*Math.PI*2;
-    const endAngle=startAngle+angle;
-    const x1=cx + radius*Math.cos(startAngle);
-    const y1=cy + radius*Math.sin(startAngle);
-    const x2=cx + radius*Math.cos(endAngle);
-    const y2=cy + radius*Math.sin(endAngle);
-    const largeArc=angle>Math.PI ? 1 : 0;
-    arcs.push({
-      item,
-      path:`M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`,
-      mid:(startAngle+endAngle)/2,
-      labelX:cx + labelRadius*Math.cos((startAngle+endAngle)/2),
-      labelY:cy + labelRadius*Math.sin((startAngle+endAngle)/2)
-    });
-    startAngle=endAngle;
-  }
-  const arcMarkup=arcs.map(({path,item,mid,labelX,labelY})=>`
-    <path d="${path}" fill="${item.color}" opacity="0.9"></path>
-    <text class="home-chart-label" x="${labelX}" y="${labelY}" transform="rotate(${(mid*180/Math.PI)+90}, ${labelX}, ${labelY})">£${fmtN(item.value)}</text>
-  `).join('');
+  const maxValue=Math.max(...entries.map(item=>item.value),1);
+  const chartWidth=320, chartHeight=220;
+  const leftPad=24, rightPad=18, topPad=18, bottomPad=28;
+  const plotWidth=chartWidth-leftPad-rightPad;
+  const plotHeight=chartHeight-topPad-bottomPad;
+  const maxBarWidth=38;
+  const gap=18;
+  const barWidth=Math.min(maxBarWidth, Math.max(18, (plotWidth - gap*(entries.length-1)) / entries.length));
+  const bars=entries.map((item,index)=>{
+    const barHeight=(item.value/maxValue)*plotHeight;
+    const x=leftPad + index*(barWidth+gap);
+    const y=chartHeight-bottomPad-barHeight;
+    const labelY=chartHeight-8;
+    return `
+      <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="8" fill="${item.color}" opacity="0.92"></rect>
+      <text x="${x + barWidth/2}" y="${y - 8}" text-anchor="middle" font-size="9" fill="#c9d1d9" font-weight="700">£${fmtN(item.value)}</text>
+      <text x="${x + barWidth/2}" y="${labelY}" text-anchor="middle" font-size="9" fill="#8b949e">${escapeHtml(item.label.slice(0,7))}${item.label.length>7?'...':''}</text>
+    `;
+  }).join('');
   chart.innerHTML=`
-    <circle cx="${cx}" cy="${cy}" r="${radius}" class="home-chart-border"></circle>
-    ${arcMarkup}
-    <circle cx="${cx}" cy="${cy}" r="38" fill="#0d1117" stroke="#30363d" stroke-width="1"></circle>
-    <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="10" fill="#8b949e">Total</text>
-    <text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="17" font-weight="700" fill="#e6edf3">£${fmtN(total)}</text>
+    <line x1="${leftPad}" y1="${chartHeight-bottomPad}" x2="${chartWidth-rightPad}" y2="${chartHeight-bottomPad}" stroke="#30363d" stroke-width="1"/>
+    <line x1="${leftPad}" y1="${topPad}" x2="${leftPad}" y2="${chartHeight-bottomPad}" stroke="#30363d" stroke-width="1"/>
+    ${bars}
+    <text x="${chartWidth/2}" y="${topPad+12}" text-anchor="middle" font-size="10" fill="#8b949e">Portfolio Total</text>
+    <text x="${chartWidth/2}" y="${topPad+28}" text-anchor="middle" font-size="17" font-weight="700" fill="#e6edf3">£${fmtN(total)}</text>
   `;
   legend.innerHTML=entries.map(item=>`<div class="home-legend-row"><div class="home-legend-label"><span class="home-legend-swatch" style="background:${item.color}"></span><span class="home-legend-name">${escapeHtml(item.label)}</span></div><span class="home-legend-value">£${fmtN(item.value)}</span></div>`).join('');
 }
