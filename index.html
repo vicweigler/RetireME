@@ -732,7 +732,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.11';
+const APP_VERSION='V3.1.12';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -808,11 +808,13 @@ function initFirebase(){
         _lastAuthStateKey = nextKey;
         _firebaseUser=u||null;
         if(_firebaseUser){
+          clearLegacyPortfolioCache();
           try{
             if(_firebaseUser.email)localStorage.setItem('userEmail',_firebaseUser.email);
             if(_firebaseUser.uid)localStorage.setItem('uid',_firebaseUser.uid);
             localStorage.setItem('loggedIn','true');
           }catch(e){}
+          S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark'};
           loginStatus('', '#8b949e');
           renderAuthHeader();
           renderAuthGate();
@@ -821,7 +823,7 @@ function initFirebase(){
           if(shouldRefreshCache){
             await syncFromCloud();
           }else{
-            S={...DEFAULT_S, ...S, ...cached};
+            S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', ...cached};
             initPortfolioData();
             applyDOM();
           }
@@ -849,6 +851,19 @@ function initFirebase(){
     return !!_db;
   }catch(e){return false;}
 }
+function activePortfolioCacheKey(){
+  const authObj=safeFirebaseAuth();
+  const uid=(((_firebaseUser&&_firebaseUser.uid)||(authObj&&authObj.currentUser&&authObj.currentUser.uid)||localStorage.getItem('uid')||sessionStorage.getItem('uid')||'')).toString().trim();
+  const safe = uid ? uid.replace(/[^a-zA-Z0-9_-]/g,'_') : 'local';
+  return 'retireme_v3_' + safe;
+}
+function clearLegacyPortfolioCache(){
+  for(const key of Object.keys(localStorage)){
+    if(key === 'retireme_v3' || key === 'retireme_v3_ts' || key.startsWith('retireme_v3_')){
+      try{localStorage.removeItem(key);}catch(e){}
+    }
+  }
+}
 async function loginWithPassword(event){
   if(event)event.preventDefault();
   try{
@@ -866,6 +881,7 @@ async function loginWithPassword(event){
       loginStatus('Enter email and password.', '#f85149');
       return;
     }
+    clearLegacyPortfolioCache();
     loginStatus('Signing in...', '#d29922');
     await auth.signInWithEmailAndPassword(email,password);
   }catch(e){
@@ -951,7 +967,7 @@ async function syncFromCloud(){
     const primarySnap=await primaryRef.get();
     if(primarySnap.exists){
       const remote=primarySnap.data()||{};
-      S={...DEFAULT_S, ...S, ...remote};
+      S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', ...remote};
       initPortfolioData();
       applyDOM();
       recalc();
@@ -963,7 +979,7 @@ async function syncFromCloud(){
       const legacySnap=await legacyRef.get();
       if(legacySnap.exists){
         const remote=legacySnap.data()||{};
-        S={...DEFAULT_S, ...S, ...remote};
+        S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', ...remote};
         initPortfolioData();
         applyDOM();
         recalc();
@@ -1022,8 +1038,12 @@ function registerServiceWorker(){
 async function forceRefreshApp(){
   try{
     const wipeKeys=(storage,keys)=>{for(const key of keys){try{storage.removeItem(key);}catch(e){}}};
-    // Preserve the user's saved portfolio data. Clearing retireme_v3 here causes data loss.
-    wipeKeys(localStorage,['retireme_v3','retireme_session','retireme_auth','auth_user','user','loggedIn','role','userRole','accountRole','isAdmin','idToken','uid','userEmail','firebase:authUser']);
+    // Clear every stale portfolio cache key so old data cannot survive a refresh for a different user.
+    wipeKeys(localStorage,['retireme_v3','retireme_v3_ts','retireme_v3_local','retireme_v3_local_ts']);
+    for(const key of Object.keys(localStorage)){
+      if(key.startsWith('retireme_v3_')){try{localStorage.removeItem(key);}catch(e){}}
+    }
+    wipeKeys(localStorage,['retireme_session','retireme_auth','auth_user','user','loggedIn','role','userRole','accountRole','isAdmin','idToken','uid','userEmail','firebase:authUser']);
     wipeKeys(sessionStorage,[]);
     if('caches' in window){
       const keys=await caches.keys();
@@ -1075,7 +1095,8 @@ function readAuthSession(){
   const hasFirebaseUser=!!(_firebaseUser&&_firebaseUser.uid);
   const loggedFlag=(readStorageValue('loggedIn')||'').toLowerCase()==='true';
   const hasToken=!!readStorageValue('idToken');
-  const loggedIn=hasFirebaseUser;
+  const hasStoredUser=!!(readStorageValue('uid')||readStorageValue('userEmail'));
+  const loggedIn=hasFirebaseUser || (loggedFlag && hasStoredUser);
   const isAdmin=!!(isAdminHint||role==='admin'||(session&&session.isAdmin===true));
   const rawUserKey=(session&&(session.uid||session.userId||session.email||session.username||(session.user&&session.user.email)))||(_firebaseUser&&(_firebaseUser.uid||_firebaseUser.email))||readStorageValue('userEmail')||readStorageValue('uid')||primitiveUser||'';
   return {loggedIn,isAdmin,userKey:String(rawUserKey||'')};
@@ -1117,6 +1138,7 @@ async function signOutUser(){
     'idToken','uid','userEmail','firebase:authUser'
   ];
   for(const key of keys){localStorage.removeItem(key);sessionStorage.removeItem(key);}
+  clearLegacyPortfolioCache();
   resetAppState({preserveTheme:true});
   localStorage.setItem('loggedIn','false');
   sessionStorage.setItem('loggedIn','false');
@@ -1134,14 +1156,19 @@ async function signOutUser(){
 
 function readCachedPortfolioSnapshot(){
   try{
-    const raw=localStorage.getItem('retireme_v3');
-    if(!raw)return null;
+    const authObj=safeFirebaseAuth();
+    const currentUid = ((_firebaseUser&&_firebaseUser.uid)||(authObj&&authObj.currentUser&&authObj.currentUser.uid)||'').toString().trim();
+    if(!currentUid) return null;
+    const userKey = 'retireme_v3_' + currentUid.replace(/[^a-zA-Z0-9_-]/g,'_');
+    const raw = localStorage.getItem(userKey);
+    if(!raw) return null;
     const parsed=JSON.parse(raw);
     return parsed && typeof parsed==='object' ? parsed : null;
   }catch(e){return null;}
 }
 function cachedPortfolioAgeMs(){
-  const val=parseInt(localStorage.getItem('retireme_v3_ts')||'0',10);
+  const userKey=activePortfolioCacheKey();
+  const val=parseInt(localStorage.getItem(userKey+'_ts') || '0',10);
   if(!val||Number.isNaN(val))return Number.MAX_SAFE_INTEGER;
   return Date.now()-val;
 }
@@ -1153,13 +1180,14 @@ async function hydrateFromCachedPortfolioBeforeHome(){
     await syncFromCloud();
     return;
   }
-  S={...DEFAULT_S, ...S, ...cached};
+  S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', ...cached};
   initPortfolioData();
   applyDOM();
 }
 function load(){
-  const cached=readCachedPortfolioSnapshot();
-  if(cached){S={...DEFAULT_S, ...S, ...cached};}
+  initFirebase();
+  const cached = isAuthed() ? readCachedPortfolioSnapshot() : null;
+  if(cached){S={...DEFAULT_S, theme:S&&S.theme==='light'?'light':'dark', ...cached};}
   if(!S.assets)S.assets={};
   for(const k in DA){if(!(k in S.assets))S.assets[k]=DA[k].val;}
   initPortfolioData();
@@ -1191,7 +1219,6 @@ function load(){
   if(typeof S.useDrawdown!=='boolean')S.useDrawdown=true;
   applyDOM();
   renderHomeOverview();
-  initFirebase();
   syncFromCloud();
   registerServiceWorker();
 }
@@ -1201,8 +1228,10 @@ function save(){
   clearTimeout(_st);
   _st=setTimeout(()=>{
     try{
-      localStorage.setItem('retireme_v3',JSON.stringify(S));
-      localStorage.setItem('retireme_v3_ts', String(Date.now()));
+      const key=activePortfolioCacheKey();
+      localStorage.setItem(key,JSON.stringify(S));
+      localStorage.setItem(key+'_ts', String(Date.now()));
+      clearLegacyPortfolioCache();
     }catch(e){}
     queueCloudSave();
   },350);
