@@ -271,6 +271,8 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .summary-chip{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px;}
 .summary-chip .k{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.6px;}
 .summary-chip .v{font-size:14px;color:#f85149;font-weight:700;margin-top:3px;}
+.summary-chip .v.green{color:#00d17a;}
+.summary-chip .v.red{color:#f85149;}
 .spend-type-list{display:grid;gap:6px;margin-top:8px;}
 .spend-type-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#c9d1d9;background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:7px 10px;}
 .spend-type-row .type-total{color:#f85149;font-weight:700;}
@@ -364,6 +366,8 @@ body.light-mode .share-modal-title{color:#0f172a;}
 body.light-mode .share-modal-close{color:#64748b;}
 body.light-mode .spend-type-row .type-total,
 body.light-mode .summary-chip .v{color:#dc2626;}
+body.light-mode .summary-chip .v.green{color:#0f9f64;}
+body.light-mode .summary-chip .v.red{color:#dc2626;}
 body.light-mode .mini-action-btn.cancel{border-color:#d0d7e2;color:#64748b;}
 body.light-mode .hdr-logo,
 body.light-mode .asset-name,
@@ -641,7 +645,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.2';
+const APP_VERSION='V3.1.3';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -1012,7 +1016,11 @@ function load(){
   syncFromCloud();
 }
 let _st;
-function save(){clearTimeout(_st);_st=setTimeout(()=>{try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}queueCloudSave();},350);}
+function save(){
+  if(S.portfolio&&typeof S.portfolio==='object')syncPortfolioCarryOvers();
+  clearTimeout(_st);
+  _st=setTimeout(()=>{try{localStorage.setItem('retireme_v3',JSON.stringify(S));}catch(e){}queueCloudSave();},350);
+}
 
 function applyDOM(){
   sv('s-dob',S.dob);sv('s-retire',S.retire);sv('s-career',S.career);
@@ -1043,10 +1051,8 @@ function initPortfolioData(){
   for(const y of years){
     if(!Array.isArray(S.portfolio[y]))S.portfolio[y]=[];
     S.portfolio[y]=S.portfolio[y].map(r=>ensurePortfolioShareFields(r));
-    if(y!=='2026'&&S.portfolio[y].length===0){
-      S.portfolio[y]=[{id:uid('pf'),name:'Opening Carry-Over',type:'Carry-Over',amount:portfolioYearTotal(String(parseInt(y,10)-1))}];
-    }
   }
+  syncPortfolioCarryOvers();
 }
 function portfolioRows(year){
   if(!S.portfolio||!Array.isArray(S.portfolio[year]))S.portfolio[year]=[];
@@ -1070,6 +1076,25 @@ function portfolioYearInvestmentTotal(year){
 }
 function portfolioYearTotal(year){
   return portfolioRows(year).reduce((sum,r)=>sum+calcPortfolioRowAmount(r),0);
+}
+function syncPortfolioCarryOvers(){
+  if(!S.portfolio||typeof S.portfolio!=='object')return;
+  const years=['2027','2028','2029','2030'];
+  for(const year of years){
+    const prev=String(parseInt(year,10)-1);
+    const prevTotal=portfolioYearTotal(prev);
+    const rows=portfolioRows(year);
+    let carry=rows.find(isPortfolioCarryOverRow);
+    if(!carry){
+      carry={id:uid('pf'),name:'Opening Carry-Over',type:'Carry-Over',amount:prevTotal,taxable:false};
+      rows.unshift(carry);
+    }
+    carry.name='Opening Carry-Over';
+    carry.type='Carry-Over';
+    carry.amount=prevTotal;
+    carry.nonShareGross=prevTotal;
+    carry.taxable=false;
+  }
 }
 function renderVersionLabels(){
   const ids=['version-header','version-home','version-settings','version-login'];
@@ -1262,11 +1287,24 @@ function portfolioModelAssets(){
 }
 function toggleCashflowModelAsset(id,checked){
   if(!Array.isArray(S.cashflowModelSelection))S.cashflowModelSelection=[];
+  if(checked&&isAssetUsedInIncomeModel(id))return;
   const next=new Set(S.cashflowModelSelection);
   if(checked)next.add(id);else next.delete(id);
   S.cashflowModelSelection=Array.from(next);
   save();
   renderCashflowModelPreview();
+}
+function usedIncomeModelAssetIds(){
+  const used=new Set();
+  for(const row of S.investments){
+    if(!row||!Array.isArray(row.modelAssets))continue;
+    for(const id of row.modelAssets){if(id)used.add(id);}
+  }
+  return used;
+}
+function isAssetUsedInIncomeModel(id){
+  if(!id)return false;
+  return usedIncomeModelAssetIds().has(id);
 }
 function clearCashflowModelSelection(){
   S.cashflowModelSelection=[];
@@ -1301,16 +1339,19 @@ function renderCashflowModelAssets(){
   const list=document.getElementById('cashflow-model-assets');
   if(!list)return;
   if(!Array.isArray(S.cashflowModelSelection))S.cashflowModelSelection=[];
+  const used=usedIncomeModelAssetIds();
+  const filteredSelection=S.cashflowModelSelection.filter(id=>!used.has(id));
+  if(filteredSelection.length!==S.cashflowModelSelection.length)S.cashflowModelSelection=filteredSelection;
   const selected=new Set(S.cashflowModelSelection);
   const rows=portfolioModelAssets();
   if(rows.length===0){
     list.innerHTML='<div class="spend-type-row"><span>No portfolio assets to model yet</span><span class="type-total">£0</span></div>';
     return;
   }
-  list.innerHTML=rows.map(row=>`<div class="cashflow-model-asset">
-    <label><input type="checkbox" ${selected.has(row.id)?'checked':''} onchange="toggleCashflowModelAsset('${row.id}',this.checked)"/>${escapeHtml(row.name||'Asset')}</label>
+  list.innerHTML=rows.map(row=>{const locked=used.has(row.id);return `<div class="cashflow-model-asset">
+    <label><input type="checkbox" ${selected.has(row.id)?'checked':''} ${locked?'disabled':''} onchange="toggleCashflowModelAsset('${row.id}',this.checked)"/>${escapeHtml(row.name||'Asset')}${locked?' (used)':''}</label>
     <div class="amt">£${fmtN(parseFloat(row.amount)||0)}</div>
-  </div>`).join('');
+  </div>`;}).join('');
 }
 function renderCashflowModelPreview(){
   const el=document.getElementById('cashflow-model-preview');
@@ -1328,7 +1369,7 @@ function renderCashflowModelPreview(){
   if(rateLabel&&rateLabel.value==='')rateLabel.value=rate;
 }
 function addCashflowModelIncomeSource(){
-  const rows=selectedCashflowModelRows();
+  const rows=selectedCashflowModelRows().filter(r=>!isAssetUsedInIncomeModel(r.id));
   if(rows.length===0)return;
   const principal=cashflowModelPrincipal();
   const rate=cashflowModelRate();
@@ -1347,6 +1388,7 @@ function addCashflowModelIncomeSource(){
     modelRate:rate,
     modelAssets:rows.map(r=>r.id),
   });
+  S.cashflowModelSelection=[];
   save();
   renderInvestments();
   renderCashflowModelPreview();
@@ -1660,12 +1702,13 @@ function showLedger(yr,btn){
   document.querySelectorAll('.lyt').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const el=document.getElementById('ledger-content');if(!el)return;
+  syncPortfolioCarryOvers();
   const rows=portfolioRows(yr);
   const total=portfolioYearTotal(yr);
   const annualInvestmentTotal=portfolioYearInvestmentTotal(yr);
   el.innerHTML=`<div class="card">
     <div class="pf-total"><div class="pf-total-lbl">Total Portfolio Value</div><div class="pf-total-val">£${fmtN(total)}</div></div>
-    ${rows.map((r,idx)=>{const isShares=String(r.type||'').trim().toLowerCase()==='shares';return `<div class="pf-row-wrap">
+    ${rows.map((r,idx)=>{const isShares=String(r.type||'').trim().toLowerCase()==='shares';const isCarry=isPortfolioCarryOverRow(r);return `<div class="pf-row-wrap">
       <div class="pf-swipe-delete-bg">Swipe left to delete</div>
       <div class="pf-row" data-pf-row="${yr}:${idx}" ${r._draft?'':`onpointerdown="pfPointerStart(event,'${yr}',${idx})" onpointermove="pfPointerMove(event,'${yr}',${idx})" onpointerup="pfPointerEnd(event,'${yr}',${idx})" onpointercancel="pfPointerEnd(event,'${yr}',${idx})"`}>
         <div class="row-arrows">
@@ -1678,10 +1721,12 @@ function showLedger(yr,btn){
         </div>
         <div>
           <div class="amount-move-row">
-            <label class="pf-taxable" style="justify-content:flex-start;"><input type="checkbox" ${r.taxable?'checked':''} onchange="updatePortfolioItem('${yr}',${idx},'taxable',this.checked)"/>Tax</label>
+            ${isCarry
+              ?`<div></div>`
+              :`<label class="pf-taxable" style="justify-content:flex-start;"><input type="checkbox" ${r.taxable?'checked':''} onchange="updatePortfolioItem('${yr}',${idx},'taxable',this.checked)"/>Tax</label>`}
             ${isShares
               ?`<div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="amt-pos" type="text" value="${fmtN(calcPortfolioShareAmount(r))}" readonly/></div>`
-              :`<div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${calcPortfolioNonShareAmount(r)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(calcPortfolioNonShareAmount(r))}" onpointerdown="event.stopPropagation()" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>`}
+              :`<div class="pf-amount-wrap"><span class="pf-pound">£</span><input class="${calcPortfolioNonShareAmount(r)>=0?'amt-pos':'amt-neg'}" type="text" inputmode="decimal" value="${fmtN(calcPortfolioNonShareAmount(r))}" ${isCarry?'readonly':''} onpointerdown="event.stopPropagation()" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmtN(parseFloat(this.value||0))" onchange="updatePortfolioItem('${yr}',${idx},'amount',this.value)"/></div>`}
           </div>
           ${r._draft?`<div class="draft-actions"><button class="mini-action-btn" onclick="confirmAddPortfolioItem('${yr}',${idx})">Add</button><button class="mini-action-btn cancel" onclick="cancelAddPortfolioItem('${yr}',${idx})">Cancel</button></div>`:''}
         </div>
@@ -1804,6 +1849,7 @@ function updatePortfolioItem(year,idx,key,val){
   const rows=portfolioRows(year);
   const row=rows[idx];
   if(!row)return;
+  if(isPortfolioCarryOverRow(row)&&(key==='taxable'||key==='amount'))return;
   const incomingType=key==='type'?String(val||'').trim().toLowerCase():String(row.type||'').trim().toLowerCase();
   const isShares=incomingType==='shares';
   const currentGross=parseFloat(row.nonShareGross!==undefined?row.nonShareGross:row.amount)||0;
@@ -1848,6 +1894,7 @@ function updatePortfolioItem(year,idx,key,val){
 function deletePortfolioItem(year,idx){
   const rows=portfolioRows(year);
   if(!rows[idx])return;
+  if(isPortfolioCarryOverRow(rows[idx]))return;
   const removed=rows[idx];
   rows.splice(idx,1);
   if(year==='2026'&&removed.key){S.assets[removed.key]=0;}
