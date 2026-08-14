@@ -782,9 +782,15 @@ function authErrorMessage(e,forLogin){
 function currentFirebaseUser(){
   try{
     const auth=safeFirebaseAuth();
-    if(auth && auth.currentUser && auth.currentUser.uid){return auth.currentUser;}
+    if(auth && auth.currentUser && auth.currentUser.uid){
+      _firebaseUser = auth.currentUser;
+      return auth.currentUser;
+    }
   }catch(e){}
-  return (_firebaseUser&&_firebaseUser.uid) ? _firebaseUser : null;
+  return (authReadyUser() && authReadyUser().uid) ? authReadyUser() : null;
+}
+function authReadyUser(){
+  return (_firebaseUser && _firebaseUser.uid) ? _firebaseUser : null;
 }
 function currentFirebaseUid(){
   const user=currentFirebaseUser();
@@ -966,7 +972,9 @@ function cloudLegacyRef(){
   return _db.collection('retireme').doc(key);
 }
 async function syncFromCloud(){
-  const primaryRef=cloudPrimaryRef();
+  const uid=currentFirebaseUid();
+  if(!uid){cloudStatus('local-only (not logged in)', '#848d97');return;}
+  const primaryRef=_db.collection('users').doc(uid).collection('apps').doc('retireme');
   if(!primaryRef){cloudStatus('local-only (not logged in)', '#848d97');return;}
   try{
     _syncBusy=true;
@@ -980,20 +988,6 @@ async function syncFromCloud(){
       recalc();
       cloudStatus('synced', '#00d17a');
       return;
-    }
-    const legacyRef=cloudLegacyRef();
-    if(legacyRef){
-      const legacySnap=await legacyRef.get();
-      if(legacySnap.exists){
-        const remote=legacySnap.data()||{};
-        S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', ...remote};
-        initPortfolioData();
-        applyDOM();
-        recalc();
-        await primaryRef.set(S,{merge:true});
-        cloudStatus('synced (migrated legacy data)', '#00d17a');
-        return;
-      }
     }
     await primaryRef.set(S,{merge:true});
     cloudStatus('cloud initialized', '#00d17a');
