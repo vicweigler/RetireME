@@ -229,15 +229,15 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .cashflow-model-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
 .cashflow-model-asset-list{display:grid;gap:6px;max-height:220px;overflow:auto;padding-right:4px;}
 .cashflow-model-asset{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px 10px;}
-.cashflow-model-asset label{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#e6edf3;min-width:0;flex:1;text-align:left;}
+.cashflow-model-asset label{display:flex;align-items:flex-start;justify-content:flex-start;gap:8px;font-size:12px;color:#e6edf3;min-width:0;flex:1;text-align:left;width:100%;}
 .cashflow-model-asset input[type="checkbox"]{-webkit-appearance:none;appearance:none;width:16px;height:16px;margin:0;border:1.5px solid #4b5563;border-radius:4px;background:#111827;display:inline-grid;place-content:center;flex-shrink:0;cursor:pointer;}
 .cashflow-model-asset input[type="checkbox"]::before{content:'';width:8px;height:8px;border-radius:2px;transform:scale(0);transition:transform 0.12s ease;background:#00d17a;}
 .cashflow-model-asset input[type="checkbox"]:checked{border-color:#00d17a;}
 .cashflow-model-asset input[type="checkbox"]:checked::before{transform:scale(1);}
-.cashflow-model-asset .cashflow-model-label{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:left;align-items:flex-start;}
-.cashflow-model-asset .cashflow-model-name{font-size:12px;color:#e6edf3;font-weight:600;line-height:1.2;word-break:break-word;text-align:left;}
-.cashflow-model-asset .cashflow-model-type{font-size:10px;color:#8b949e;line-height:1.2;word-break:break-word;text-align:left;}
-.cashflow-model-asset .amt{font-size:12px;color:#00d17a;font-weight:700;white-space:nowrap;}
+.cashflow-model-asset .cashflow-model-label{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:left;align-items:flex-start;justify-content:flex-start;flex:1;}
+.cashflow-model-asset .cashflow-model-name{font-size:12px;color:#e6edf3;font-weight:600;line-height:1.2;word-break:break-word;text-align:left;display:block;}
+.cashflow-model-asset .cashflow-model-type{font-size:10px;color:#8b949e;line-height:1.2;word-break:break-word;text-align:left;display:block;}
+.cashflow-model-asset .amt{font-size:12px;color:#00d17a;font-weight:700;white-space:nowrap;margin-left:auto;}
 .cashflow-model-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px;}
 .cashflow-model-summary-item{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px 10px;min-height:58px;display:flex;flex-direction:column;justify-content:space-between;}
 .cashflow-model-summary-item .k{font-size:9px;text-transform:uppercase;letter-spacing:0.6px;color:#8b949e;font-weight:700;}
@@ -494,7 +494,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
-      <div class="login-version" id="version-login">V3.1.30</div>
+      <div class="login-version" id="version-login">V3.1.31</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
   </div>
@@ -623,7 +623,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V3.1.30</div>
+      <div class="hdr-version" id="version-header">V3.1.31</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -657,7 +657,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
-    <div class="version-note home" id="version-home">V3.1.30</div>
+    <div class="version-note home" id="version-home">V3.1.31</div>
   </div>
 
   <!-- LEDGER / HOME -->
@@ -670,7 +670,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home-ledger">V3.1.30</div>
+    <div class="version-note home" id="version-home-ledger">V3.1.31</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -753,7 +753,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V3.1.30</div>
+      <div class="version-note settings" id="version-settings">V3.1.31</div>
     </div>
   </div>
 
@@ -782,7 +782,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.30';
+const APP_VERSION='V3.1.31';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
