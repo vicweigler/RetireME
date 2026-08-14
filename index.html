@@ -229,11 +229,14 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .cashflow-model-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
 .cashflow-model-asset-list{display:grid;gap:6px;max-height:220px;overflow:auto;padding-right:4px;}
 .cashflow-model-asset{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px 10px;}
-.cashflow-model-asset label{display:flex;align-items:center;gap:8px;font-size:12px;color:#e6edf3;min-width:0;}
+.cashflow-model-asset label{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#e6edf3;min-width:0;flex:1;}
 .cashflow-model-asset input[type="checkbox"]{-webkit-appearance:none;appearance:none;width:16px;height:16px;margin:0;border:1.5px solid #4b5563;border-radius:4px;background:#111827;display:inline-grid;place-content:center;flex-shrink:0;cursor:pointer;}
 .cashflow-model-asset input[type="checkbox"]::before{content:'';width:8px;height:8px;border-radius:2px;transform:scale(0);transition:transform 0.12s ease;background:#00d17a;}
 .cashflow-model-asset input[type="checkbox"]:checked{border-color:#00d17a;}
 .cashflow-model-asset input[type="checkbox"]:checked::before{transform:scale(1);}
+.cashflow-model-asset .cashflow-model-label{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.cashflow-model-asset .cashflow-model-name{font-size:12px;color:#e6edf3;font-weight:600;line-height:1.2;word-break:break-word;}
+.cashflow-model-asset .cashflow-model-type{font-size:10px;color:#8b949e;line-height:1.2;word-break:break-word;}
 .cashflow-model-asset .amt{font-size:12px;color:#00d17a;font-weight:700;white-space:nowrap;}
 .cashflow-model-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;}
 .cashflow-model-actions{display:flex;gap:8px;margin-top:10px;}
@@ -295,6 +298,10 @@ input[type=range]{padding:4px 0;accent-color:#00d17a;}
 .home-legend-swatch{width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .home-legend-name{font-size:12px;color:#c9d1d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .home-legend-value{font-size:12px;font-weight:700;color:#e6edf3;}
+body.light-mode .home-chart-wrap{background:linear-gradient(180deg,rgba(13,17,23,0.96),rgba(13,17,23,0.98));border-color:#121a22;}
+body.light-mode .home-legend-row{background:#0d1117;border-color:#21262d;}
+body.light-mode .home-welcome-title,
+body.light-mode #home-user-name{color:#000000;}
 .home-chart-label{text-anchor:middle;font-size:10px;fill:#e6edf3;font-weight:700;letter-spacing:0.2px;}
 .home-chart-border{fill:none;stroke:#30363d;stroke-width:1;}
 .spend-type-list{display:grid;gap:6px;margin-top:8px;}
@@ -384,6 +391,8 @@ body.light-mode .cashflow-tax-select{background:#f8fafc;border-color:#d0d7e2;col
 body.light-mode .cashflow-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 body.light-mode .cashflow-model-asset{background:#ffffff;border-color:#d8dee8;}
 body.light-mode .cashflow-model-asset label{color:#0f172a;}
+body.light-mode .cashflow-model-asset .cashflow-model-name{color:#0f172a;}
+body.light-mode .cashflow-model-asset .cashflow-model-type{color:#64748b;}
 body.light-mode .cashflow-model-asset input[type="checkbox"]{background:#ffffff;border-color:#94a3b8;}
 body.light-mode .share-link{color:#0ea86d;}
 body.light-mode .share-modal{background:#ffffff;border-color:#d8dee8;}
@@ -424,12 +433,21 @@ body.light-mode .pf-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 
 @media (max-width: 700px){
-  .cashflow-row{grid-template-columns:minmax(0,1fr) 56px 88px 120px 120px;padding:10px 10px;gap:6px;}
-  .cashflow-head-grid{grid-template-columns:minmax(0,1fr) 56px 88px 120px 120px;gap:6px;}
-  .cashflow-model-link{font-size:13px;line-height:1.15;}
+  .cashflow-head-grid{display:none;}
+  .cashflow-row{grid-template-columns:1fr;gap:8px;padding:10px 10px;}
+  .cashflow-title-wrap{grid-column:1/-1;}
+  .cashflow-frequency-toggle{grid-column:1/-1;justify-content:flex-start;padding:2px 0;}
+  .cashflow-tax-select{grid-column:1/-1;}
+  .cashflow-amount-input,.cashflow-monthly-wrap{grid-column:1/-1;}
+  .cashflow-monthly-wrap{padding-top:0;}
+  .cashflow-model-link{font-size:13px;line-height:1.2;}
   .cashflow-model-meta{font-size:10px;line-height:1.15;}
   .cashflow-model-sublist{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
   .cashflow-model-subitem{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:rgba(0,209,122,0.08);border:1px solid rgba(0,209,122,0.18);font-size:10px;line-height:1.2;white-space:nowrap;word-break:normal;}
+  .cashflow-model-preview{grid-template-columns:1fr;}
+  .cashflow-model-actions{flex-direction:column;}
+  .cashflow-model-asset-list{max-height:none;}
+  .cashflow-model-asset{padding:8px 10px;}
   body.light-mode .cashflow-model-subitem{background:rgba(14,168,109,0.08);border-color:rgba(14,168,109,0.15);}
 }
 </style>
@@ -460,7 +478,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <button class="login-btn secondary" type="button" onclick="requestPasswordReset()">Reset Password</button>
       </div>
       <div class="login-status" id="login-status"></div>
-      <div class="login-version" id="version-login">V3.1.27</div>
+      <div class="login-version" id="version-login">V3.1.28</div>
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
     </form>
   </div>
@@ -553,6 +571,10 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <label>Planned Interest Rate %</label>
       <input id="income-model-rate" type="number" min="0" step="0.1" oninput="updateIncomeModelModalPreview()"/>
     </div>
+    <div class="form-group">
+      <label>Selected Investments</label>
+      <div class="cashflow-model-asset-list" id="income-model-asset-list"></div>
+    </div>
     <div class="pf-total share-preview">
       <div class="pf-total-lbl">Calculated Annual Return</div>
       <div class="pf-total-val" id="income-model-annual">£0</div>
@@ -573,7 +595,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V3.1.27</div>
+      <div class="hdr-version" id="version-header">V3.1.28</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -607,7 +629,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
-    <div class="version-note home" id="version-home">V3.1.27</div>
+    <div class="version-note home" id="version-home">V3.1.28</div>
   </div>
 
   <!-- LEDGER / HOME -->
@@ -620,7 +642,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div class="lyt" onclick="showLedger('2030',this)">2030</div>
     </div>
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home-ledger">V3.1.27</div>
+    <div class="version-note home" id="version-home-ledger">V3.1.28</div>
   </div>
 
   <!-- CASHFLOW -->
@@ -703,7 +725,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V3.1.27</div>
+      <div class="version-note settings" id="version-settings">V3.1.28</div>
     </div>
   </div>
 
@@ -732,7 +754,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.27';
+const APP_VERSION='V3.1.28';
 const FIREBASE_CONFIG={
   apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
   authDomain:'retireme-prod.firebaseapp.com',
@@ -1511,8 +1533,9 @@ function renderHomeOverview(){
     const yProjection=chartHeight-bottomPad-projectionHeight;
     const yCurrent=chartHeight-bottomPad-currentHeight;
     const labelY=chartHeight-8;
+    const shadowFill = item.color + '66';
     return `
-      <rect x="${x}" y="${yProjection}" width="${barWidth}" height="${projectionHeight}" rx="8" fill="${item.color}" opacity="0.24"></rect>
+      <rect x="${x}" y="${yProjection}" width="${barWidth}" height="${projectionHeight}" rx="8" fill="${shadowFill}"></rect>
       <rect x="${x}" y="${yCurrent}" width="${barWidth}" height="${currentHeight}" rx="8" fill="${item.color}" opacity="0.92"></rect>
       <text x="${x + barWidth/2}" y="${Math.min(yCurrent - 8, yProjection - 8)}" text-anchor="middle" font-size="9" fill="#c9d1d9" font-weight="700">£${fmtN(item.value)}</text>
       <text x="${x + barWidth/2}" y="${labelY}" text-anchor="middle" font-size="9" fill="#8b949e">${escapeHtml(item.label.slice(0,7))}${item.label.length>7?'...':''}</text>
@@ -1624,8 +1647,9 @@ function closeShareModal(){
 }
 function openIncomeModelModal(idx){
   const row=S.investments[idx];
-  if(!row||!Array.isArray(row.modelAssets)||row.modelAssets.length===0)return;
+  if(!row)return;
   _incomeModelEditor={idx};
+  S.cashflowModelSelection = Array.isArray(row.modelAssets) ? [...row.modelAssets] : [];
   const modal=document.getElementById('income-model-modal');
   const title=document.getElementById('income-model-title-label');
   const typeEl=document.getElementById('income-model-type');
@@ -1633,6 +1657,7 @@ function openIncomeModelModal(idx){
   if(title)title.textContent=String(row.name||'Income Model');
   if(typeEl)typeEl.value=String(row.plannedInvestmentType||'Pension');
   if(rateEl)rateEl.value=(parseFloat(row.modelRate)||0).toFixed(1);
+  renderIncomeModelAssetList();
   updateIncomeModelModalPreview();
   if(modal)modal.style.display='flex';
 }
@@ -1641,12 +1666,75 @@ function closeIncomeModelModal(){
   const modal=document.getElementById('income-model-modal');
   if(modal)modal.style.display='none';
 }
+function renderIncomeModelAssetList(){
+  const list=document.getElementById('income-model-asset-list');
+  if(!list||!_incomeModelEditor)return;
+  const row=S.investments[_incomeModelEditor.idx];
+  if(!row)return;
+  const current=new Set(Array.isArray(row.modelAssets)?row.modelAssets.filter(Boolean):[]);
+  const usedByOthers=new Set();
+  for(const item of S.investments){
+    if(!item||item===row||!Array.isArray(item.modelAssets))continue;
+    for(const id of item.modelAssets){if(id)usedByOthers.add(id);}
+  }
+  const rows=portfolioModelAssets().filter(asset => !usedByOthers.has(asset.id) || current.has(asset.id));
+  if(rows.length===0){
+    list.innerHTML='<div class="spend-type-row"><span>No portfolio assets available</span><span class="type-total">£0</span></div>';
+    return;
+  }
+  list.innerHTML=rows.map(asset=>{
+    const checked=current.has(asset.id);
+    const disabled=usedByOthers.has(asset.id) && !checked;
+    return `<div class="cashflow-model-asset">
+      <label>
+        <input type="checkbox" ${checked?'checked':''} ${disabled?'disabled':''} onchange="toggleIncomeModelAsset('${asset.id}',this.checked)"/>
+        <span class="cashflow-model-label">
+          <span class="cashflow-model-name">${escapeHtml(asset.name||'Asset')}</span>
+          <span class="cashflow-model-type">${escapeHtml(asset.type || 'Portfolio Asset')}</span>
+        </span>
+      </label>
+      <div class="amt">£${fmtN(parseFloat(asset.amount)||0)}</div>
+    </div>`;
+  }).join('');
+}
+function toggleIncomeModelAsset(id,checked){
+  if(!_incomeModelEditor)return;
+  const row=S.investments[_incomeModelEditor.idx];
+  if(!row)return;
+  const usedByOthers = new Set();
+  for(const item of S.investments){
+    if(!item||item===row||!Array.isArray(item.modelAssets))continue;
+    for(const assetId of item.modelAssets){if(assetId)usedByOthers.add(assetId);}
+  }
+  if(checked && usedByOthers.has(id) && !Array.isArray(row.modelAssets) || checked && usedByOthers.has(id) && !row.modelAssets.includes(id)){
+    return;
+  }
+  const next=new Set(Array.isArray(row.modelAssets)?row.modelAssets.filter(Boolean):[]);
+  if(checked)next.add(id); else next.delete(id);
+  row.modelAssets=Array.from(next);
+  row.modelPrincipal=row.modelAssets.reduce((sum,id)=>{
+    const asset=portfolioModelAssets().find(item=>item.id===id);
+    return sum+(asset?parseFloat(asset.amount)||0:0);
+  },0);
+  row.modelRate=parseFloat(document.getElementById('income-model-rate')?.value||0)||0;
+  row.amount=(parseFloat(row.modelPrincipal)||0)*(parseFloat(row.modelRate)||0)/100;
+  save();
+  renderIncomeModelAssetList();
+  updateIncomeModelModalPreview();
+  renderInvestments();
+  recalc();
+}
 function updateIncomeModelModalPreview(){
   if(!_incomeModelEditor)return;
   const row=S.investments[_incomeModelEditor.idx];
   if(!row)return;
   const rate=parseFloat(document.getElementById('income-model-rate')?.value||0)||0;
-  const annual=(parseFloat(row.modelPrincipal)||0)*(rate/100);
+  const principal = Array.isArray(row.modelAssets) ? row.modelAssets.reduce((sum,id)=>{
+    const asset=portfolioModelAssets().find(item=>item.id===id);
+    return sum+(asset?parseFloat(asset.amount)||0:0);
+  },0) : 0;
+  row.modelPrincipal=principal;
+  const annual=principal*(rate/100);
   const monthly=(row.taxable?annual*0.55:annual)/12;
   const annualEl=document.getElementById('income-model-annual');
   const monthlyEl=document.getElementById('income-model-monthly');
@@ -1659,6 +1747,10 @@ function saveIncomeModelModal(){
   if(!row)return;
   row.plannedInvestmentType=String(document.getElementById('income-model-type')?.value||'Pension');
   row.modelRate=parseFloat(document.getElementById('income-model-rate')?.value||0)||0;
+  row.modelPrincipal = Array.isArray(row.modelAssets) ? row.modelAssets.reduce((sum,id)=>{
+    const asset=portfolioModelAssets().find(item=>item.id===id);
+    return sum+(asset?parseFloat(asset.amount)||0:0);
+  },0) : 0;
   row.amount=(parseFloat(row.modelPrincipal)||0)*(row.modelRate/100);
   save();
   closeIncomeModelModal();
@@ -1888,7 +1980,13 @@ function renderCashflowModelAssets(){
     return;
   }
   list.innerHTML=rows.map(row=>`<div class="cashflow-model-asset">
-    <label><input type="checkbox" ${selected.has(row.id)?'checked':''} onchange="toggleCashflowModelAsset('${row.id}',this.checked)"/>${escapeHtml(row.name||'Asset')}</label>
+    <label>
+      <input type="checkbox" ${selected.has(row.id)?'checked':''} onchange="toggleCashflowModelAsset('${row.id}',this.checked)"/>
+      <span class="cashflow-model-label">
+        <span class="cashflow-model-name">${escapeHtml(row.name||'Asset')}</span>
+        <span class="cashflow-model-type">${escapeHtml(row.type || 'Portfolio Asset')}</span>
+      </span>
+    </label>
     <div class="amt">£${fmtN(parseFloat(row.amount)||0)}</div>
   </div>`).join('');
 }
