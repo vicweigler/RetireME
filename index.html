@@ -734,8 +734,10 @@ let _cloudSaveTimer=null;
 let _syncBusy=false;
 let _authObserverSet=false;
 let _firebaseUser=null;
+let _lastAuthStateKey='__uninitialized__';
 let _shareEditor=null;
 let _incomeModelEditor=null;
+let _swRegistrationAttempted=false;
 const SW_CACHE_BUST = encodeURIComponent(APP_VERSION || 'dev');
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:'NS&I',val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:'NS&I',val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
@@ -787,6 +789,11 @@ function initFirebase(){
     if(window.firebase && auth && !_authObserverSet){
       _authObserverSet=true;
       auth.onAuthStateChanged((u)=>{
+        const nextKey = u && u.uid ? 'user:'+u.uid : 'logged-out';
+        if(_lastAuthStateKey === nextKey){
+          return;
+        }
+        _lastAuthStateKey = nextKey;
         _firebaseUser=u||null;
         if(_firebaseUser){
           try{
@@ -985,13 +992,11 @@ function setTheme(mode){
   save();
 }
 function registerServiceWorker(){
-  if(!('serviceWorker' in navigator))return;
+  if(!('serviceWorker' in navigator) || _swRegistrationAttempted)return;
+  _swRegistrationAttempted=true;
   const swUrl='./sw.js?v='+SW_CACHE_BUST+'&r='+Date.now();
   navigator.serviceWorker.register(swUrl,{scope:'./'}).then(reg=>{
     reg.update();
-    navigator.serviceWorker.addEventListener('controllerchange',()=>{
-      window.location.reload();
-    },{once:true});
   }).catch(()=>{});
 }
 async function forceRefreshApp(){
@@ -1943,14 +1948,16 @@ function calcRunwayEnd(){
 }
 
 function buildRunway(){
+  const timeline=document.getElementById('runway-timeline');
+  const dbEl=document.getElementById('r-db');
+  const tgtEl=document.getElementById('r-tgt');
+  if(!timeline || !dbEl || !tgtEl){return;}
   const gr=growthRate();
-  const db=parseInt(document.getElementById('r-db').value||43000,10);
-  const tgt=parseInt(document.getElementById('r-tgt').value||3500,10);
+  const db=parseInt(dbEl.value||43000,10);
+  const tgt=parseInt(tgtEl.value||3500,10);
   const incomeAnnualGross=cashflowIncomeAnnualGrossTotal();
   const incomeAnnualNet=cashflowIncomeAnnualTotal();
   let bal=calcBase();
-  const timeline=document.getElementById('runway-timeline');
-  if(!timeline)return;
   let html='';
   for(let yr=2027;yr<=2030;yr++){
     const start=bal;
