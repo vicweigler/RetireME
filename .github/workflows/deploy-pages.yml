@@ -1,0 +1,49 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Generate Firebase runtime config
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const apiKey = process.env.FIREBASE_API_KEY;
+          if (!apiKey) throw new Error('FIREBASE_API_KEY repository secret is required');
+          const config = {
+            apiKey,
+            authDomain: 'retireme-prod.firebaseapp.com',
+            projectId: 'retireme-prod',
+            storageBucket: 'retireme-prod.firebasestorage.app',
+            messagingSenderId: '448172346101',
+            appId: '1:448172346101:web:3d4f19118df9ae1aba13bc'
+          };
+          fs.writeFileSync('firebase-config.js', `window.RETIREME_FIREBASE_CONFIG = ${JSON.stringify(config)};\n`);
+          NODE
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

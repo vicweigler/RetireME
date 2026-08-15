@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="RetireMe"/>
 <meta name="theme-color" content="#0d1117"/>
 <title>RetireMe</title>
+<script src="./firebase-config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -800,15 +801,8 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.1.41';
-const FIREBASE_CONFIG={
-  apiKey:'AIzaSyD1GUZ7Hqqr7OILqsvhFycFgB5ax1bv7uA',
-  authDomain:'retireme-prod.firebaseapp.com',
-  projectId:'retireme-prod',
-  storageBucket:'retireme-prod.firebasestorage.app',
-  messagingSenderId:'448172346101',
-  appId:'1:448172346101:web:3d4f19118df9ae1aba13bc'
-};
+const APP_VERSION='V3.2';
+const FIREBASE_CONFIG=window.RETIREME_FIREBASE_CONFIG||null;
 let _db=null;
 let _cloudSaveTimer=null;
 let _syncBusy=false;
@@ -920,6 +914,16 @@ function safeFirebaseAuth(){
     return firebase.auth();
   }catch(e){return null;}
 }
+function initializeFirebaseApp(){
+  if(!(window.firebase && firebase.apps))return false;
+  if(firebase.apps.length)return true;
+  if(!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey)){
+    loginStatus('Firebase configuration is unavailable.', '#f85149');
+    return false;
+  }
+  firebase.initializeApp(FIREBASE_CONFIG);
+  return true;
+}
 function renderAuthGate(){
   const login=document.getElementById('login-screen');
   const app=document.getElementById('app');
@@ -929,7 +933,7 @@ function renderAuthGate(){
 }
 function initFirebase(){
   try{
-    if(window.firebase && firebase.apps && firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
+    if(!initializeFirebaseApp()){renderAuthGate();return false;}
     if(window.firebase && firebase.firestore){_db=firebase.firestore();}
     const auth=safeFirebaseAuth();
     if(window.firebase && auth && !_authObserverSet){
@@ -1014,7 +1018,7 @@ function clearStaleAuthStateForStartup(){
 async function loginWithPassword(event){
   if(event)event.preventDefault();
   try{
-    if(window.firebase && firebase.apps && firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
+    if(!initializeFirebaseApp())return;
     const auth=safeFirebaseAuth();
     if(!auth){
       loginStatus('Auth unavailable right now. Please refresh.', '#f85149');
@@ -1037,7 +1041,7 @@ async function loginWithPassword(event){
 }
 async function createAccountWithPassword(){
   try{
-    if(window.firebase && firebase.apps && firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
+    if(!initializeFirebaseApp())return;
     const auth=safeFirebaseAuth();
     if(!auth){
       loginStatus('Auth unavailable right now. Please refresh.', '#f85149');
@@ -1071,7 +1075,7 @@ async function createAccountWithPassword(){
 }
 async function requestPasswordReset(){
   try{
-    if(window.firebase && firebase.apps && firebase.apps.length===0){firebase.initializeApp(FIREBASE_CONFIG);}
+    if(!initializeFirebaseApp())return;
     const auth=safeFirebaseAuth();
     if(!auth){
       loginStatus('Auth unavailable right now. Please refresh.', '#f85149');
