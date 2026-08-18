@@ -142,6 +142,18 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .ms-sub{font-size:11px;color:#484f58;margin-top:2px;}
 .ms-item.achieved{border-color:rgba(0,209,122,0.3);background:rgba(0,209,122,0.04);}
 .ms-item.achieved .ms-title{color:#00d17a;}
+.ms-row-wrap{position:relative;overflow:hidden;border-radius:10px;margin-bottom:8px;}
+.ms-swipe-delete-bg{position:absolute;inset:0;background:#4a0d14;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:#f85149;font-size:12px;font-weight:700;letter-spacing:0.3px;}
+.ms-row{position:relative;display:grid;grid-template-columns:18px 28px 1fr;gap:10px;align-items:center;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;touch-action:pan-y;transition:transform 0.2s ease;}
+.ms-swipe-hint{font-size:9px;color:#484f58;white-space:nowrap;flex-shrink:0;padding-top:3px;letter-spacing:0.3px;}
+.ms-tick{display:flex;align-items:center;justify-content:center;cursor:pointer;width:28px;height:28px;flex-shrink:0;}
+.ms-title-wrap{min-width:0;}
+.ms-name-input{width:100%;background:transparent;border:none;color:#e6edf3;font-size:14px;font-weight:600;line-height:1.25;padding:0;outline:none;}
+.ms-row.done .ms-name-input{color:#00d17a;}
+.ms-date-input{background:transparent;border:none;color:#8b949e;font-size:11px;line-height:1.2;padding:0;outline:none;-webkit-appearance:none;appearance:none;}
+.ms-date-input:focus{color:#00d17a;}
+.ms-add-select{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:11px 13px;color:#e6edf3;font-size:14px;outline:none;-webkit-appearance:none;appearance:none;margin-top:8px;cursor:pointer;}
+.ms-add-select:focus{border-color:#00d17a;}
 .ck-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:#0d1117;border-radius:10px;margin-bottom:8px;border:1px solid #21262d;cursor:pointer;}
 .ck-box{width:20px;height:20px;border-radius:5px;border:2px solid #30363d;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
 .ck-item.done .ck-box{background:#00d17a;border-color:#00d17a;}
@@ -371,6 +383,7 @@ body.light-mode .toggle-row,
 body.light-mode .year-chip,
 body.light-mode .ck-item,
 body.light-mode .ms-item,
+body.light-mode .ms-row,
 body.light-mode .liquid-bar,
 body.light-mode .contrib-cell{background:#ffffff;border-color:#d8dee8;}
 body.light-mode .rw-box,
@@ -380,6 +393,7 @@ body.light-mode .year-chip,
 body.light-mode .toggle-row,
 body.light-mode .ck-item,
 body.light-mode .ms-item,
+body.light-mode .ms-row,
 body.light-mode .liquid-bar,
 body.light-mode .runway-base,
 body.light-mode .pf-total,
@@ -466,6 +480,42 @@ body.light-mode .lyt.active{background:#00d17a;color:#073b24;border-color:#00d17
 body.light-mode .btn-inline-danger{border-color:#d0d7e2;}
 body.light-mode .pf-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
+body.light-mode .ms-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
+body.light-mode .ms-swipe-hint{color:#b0bac5;}
+body.light-mode .ms-name-input{color:#0f172a;background:transparent;}
+body.light-mode .ms-add-select{background:#f8fafc;border-color:#d0d7e2;color:#0f172a;}
+
+/* ---- Tab bar: scrollable when many tabs ---- */
+#tabbar{overflow-x:auto;scrollbar-width:none;}
+#tabbar::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;}
+
+/* ---- Share Portfolio ---- */
+.share-panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 12px;}
+.share-panel-item{display:flex;align-items:center;gap:8px;background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:10px 12px;cursor:pointer;user-select:none;}
+.share-panel-item input[type=checkbox]{accent-color:#00d17a;width:16px;height:16px;flex-shrink:0;cursor:pointer;}
+.share-panel-label{font-size:12px;color:#e6edf3;font-weight:500;}
+.share-user-select{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:11px 13px;color:#e6edf3;font-size:14px;outline:none;-webkit-appearance:none;appearance:none;margin-top:8px;cursor:pointer;}
+.share-user-select:focus{border-color:#00d17a;}
+.share-status{font-size:12px;color:#8b949e;margin-top:8px;min-height:18px;}
+
+/* ---- Received share cards ---- */
+.rcv-share-card{background:#1c2128;border:1px solid #21262d;border-radius:12px;padding:14px;margin-bottom:10px;}
+.rcv-share-from{font-size:11px;color:#484f58;margin-bottom:8px;}
+.rcv-share-from strong{color:#e6edf3;}
+.rcv-share-panels{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.rcv-panel-chip{background:rgba(0,209,122,0.1);border:1px solid rgba(0,209,122,0.25);border-radius:20px;padding:3px 9px;font-size:10px;color:#00d17a;font-weight:600;}
+.rcv-share-data{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.rcv-data-cell{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:8px 10px;}
+.rcv-data-cell .k{font-size:9px;letter-spacing:0.8px;text-transform:uppercase;color:#484f58;font-weight:700;}
+.rcv-data-cell .v{font-size:13px;font-weight:700;color:#e6edf3;margin-top:3px;}
+.rcv-data-cell .v.green{color:#00d17a;}
+body.light-mode .share-panel-item{background:#f8fafc;border-color:#d0d7e2;}
+body.light-mode .share-panel-label{color:#0f172a;}
+body.light-mode .share-user-select{background:#f8fafc;border-color:#d0d7e2;color:#0f172a;}
+body.light-mode .rcv-share-card{background:#ffffff;border-color:#d8dee8;}
+body.light-mode .rcv-data-cell{background:#f8fafc;border-color:#d0d7e2;}
+body.light-mode .rcv-data-cell .v{color:#0f172a;}
 
 @media (max-width: 700px){
   .cashflow-head-grid{display:none;}
@@ -745,18 +795,28 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 
   <!-- MILESTONES -->
   <div class="tab-panel" id="tab-milestones">
-    <div class="card"><div class="card-eyebrow">Career Milestones</div><div id="milestones-list"></div></div>
-    <div class="card"><div class="card-eyebrow">UK Retirement Readiness Checklist</div><div id="checklist-list"></div></div>
+    <div class="card">
+      <div class="card-eyebrow">Milestones</div>
+      <select class="ms-add-select" id="ms-add-select" onchange="addMilestoneFromSelect(this)">
+        <option value="">+ Add Milestone...</option>
+        <option value="__new__">✏️ Create New Milestone</option>
+        <optgroup label="UK Retirement Readiness">
+          <option value="Check State Pension forecast on GOV.UK">Check State Pension forecast on GOV.UK</option>
+          <option value="Consolidate old pension pots">Consolidate old pension pots</option>
+          <option value="Book a Pension Wise appointment">Book a Pension Wise appointment</option>
+          <option value="Review SJP pension charges">Review SJP pension charges</option>
+          <option value="Consider Lifetime ISA if eligible">Consider Lifetime ISA if eligible</option>
+          <option value="Draft a Lasting Power of Attorney">Draft a Lasting Power of Attorney</option>
+          <option value="Review your Will">Review your Will</option>
+          <option value="Check National Insurance record">Check National Insurance record</option>
+        </optgroup>
+      </select>
+      <div id="milestones-list"></div>
+    </div>
   </div>
 
   <!-- SETTINGS -->
   <div class="tab-panel" id="tab-settings">
-    <div class="card">
-      <div class="section-title">Personal Details</div>
-      <div class="form-group"><label>Date of Birth</label><input type="date" id="s-dob" oninput="fs('dob',this.value)"/></div>
-      <div class="form-group"><label>Retirement Date</label><input type="date" id="s-retire" oninput="fs('retire',this.value)"/></div>
-      <div class="form-group"><label>Career Start Date</label><input type="date" id="s-career" oninput="fs('career',this.value)"/></div>
-    </div>
     <div class="card">
       <div class="section-title">Appearance</div>
       <div class="toggle-row" style="margin-bottom:0;">
@@ -767,12 +827,44 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
         <label class="switch"><input type="checkbox" id="theme-light" onchange="setTheme(this.checked?'light':'dark')"/><span class="slider-round"></span></label>
       </div>
     </div>
+    <div class="card">
+      <div class="section-title">Personal Details</div>
+      <div class="form-group"><label>Date of Birth</label><input type="date" id="s-dob" oninput="fs('dob',this.value)"/></div>
+      <div class="form-group"><label>Retirement Date</label><input type="date" id="s-retire" oninput="fs('retire',this.value)"/></div>
+      <div class="form-group"><label>Career Start Date</label><input type="date" id="s-career" oninput="fs('career',this.value)"/></div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">Share Portfolio</div>
+      <div class="section-title" style="margin-top:4px;">Select Panels to Share</div>
+      <div class="share-panel-grid">
+        <label class="share-panel-item"><input type="checkbox" id="share-panel-home"/><span class="share-panel-label">🏠 Home</span></label>
+        <label class="share-panel-item"><input type="checkbox" id="share-panel-portfolio"/><span class="share-panel-label">📊 Portfolio</span></label>
+        <label class="share-panel-item"><input type="checkbox" id="share-panel-spend"/><span class="share-panel-label">💸 Spend</span></label>
+        <label class="share-panel-item"><input type="checkbox" id="share-panel-cashflow"/><span class="share-panel-label">📈 Cashflow</span></label>
+        <label class="share-panel-item"><input type="checkbox" id="share-panel-income"/><span class="share-panel-label">💰 Income Models</span></label>
+        <label class="share-panel-item"><input type="checkbox" id="share-panel-milestones"/><span class="share-panel-label">✅ Milestones</span></label>
+      </div>
+      <div class="section-title">Share With User</div>
+      <button class="btn-danger" style="margin-top:0;" onclick="loadShareUsers()">Load Registered Users</button>
+      <select class="share-user-select" id="share-user-select"><option value="">Select a user...</option></select>
+      <div class="share-status" id="share-status"></div>
+      <button class="btn-primary" onclick="submitSharePortfolio()">Share Selected Panels</button>
+    </div>
     <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
       <div class="card-eyebrow">Secure Cloud Sync</div>
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
       <div class="version-note settings" id="version-settings">V3.1.36</div>
+    </div>
+  </div>
+
+  <!-- SHARED PORTFOLIOS -->
+  <div class="tab-panel" id="tab-shared">
+    <div class="card">
+      <div class="card-eyebrow">Shared With Me</div>
+      <div id="shared-portfolios-list"><div style="font-size:13px;color:#484f58;text-align:center;padding:20px 0;">No shared portfolios yet</div></div>
+      <button class="btn-danger" style="margin-top:8px;" onclick="refreshReceivedShares()">↻ Refresh</button>
     </div>
   </div>
 
@@ -794,6 +886,9 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
   <button class="tab-btn" onclick="switchTab('milestones',this)">
     <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Milestones
   </button>
+  <button class="tab-btn" data-tab="shared" onclick="switchTab('shared',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Shared
+  </button>
   <button class="tab-btn" onclick="switchTab('settings',this)">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
   </button>
@@ -801,7 +896,7 @@ body.light-mode .sp-swipe-delete-bg{background:#fee2e2;color:#b91c1c;}
 </div>
 
 <script>
-const APP_VERSION='V3.2';
+const APP_VERSION='V3.3';
 const FIREBASE_CONFIG=window.RETIREME_FIREBASE_CONFIG||null;
 let _db=null;
 let _cloudSaveTimer=null;
@@ -816,12 +911,12 @@ const SW_CACHE_BUST = encodeURIComponent(APP_VERSION || 'dev');
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:'NS&I',val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:'NS&I',val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
 const CL=[{id:'c1',text:'Check State Pension forecast on GOV.UK',sub:'gov.uk/check-state-pension'},{id:'c2',text:'Consolidate old pension pots',sub:'Track down previous employer pensions'},{id:'c3',text:'Book a Pension Wise appointment',sub:'Free impartial guidance, age 50+'},{id:'c4',text:'Review SJP pension charges',sub:'Ensure competitive ongoing advice fees'},{id:'c5',text:'Consider Lifetime ISA if eligible',sub:'Up to £1,000/yr government bonus'},{id:'c6',text:'Draft a Lasting Power of Attorney',sub:'Financial & health decisions'},{id:'c7',text:'Review your Will',sub:'Ensure beneficiaries are up to date'},{id:'c8',text:'Check National Insurance record',sub:'Plug gaps to maximise State Pension'}];
 
-const DEFAULT_S={dob:'',retire:'',career:'',salary:0,pot:0,contrib:0,growth:0,targetMonthly:0,dbPension:0,drawdown:0,extra:0,useGrowth:false,useDrawdown:false,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{}};
+const DEFAULT_S={dob:'',retire:'',career:'',salary:0,pot:0,contrib:0,growth:0,targetMonthly:0,dbPension:0,drawdown:0,extra:0,useGrowth:false,useDrawdown:false,theme:'dark',assets:{},portfolio:{},investments:[],spend:{monthly:[],quarterly:[],annual:[]},checklist:{},milestones:[]};
 let S={...DEFAULT_S};
 
 function resetAppState({preserveTheme=true}={}){
   const theme=(S&&S.theme)||'dark';
-  S={...DEFAULT_S, ...(preserveTheme?{theme}:{}), assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{} };
+  S={...DEFAULT_S, ...(preserveTheme?{theme}:{}), assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{}, milestones:[] };
   if(preserveTheme)S.theme=theme;
   try{if(currentFirebaseUid()){const key=activePortfolioCacheKey();localStorage.setItem(key, JSON.stringify(S));localStorage.setItem(key+'_ts', String(Date.now()));}}catch(e){}
 }
@@ -965,6 +1060,7 @@ function initFirebase(){
             initPortfolioData();
             applyDOM();
           }
+          writeUserProfile();
           setTimeout(()=>{
             renderHomeOverview();
             switchTab('home', document.querySelector('.tab-btn[data-tab="home"]'));
@@ -1060,7 +1156,7 @@ async function createAccountWithPassword(){
     if(userCred && userCred.user){
       clearLegacyPortfolioCache();
       resetAppState({preserveTheme:true});
-      const emptySeed={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{} };
+      const emptySeed={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{}, milestones:[] };
       S={...emptySeed};
       const key=activePortfolioCacheKey();
       try{localStorage.setItem(key, JSON.stringify(S));localStorage.setItem(key+'_ts', String(Date.now()));}catch(e){}
@@ -1129,7 +1225,7 @@ async function syncFromCloud(){
       cloudStatus('synced', '#00d17a');
       return;
     }
-    const emptySeed={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{} };
+    const emptySeed={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{}, milestones:[] };
     await primaryRef.set(emptySeed,{merge:true});
     S={...emptySeed};
     cloudStatus('cloud initialized', '#00d17a');
@@ -1349,7 +1445,7 @@ function load(){
   }
   if(!S.assets)S.assets={};
   if(isBlankUserState()){
-    S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{}};
+    S={...DEFAULT_S, theme:(S&&S.theme==='light')?'light':'dark', assets:{}, portfolio:{}, investments:[], spend:{monthly:[],quarterly:[],annual:[]}, checklist:{}, milestones:[]};
   }
   initPortfolioData();
   if(!Array.isArray(S.investments))S.investments=[];
@@ -1365,6 +1461,7 @@ function load(){
   }
   if(!S.spend)S.spend={monthly:[],quarterly:[],annual:[]};
   for(const t of ['monthly','quarterly','annual']){if(!Array.isArray(S.spend[t]))S.spend[t]=[];}
+  if(!Array.isArray(S.milestones))S.milestones=[];
   if((!S.spend.monthly||S.spend.monthly.length===0) && Array.isArray(S.monthlyBills)){S.spend.monthly=S.monthlyBills.map(normalizeSpendRow).filter(Boolean);}
   if((!S.spend.quarterly||S.spend.quarterly.length===0) && Array.isArray(S.quarterlyBills)){S.spend.quarterly=S.quarterlyBills.map(normalizeSpendRow).filter(Boolean);}
   if((!S.spend.annual||S.spend.annual.length===0) && Array.isArray(S.annualBills)){S.spend.annual=S.annualBills.map(normalizeSpendRow).filter(Boolean);}
@@ -1904,6 +2001,7 @@ function switchTab(n,btn){
   if(n==='home')renderHomeOverview();
   if(n==='spend')renderSpendAll();
   if(n==='milestones')renderMilestones();
+  if(n==='shared')loadReceivedShares();
 }
 
 function getA(k){
@@ -2680,29 +2778,198 @@ function renderAssetsForm(){
   el.innerHTML=h;
 }
 
+// ---- Share Portfolio ----
+async function writeUserProfile(){
+  const uid=currentFirebaseUid();
+  const email=_firebaseUser&&_firebaseUser.email;
+  if(!uid||!email||!_db)return;
+  try{await _db.collection('publicProfiles').doc(uid).set({uid,email,updatedAt:Date.now()},{merge:true});}catch(e){}
+}
+async function loadShareUsers(){
+  const statusEl=document.getElementById('share-status');
+  const sel=document.getElementById('share-user-select');
+  if(!isAuthed()){if(statusEl)statusEl.textContent='You must be signed in to use this feature.';return;}
+  if(!_db){if(statusEl)statusEl.textContent='Not connected to database.';return;}
+  if(statusEl)statusEl.textContent='Loading users...';
+  try{
+    const snap=await _db.collection('publicProfiles').get();
+    const myUid=currentFirebaseUid();
+    const users=[];
+    snap.forEach(doc=>{const d=doc.data();if(d.uid!==myUid&&d.email)users.push(d);});
+    if(!users.length){if(statusEl)statusEl.textContent='No other registered users found.';return;}
+    if(sel)sel.innerHTML='<option value="">Select a user...</option>'+users.map(u=>`<option value="${escapeHtml(u.uid)}" data-email="${escapeHtml(u.email)}">${escapeHtml(u.email)}</option>`).join('');
+    if(statusEl)statusEl.textContent=users.length+' user(s) found.';
+  }catch(e){if(statusEl)statusEl.textContent='Error: '+(e.message||String(e));}
+}
+function buildShareSnapshot(panels){
+  const snap={sharedAt:new Date().toISOString(),dob:S.dob,retire:S.retire,career:S.career};
+  if(panels.includes('home')||panels.includes('portfolio')){snap.portfolio=S.portfolio;snap.assets=S.assets;snap.pot=S.pot;snap.dbPension=S.dbPension;snap.targetMonthly=S.targetMonthly;}
+  if(panels.includes('spend'))snap.spend=S.spend;
+  if(panels.includes('cashflow')||panels.includes('income'))snap.investments=S.investments;
+  if(panels.includes('milestones')){snap.milestones=S.milestones;snap.checklist=S.checklist;}
+  return snap;
+}
+async function submitSharePortfolio(){
+  const statusEl=document.getElementById('share-status');
+  const sel=document.getElementById('share-user-select');
+  if(!isAuthed()){if(statusEl)statusEl.textContent='You must be signed in to share.';return;}
+  if(!_db){if(statusEl)statusEl.textContent='Not connected to database.';return;}
+  const panelIds=['home','portfolio','spend','cashflow','income','milestones'];
+  const panels=panelIds.filter(id=>{const el=document.getElementById('share-panel-'+id);return el&&el.checked;});
+  if(!panels.length){if(statusEl)statusEl.textContent='Select at least one panel to share.';return;}
+  if(!sel||!sel.value){if(statusEl)statusEl.textContent='Select a user to share with.';return;}
+  const toUid=sel.value;
+  const toEmail=(sel.options[sel.selectedIndex]&&sel.options[sel.selectedIndex].dataset.email)||'';
+  const fromUid=currentFirebaseUid();
+  const fromEmail=(_firebaseUser&&_firebaseUser.email)||'';
+  if(statusEl)statusEl.textContent='Sharing...';
+  try{
+    await _db.collection('sharedPortfolios').add({fromUid,fromEmail,toUid,toEmail,panels,snapshot:buildShareSnapshot(panels),createdAt:Date.now()});
+    if(statusEl)statusEl.textContent='✓ Shared with '+toEmail;
+    panelIds.forEach(id=>{const el=document.getElementById('share-panel-'+id);if(el)el.checked=false;});
+    if(sel)sel.value='';
+  }catch(e){if(statusEl)statusEl.textContent='Error: '+(e.message||String(e));}
+}
+async function loadReceivedShares(){
+  const uid=currentFirebaseUid();
+  const list=document.getElementById('shared-portfolios-list');
+  if(!uid||!_db){if(list)list.innerHTML='<div style="font-size:13px;color:#484f58;text-align:center;padding:20px 0;">Sign in to see shared portfolios</div>';return;}
+  if(list)list.innerHTML='<div style="font-size:12px;color:#484f58;padding:10px 0;">Loading...</div>';
+  try{
+    const snap=await _db.collection('sharedPortfolios').where('toUid','==',uid).get();
+    const shares=[];
+    snap.forEach(doc=>shares.push({id:doc.id,...doc.data()}));
+    shares.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    renderSharedPortfoliosList(shares);
+  }catch(e){
+    if(list)list.innerHTML=`<div style="font-size:12px;color:#f85149;padding:10px 0;">${escapeHtml(e.message||'Error loading shares')}</div>`;
+  }
+}
+function refreshReceivedShares(){loadReceivedShares();}
+function renderSharedPortfoliosList(shares){
+  const list=document.getElementById('shared-portfolios-list');
+  if(!list)return;
+  if(!shares||!shares.length){list.innerHTML='<div style="font-size:13px;color:#484f58;text-align:center;padding:20px 0;">No shared portfolios yet</div>';return;}
+  const panelLabels={home:'🏠 Home',portfolio:'📊 Portfolio',spend:'💸 Spend',cashflow:'📈 Cashflow',income:'💰 Income Models',milestones:'✅ Milestones'};
+  list.innerHTML=shares.map(share=>{
+    const date=share.createdAt?new Date(share.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
+    const chips=(share.panels||[]).map(p=>`<span class="rcv-panel-chip">${panelLabels[p]||p}</span>`).join('');
+    const snap=share.snapshot||{};
+    const cells=[];
+    if(snap.portfolio){const total=Object.values(snap.portfolio||{}).flatMap(r=>Array.isArray(r)?r:[]).reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);cells.push(`<div class="rcv-data-cell"><div class="k">Portfolio Total</div><div class="v green">£${Math.round(total).toLocaleString('en-GB')}</div></div>`);}
+    if(snap.spend){const mo=(snap.spend.monthly||[]).reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);cells.push(`<div class="rcv-data-cell"><div class="k">Monthly Spend</div><div class="v">£${Math.round(mo).toLocaleString('en-GB')}</div></div>`);}
+    if(snap.investments){cells.push(`<div class="rcv-data-cell"><div class="k">Income Sources</div><div class="v">${snap.investments.length}</div></div>`);}
+    if(snap.milestones){const done=(snap.milestones||[]).filter(m=>m.done).length;cells.push(`<div class="rcv-data-cell"><div class="k">Milestones Done</div><div class="v">${done} / ${(snap.milestones||[]).length}</div></div>`);}
+    return `<div class="rcv-share-card"><div class="rcv-share-from">Shared by <strong>${escapeHtml(share.fromEmail)}</strong> · ${date}</div><div class="rcv-share-panels">${chips}</div>${cells.length?`<div class="rcv-share-data">${cells.join('')}</div>`:''}</div>`;
+  }).join('');
+}
+
+const MS_SWIPE={};
+function renderUserMilestones(){
+  const list=document.getElementById('milestones-list');
+  if(!list)return;
+  const milestones=S.milestones||[];
+  const sorted=[...milestones.filter(m=>!m.done),...milestones.filter(m=>m.done)];
+  list.innerHTML=sorted.map((m)=>{const idx=milestones.indexOf(m);return `<div class="ms-row-wrap">
+    <div class="ms-swipe-delete-bg"></div>
+    <div class="ms-row${m.done?' done':''}" data-ms-row="${idx}" ${m._draft?'':`onpointerdown="msPointerStart(event,${idx})" onpointermove="msPointerMove(event,${idx})" onpointerup="msPointerEnd(event,${idx})" onpointercancel="msPointerEnd(event,${idx})"`}>
+      <div class="row-arrows">
+        <button class="row-arrow-btn" onpointerdown="event.stopPropagation()" onclick="moveMilestone(${idx},-1)" ${idx===0||m._draft?'disabled':''}>▲</button>
+        <button class="row-arrow-btn" onpointerdown="event.stopPropagation()" onclick="moveMilestone(${idx},1)" ${idx===milestones.length-1||m._draft?'disabled':''}>▼</button>
+      </div>
+      <div class="ms-tick" onpointerdown="event.stopPropagation()" onclick="toggleMilestoneDone(${idx})">
+        <div class="ck-box" style="${m.done?'background:#00d17a;border-color:#00d17a;':''}"><span class="ck-check" style="${m.done?'display:block':'display:none'}">✓</span></div>
+      </div>
+      <div class="ms-title-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+          <input class="ms-name-input" type="text" value="${escapeHtml(m.name||'')}" onpointerdown="event.stopPropagation()" onchange="updateMilestone(${idx},'name',this.value)" placeholder="Milestone name"/>
+        </div>
+        <input class="ms-date-input" type="date" value="${escapeHtml(m.date||'')}" onpointerdown="event.stopPropagation()" onchange="updateMilestone(${idx},'date',this.value)"/>
+        ${m._draft?`<div class="draft-actions"><button class="mini-action-btn" onpointerdown="event.stopPropagation()" onclick="confirmAddMilestone(${idx})">Save</button><button class="mini-action-btn cancel" onpointerdown="event.stopPropagation()" onclick="cancelAddMilestone(${idx})">Delete</button></div>`:''}
+      </div>
+    </div>
+  </div>`}).join('');
+}
 function renderMilestones(){
-  const now=new Date();
-  const rd=S.retire?new Date(S.retire+'T00:00:00'):null;
-  const cs=S.career?new Date(S.career+'T00:00:00'):null;
-  const dob=S.dob?new Date(S.dob+'T00:00:00'):null;
-  const days=rd?Math.max(0,Math.floor((rd-now)/86400000)):9999;
-  let mon=0;if(rd){let c=new Date(now);while(c<rd){if(c.getDay()===1)mon++;c.setDate(c.getDate()+1);}}
-  const pct=(rd&&cs)?Math.min(100,(now-cs)/(rd-cs)*100):0;
-  const age=dob?(now-dob)/(365.25*86400000):0;
-  const MS=[
-    {icon:'🏆',title:'Single-Digit Years Left',sub:rd?Math.floor(days/365)+' years remaining':'Set retirement date',achieved:rd&&(rd-now)<(10*365.25*86400000)},
-    {icon:'📅',title:'Under 1,000 Days',sub:days.toLocaleString()+' days left',achieved:days<1000},
-    {icon:'📅',title:'Under 500 Days',sub:days+' days left',achieved:days<500},
-    {icon:'📅',title:'Under 100 Days',sub:days+' days left',achieved:days<100},
-    {icon:'📆',title:'Under 100 Mondays',sub:mon+' Mondays remaining',achieved:mon<100},
-    {icon:'📆',title:'Under 50 Mondays',sub:mon+' Mondays remaining',achieved:mon<50},
-    {icon:'🚀',title:'Career 75% Complete',sub:pct.toFixed(1)+'% done',achieved:pct>=75},
-    {icon:'🎯',title:'Career 90% Complete',sub:pct.toFixed(1)+'% done',achieved:pct>=90},
-    {icon:'🎂',title:'Age 50+',sub:dob?'Born '+S.dob:'Set your DOB',achieved:age>=50},
-    {icon:'🎉',title:'Retirement Day!',sub:rd?rd.toLocaleDateString('en-GB'):'-',achieved:rd&&now>=rd}
-  ];
-  document.getElementById('milestones-list').innerHTML=MS.map(m=>`<div class="ms-item ${m.achieved?'achieved':''}"><div class="ms-icon">${m.achieved?'✅':m.icon}</div><div><div class="ms-title">${m.title}</div><div class="ms-sub">${m.sub}</div></div></div>`).join('');
-  document.getElementById('checklist-list').innerHTML=CL.map(item=>`<div class="ck-item ${S.checklist&&S.checklist[item.id]?'done':''}" onclick="toggleCk('${item.id}',this)"><div class="ck-box"><span class="ck-check">✓</span></div><div><div class="ck-text">${item.text}</div><div class="ck-sub">${item.sub}</div></div></div>`).join('');
+  renderUserMilestones();
+}
+function addMilestoneFromSelect(sel){
+  const val=sel.value;
+  if(!val)return;
+  sel.value='';
+  if(!S.milestones)S.milestones=[];
+  S.milestones.push({id:uid('ms'),name:val==='__new__'?'':val,date:'',done:false,_draft:true});
+  save();
+  renderUserMilestones();
+}
+function confirmAddMilestone(idx){
+  const m=S.milestones&&S.milestones[idx];
+  if(!m)return;
+  m.name=(m.name||'').trim()||'New milestone';
+  m._draft=false;
+  save();
+  renderUserMilestones();
+}
+function cancelAddMilestone(idx){
+  if(!S.milestones||!S.milestones[idx])return;
+  S.milestones.splice(idx,1);
+  save();
+  renderUserMilestones();
+}
+function moveMilestone(idx,dir){
+  const ms=S.milestones;
+  const next=idx+dir;
+  if(!ms||next<0||next>=ms.length)return;
+  const tmp=ms[idx];ms[idx]=ms[next];ms[next]=tmp;
+  save();
+  renderUserMilestones();
+}
+function toggleMilestoneDone(idx){
+  if(!S.milestones||!S.milestones[idx])return;
+  S.milestones[idx].done=!S.milestones[idx].done;
+  save();
+  renderUserMilestones();
+}
+function updateMilestone(idx,key,val){
+  if(!S.milestones||!S.milestones[idx])return;
+  S.milestones[idx][key]=val;
+  save();
+}
+function deleteMilestone(idx){
+  if(!S.milestones)return;
+  S.milestones.splice(idx,1);
+  save();
+  renderUserMilestones();
+}
+function msPointerStart(e,idx){
+  if(pointerBlockedTarget(e.target))return;
+  const key=String(idx);
+  MS_SWIPE[key]={startX:e.clientX,startY:e.clientY,dx:0,pointerId:e.pointerId};
+  if(e.currentTarget&&e.currentTarget.setPointerCapture)e.currentTarget.setPointerCapture(e.pointerId);
+}
+function msPointerMove(e,idx){
+  const key=String(idx);
+  const s=MS_SWIPE[key];
+  if(!s||s.pointerId!==e.pointerId)return;
+  const dx=e.clientX-s.startX;
+  const dy=e.clientY-s.startY;
+  if(Math.abs(dy)>Math.abs(dx))return;
+  s.dx=Math.min(0,dx);
+  const row=document.querySelector('[data-ms-row="'+key+'"]');
+  if(row)row.style.transform='translateX('+Math.max(-110,s.dx)+'px)';
+}
+function msPointerEnd(e,idx){
+  const key=String(idx);
+  const s=MS_SWIPE[key];
+  const row=document.querySelector('[data-ms-row="'+key+'"]');
+  if(s&&s.pointerId===e.pointerId&&s.dx<-70){
+    const ok=window.confirm('Delete this milestone?');
+    delete MS_SWIPE[key];
+    if(ok){deleteMilestone(idx);}else if(row){row.style.transform='translateX(0px)';}
+    return;
+  }
+  if(row)row.style.transform='translateX(0px)';
+  delete MS_SWIPE[key];
 }
 function toggleCk(id,el){if(!S.checklist)S.checklist={};S.checklist[id]=!S.checklist[id];el.classList.toggle('done',!!S.checklist[id]);save();}
 
