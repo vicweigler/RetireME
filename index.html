@@ -535,6 +535,54 @@ body.light-mode .rcv-data-cell .v{color:#0f172a;}
   .cashflow-model-asset{padding:8px 10px;}
   body.light-mode .cashflow-model-subitem{background:rgba(14,168,109,0.08);border-color:rgba(14,168,109,0.15);}
 }
+/* ---- Share Detail Read-Only Modal ---- */
+.share-detail-inner{width:min(540px,100%);}
+.sro-year-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none;}
+.sro-year-tabs::-webkit-scrollbar{display:none;}
+.sro-lyt{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid #21262d;background:#0d1117;color:#484f58;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.sro-lyt.active{background:#00d17a;border-color:#00d17a;color:#0d1117;}
+.sro-section{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#484f58;font-weight:600;margin:14px 0 8px;}
+.sro-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;margin-bottom:6px;}
+.sro-row-left{min-width:0;flex:1;overflow:hidden;}
+.sro-row-name{font-size:13px;font-weight:600;color:#e6edf3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sro-row-sub{font-size:11px;color:#8b949e;margin-top:2px;}
+.sro-row-amt{font-size:14px;font-weight:700;white-space:nowrap;}
+.sro-total{display:flex;justify-content:space-between;align-items:center;background:#0d1117;border:1px solid rgba(0,209,122,0.3);border-radius:10px;padding:10px 14px;margin-top:10px;}
+.sro-total-lbl{font-size:11px;font-weight:700;color:#00d17a;}
+.sro-total-val{font-size:16px;font-weight:800;color:#00d17a;}
+.sro-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;}
+.sro-summary-chip{background:#0d1117;border:1px solid #21262d;border-radius:9px;padding:8px;text-align:center;}
+.sro-summary-chip .k{font-size:8px;letter-spacing:0.75px;text-transform:uppercase;color:#8b949e;font-weight:700;}
+.sro-summary-chip .v{font-size:12px;font-weight:800;color:#e6edf3;margin-top:3px;}
+.sro-summary-chip .v.green{color:#00d17a;}
+.sro-summary-chip .v.red{color:#f85149;}
+.sro-model-card{background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:12px;margin-bottom:8px;}
+.sro-model-name{font-size:13px;font-weight:700;color:#e6edf3;margin-bottom:4px;}
+.sro-model-type{font-size:11px;color:#00d17a;margin-bottom:6px;}
+.sro-model-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-bottom:8px;}
+.sro-model-cell{background:#161b22;border:1px solid #21262d;border-radius:7px;padding:7px 9px;}
+.sro-model-cell .k{font-size:9px;letter-spacing:0.5px;text-transform:uppercase;color:#8b949e;font-weight:700;}
+.sro-model-cell .v{font-size:12px;font-weight:700;color:#e6edf3;margin-top:2px;}
+.sro-model-cell .v.green{color:#00d17a;}
+.sro-model-assets{display:flex;flex-wrap:wrap;gap:4px;}
+.sro-model-asset-chip{font-size:10px;color:#8b949e;background:#161b22;border:1px solid #21262d;border-radius:6px;padding:2px 8px;}
+.sro-ms-row{display:flex;align-items:flex-start;gap:10px;background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:10px 12px;margin-bottom:6px;}
+.sro-ms-tick{width:22px;height:22px;border-radius:5px;border:2px solid #30363d;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;}
+.sro-ms-tick.done{background:#00d17a;border-color:#00d17a;}
+.sro-ms-content{flex:1;min-width:0;}
+.sro-ms-name{font-size:13px;font-weight:600;color:#e6edf3;}
+.sro-ms-name.done{color:#00d17a;}
+.sro-ms-date{font-size:11px;color:#8b949e;margin-top:2px;}
+.sro-chip-btn{background:rgba(0,209,122,0.1);border:1px solid rgba(0,209,122,0.25);border-radius:20px;padding:4px 11px;font-size:10px;color:#00d17a;font-weight:600;cursor:pointer;}
+.sro-chip-btn:active{background:rgba(0,209,122,0.25);}
+body.light-mode .sro-row,body.light-mode .sro-model-card,body.light-mode .sro-ms-row{background:#f8fafc;border-color:#d0d7e2;}
+body.light-mode .sro-row-name,body.light-mode .sro-ms-name,body.light-mode .sro-model-name{color:#0f172a;}
+body.light-mode .sro-model-cell,body.light-mode .sro-model-asset-chip{background:#ffffff;border-color:#d0d7e2;}
+body.light-mode .sro-model-cell .v{color:#0f172a;}
+body.light-mode .sro-summary-chip{background:#f8fafc;border-color:#d0d7e2;}
+body.light-mode .sro-summary-chip .v{color:#0f172a;}
+body.light-mode .sro-lyt{background:#ffffff;color:#64748b;border-color:#d8dee8;}
+body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#00d17a;}
 </style>
 </head>
 <body>
@@ -684,6 +732,18 @@ body.light-mode .rcv-data-cell .v{color:#0f172a;}
       <button class="login-btn primary" type="button" onclick="saveIncomeModelModal()">Save</button>
       <button class="login-btn secondary" type="button" onclick="closeIncomeModelModal()">Cancel</button>
     </div>
+  </div>
+</div>
+<div id="share-detail-modal" class="modal-backdrop" onclick="if(event.target===this)closeShareDetailModal()">
+  <div class="share-modal share-detail-inner" role="dialog" aria-modal="true" aria-labelledby="sdm-title">
+    <div class="share-modal-head">
+      <div>
+        <div class="share-modal-k" id="sdm-eyebrow">Shared by</div>
+        <div class="share-modal-title" id="sdm-title">Portfolio</div>
+      </div>
+      <button class="share-modal-close" type="button" onclick="closeShareDetailModal()">&times;</button>
+    </div>
+    <div id="sdm-body"></div>
   </div>
 </div>
 <div id="app">
@@ -906,6 +966,8 @@ let _firebaseUser=null;
 let _lastAuthStateKey='__uninitialized__';
 let _shareEditor=null;
 let _incomeModelEditor=null;
+let _receivedShares=[];
+let _shareDetailState=null;
 let _swRegistrationAttempted=false;
 const SW_CACHE_BUST = encodeURIComponent(APP_VERSION || 'dev');
 const DA={marcus_vic:{label:'Marcus Vic',sub:'Easy Access Savings',val:45000},marcus_ruth:{label:'Marcus Ruth',sub:'Easy Access Savings',val:38000},club_lloyds_1:{label:'Club Lloyds 1',sub:'Current Account',val:0},lloyds_eic:{label:'Lloyds EIC Investment Account',sub:'Investment Account',val:0},lloyds_saver_ruth:{label:'Lloyds Saver Ruth',sub:'Savings Account',val:0},hsdl:{label:'HSDL ShareDealing',sub:'ISA / Shares',val:95000},prem_bonds_vic:{label:'Premium Bonds Vic',sub:'NS&I',val:50000},prem_bonds_ruth:{label:'Premium Bonds Ruth',sub:'NS&I',val:0},sjp_pension:{label:'SJP Pension, Unit Trusts, ISAs',sub:'Personal Pension & Investments',val:132000},global_nominee:{label:'Global Nominee Account',sub:'Investment Account',val:0},deferred_mrt:{label:'Deferred March MRT Bonus',sub:'Deferred Compensation',val:0},june_bonus_26:{label:'June Bonus 26',sub:'Used for Top Up in 2026',val:0},pension_tfl_db1:{label:'Pension Tax Free Lump Sum (DB Pension 1)',sub:'Tax-Free Lump Sum',val:0},pension_tfl_yt:{label:'Pension Tax Free Lump Sum (Your Tomorrow)',sub:'Tax-Free Lump Sum',val:0},free_matching:{label:'Free/Matching/Conditional Shares',sub:'Employee Share Scheme',val:0}};
@@ -2847,20 +2909,15 @@ async function loadReceivedShares(){
 }
 function refreshReceivedShares(){loadReceivedShares();}
 function renderSharedPortfoliosList(shares){
+  _receivedShares=shares||[];
   const list=document.getElementById('shared-portfolios-list');
   if(!list)return;
-  if(!shares||!shares.length){list.innerHTML='<div style="font-size:13px;color:#484f58;text-align:center;padding:20px 0;">No shared portfolios yet</div>';return;}
+  if(!_receivedShares.length){list.innerHTML='<div style="font-size:13px;color:#484f58;text-align:center;padding:20px 0;">No shared portfolios yet</div>';return;}
   const panelLabels={home:'🏠 Home',portfolio:'📊 Portfolio',spend:'💸 Spend',cashflow:'📈 Cashflow',income:'💰 Income Models',milestones:'✅ Milestones'};
-  list.innerHTML=shares.map(share=>{
+  list.innerHTML=_receivedShares.map((share,idx)=>{
     const date=share.createdAt?new Date(share.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
-    const chips=(share.panels||[]).map(p=>`<span class="rcv-panel-chip">${panelLabels[p]||p}</span>`).join('');
-    const snap=share.snapshot||{};
-    const cells=[];
-    if(snap.portfolio){const total=Object.values(snap.portfolio||{}).flatMap(r=>Array.isArray(r)?r:[]).reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);cells.push(`<div class="rcv-data-cell"><div class="k">Portfolio Total</div><div class="v green">£${Math.round(total).toLocaleString('en-GB')}</div></div>`);}
-    if(snap.spend){const mo=(snap.spend.monthly||[]).reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);cells.push(`<div class="rcv-data-cell"><div class="k">Monthly Spend</div><div class="v">£${Math.round(mo).toLocaleString('en-GB')}</div></div>`);}
-    if(snap.investments){cells.push(`<div class="rcv-data-cell"><div class="k">Income Sources</div><div class="v">${snap.investments.length}</div></div>`);}
-    if(snap.milestones){const done=(snap.milestones||[]).filter(m=>m.done).length;cells.push(`<div class="rcv-data-cell"><div class="k">Milestones Done</div><div class="v">${done} / ${(snap.milestones||[]).length}</div></div>`);}
-    return `<div class="rcv-share-card"><div class="rcv-share-from">Shared by <strong>${escapeHtml(share.fromEmail)}</strong> · ${date}</div><div class="rcv-share-panels">${chips}</div>${cells.length?`<div class="rcv-share-data">${cells.join('')}</div>`:''}</div>`;
+    const chips=(share.panels||[]).map(p=>`<button type="button" class="sro-chip-btn" onclick="openShareDetailModal(${idx},'${p}')">${panelLabels[p]||p}</button>`).join('');
+    return `<div class="rcv-share-card"><div class="rcv-share-from">Shared by <strong>${escapeHtml(share.fromEmail)}</strong> · ${date}</div><div class="rcv-share-panels" style="margin-bottom:0;">${chips}</div></div>`;
   }).join('');
 }
 
@@ -2976,6 +3033,124 @@ function toggleCk(id,el){if(!S.checklist)S.checklist={};S.checklist[id]=!S.check
 function escapeHtml(str){return String(str||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');}
 function fmtN(n){return Math.round(n).toLocaleString('en-GB');}
 function fmt2(n){return Number(n||0).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+// ---- Share Detail Modal ----
+function openShareDetailModal(idx,panel){
+  const share=_receivedShares[idx];
+  if(!share)return;
+  _shareDetailState={idx,panel};
+  const panelLabels={home:'Portfolio Overview',portfolio:'Portfolio',spend:'Spend',cashflow:'Cashflow',income:'Income Models',milestones:'Milestones'};
+  const eyebrow=document.getElementById('sdm-eyebrow');
+  const title=document.getElementById('sdm-title');
+  const body=document.getElementById('sdm-body');
+  if(eyebrow)eyebrow.textContent='Shared by '+(share.fromEmail||'');
+  if(title)title.textContent=panelLabels[panel]||panel;
+  if(body)body.innerHTML=renderShareDetailPanel(share.snapshot||{},panel);
+  const modal=document.getElementById('share-detail-modal');
+  if(modal)modal.style.display='flex';
+}
+function closeShareDetailModal(){
+  _shareDetailState=null;
+  const modal=document.getElementById('share-detail-modal');
+  if(modal)modal.style.display='none';
+}
+function sroSwitchYear(year,btn){
+  if(!_shareDetailState)return;
+  _shareDetailState.year=year;
+  document.querySelectorAll('.sro-lyt').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const share=_receivedShares[_shareDetailState.idx];
+  if(!share)return;
+  const body=document.getElementById('sdm-portfolio-rows');
+  if(!body)return;
+  body.innerHTML=renderSharePortfolioYear(share.snapshot||{},year);
+}
+function renderShareDetailPanel(snap,panel){
+  if(panel==='portfolio'||panel==='home')return renderShareDetailPortfolio(snap);
+  if(panel==='spend')return renderShareDetailSpend(snap);
+  if(panel==='cashflow')return renderShareDetailCashflow(snap);
+  if(panel==='income')return renderShareDetailIncome(snap);
+  if(panel==='milestones')return renderShareDetailMilestones(snap);
+  return '<div style="color:#8b949e;padding:20px 0;text-align:center;">No data</div>';
+}
+function renderShareDetailPortfolio(snap){
+  const portfolio=snap.portfolio||{};
+  const years=['2026','2027','2028','2029','2030'].filter(y=>Array.isArray(portfolio[y])&&portfolio[y].length);
+  if(!years.length)return '<div style="color:#8b949e;padding:20px 0;text-align:center;">No portfolio data</div>';
+  const defaultYear=years[0];
+  if(_shareDetailState)_shareDetailState.year=defaultYear;
+  const tabs=years.map(y=>`<div class="sro-lyt${y===defaultYear?' active':''}" onclick="sroSwitchYear('${y}',this)">${y}</div>`).join('');
+  return `<div class="sro-year-tabs">${tabs}</div><div id="sdm-portfolio-rows">${renderSharePortfolioYear(snap,defaultYear)}</div>`;
+}
+function renderSharePortfolioYear(snap,year){
+  const rows=Array.isArray((snap.portfolio||{})[year])?(snap.portfolio||{})[year]:[];
+  if(!rows.length)return `<div style="color:#8b949e;padding:16px 0;text-align:center;">No items for ${year}</div>`;
+  let total=0;
+  const html=rows.map(r=>{
+    if(!r)return '';
+    const isCarry=String(r.type||'').trim().toLowerCase()==='carry-over'||String(r.name||'').trim().toLowerCase().includes('carry');
+    const isShares=String(r.type||'').trim().toLowerCase()==='shares';
+    const amount=parseFloat(r.amount)||0;
+    if(!isCarry)total+=amount;
+    const amtColor=isCarry?'#8b949e':(amount>=0?'#00d17a':'#f85149');
+    const sub=escapeHtml(isCarry?'Carry-Over':(r.type||'Asset'))+(isShares&&r.shares?' · '+r.shares+' @ £'+(r.sharePrice||0):'')+(r.taxable?' · Taxable':'');
+    return `<div class="sro-row"><div class="sro-row-left"><div class="sro-row-name">${escapeHtml(r.name||'Item')}</div><div class="sro-row-sub">${sub}</div></div><div class="sro-row-amt" style="color:${amtColor}">£${fmtN(amount)}</div></div>`;
+  }).join('');
+  return html+`<div class="sro-total"><div class="sro-total-lbl">Total (${year})</div><div class="sro-total-val">£${fmtN(total)}</div></div>`;
+}
+function renderShareDetailSpend(snap){
+  const spend=snap.spend||{monthly:[],quarterly:[],annual:[]};
+  const monthly=Array.isArray(spend.monthly)?spend.monthly:[];
+  const quarterly=Array.isArray(spend.quarterly)?spend.quarterly:[];
+  const annual=Array.isArray(spend.annual)?spend.annual:[];
+  const mTotal=monthly.reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
+  const qTotal=quarterly.reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
+  const aTotal=annual.reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
+  const totalAnnualEquivalent=mTotal*12+qTotal*4+aTotal;
+  function spRows(rows){if(!rows.length)return '<div style="color:#484f58;font-size:12px;padding:4px 0;">None</div>';return rows.map(r=>`<div class="sro-row"><div class="sro-row-left"><div class="sro-row-name">${escapeHtml(r.name||'Bill')}</div><div class="sro-row-sub">${escapeHtml(r.type||'General')}</div></div><div class="sro-row-amt" style="color:#f85149;">£${fmtN(parseFloat(r.amount)||0)}</div></div>`).join('');}
+  return `<div class="sro-summary"><div class="sro-summary-chip"><div class="k">Monthly</div><div class="v red">£${fmtN(mTotal)}</div></div><div class="sro-summary-chip"><div class="k">Quarterly</div><div class="v red">£${fmtN(qTotal)}</div></div><div class="sro-summary-chip"><div class="k">Annual</div><div class="v red">£${fmtN(aTotal)}</div></div></div><div class="sro-section">Monthly Bills</div>${spRows(monthly)}<div class="sro-section">Quarterly Bills</div>${spRows(quarterly)}<div class="sro-section">Annual Bills</div>${spRows(annual)}<div class="sro-total"><div class="sro-total-lbl">Total Annual Equivalent</div><div class="sro-total-val" style="color:#f85149;">£${fmtN(totalAnnualEquivalent)}</div></div>`;
+}
+function renderShareDetailCashflow(snap){
+  const investments=Array.isArray(snap.investments)?snap.investments:[];
+  if(!investments.length)return '<div style="color:#8b949e;padding:20px 0;text-align:center;">No income sources</div>';
+  const taxLabel=b=>{const s=String(b||'none').toLowerCase();return s==='basic'?'Basic 20%':s==='higher'?'Higher 40%':s==='additional'?'Additional 45%':s==='pa-taper'?'PA Taper 60%':'No Tax';};
+  const html=investments.map(row=>{
+    if(!row)return '';
+    const isModel=Array.isArray(row.modelAssets)&&row.modelAssets.length>0;
+    const bracket=String((row.modelTaxBracket!==undefined?row.modelTaxBracket:row.taxBracket)||'none');
+    const monthly=incomeSourceMonthlyValue(row);
+    const freq=String(row.frequency||'')==='annual'?'Annual':'Monthly';
+    return `<div class="sro-row"><div class="sro-row-left"><div class="sro-row-name">${escapeHtml(row.name||'Income source')}</div><div class="sro-row-sub">${freq} · ${escapeHtml(taxLabel(bracket))}${isModel?' · '+Number(row.modelRate||0).toFixed(1)+'%':''}</div></div><div><div class="sro-row-amt" style="color:#00d17a;">£${fmt2(monthly)}<span style="font-size:9px;color:#8b949e;">/mo</span></div></div></div>`;
+  }).join('');
+  const totalMonthly=investments.reduce((s,r)=>s+incomeSourceMonthlyValue(r),0);
+  const totalAnnual=investments.reduce((s,r)=>s+incomeSourceAnnualValue(r),0);
+  return html+`<div class="sro-summary"><div class="sro-summary-chip"><div class="k">Sources</div><div class="v">${investments.length}</div></div><div class="sro-summary-chip"><div class="k">Monthly Income</div><div class="v green">£${fmtN(totalMonthly)}</div></div><div class="sro-summary-chip"><div class="k">Annual Income</div><div class="v green">£${fmtN(totalAnnual)}</div></div></div>`;
+}
+function renderShareDetailIncome(snap){
+  const investments=Array.isArray(snap.investments)?snap.investments:[];
+  const models=investments.filter(r=>r&&Array.isArray(r.modelAssets)&&r.modelAssets.length>0);
+  if(!models.length)return '<div style="color:#8b949e;padding:20px 0;text-align:center;">No income models</div>';
+  const pf2026=Array.isArray(snap.portfolio&&snap.portfolio['2026'])?snap.portfolio['2026']:[];
+  const taxLabel=b=>{const s=String(b||'none').toLowerCase();return s==='basic'?'Basic 20%':s==='higher'?'Higher 40%':s==='additional'?'Additional 45%':s==='pa-taper'?'PA Taper 60%':'No Tax';};
+  const html=models.map(row=>{
+    const bracket=String((row.modelTaxBracket!==undefined?row.modelTaxBracket:row.taxBracket)||'none');
+    const annual=incomeModelAnnualIncome(row);
+    const monthly=annual/12;
+    const linkedIds=new Set(row.modelAssets);
+    const linked=pf2026.filter(a=>a&&linkedIds.has(a.id));
+    return `<div class="sro-model-card"><div class="sro-model-name">${escapeHtml(row.name||'Income Model')} <span style="font-size:11px;color:#8b949e;">(£${fmtN(parseFloat(row.modelPrincipal)||0)})</span></div><div class="sro-model-type">${escapeHtml(row.plannedInvestmentType||'Pension')} · ${Number(row.modelRate||0).toFixed(1)}% · ${escapeHtml(taxLabel(bracket))}</div><div class="sro-model-grid"><div class="sro-model-cell"><div class="k">Annual Income</div><div class="v green">£${fmtN(annual)}</div></div><div class="sro-model-cell"><div class="k">Monthly Income</div><div class="v green">£${fmt2(monthly)}</div></div></div>${linked.length?`<div class="sro-model-assets">${linked.map(a=>`<span class="sro-model-asset-chip">${escapeHtml(a.name||'Asset')}</span>`).join('')}</div>`:''}</div>`;
+  }).join('');
+  const totalAnnual=models.reduce((s,r)=>s+incomeModelAnnualIncome(r),0);
+  return html+`<div class="sro-total"><div class="sro-total-lbl">Total Annual Income</div><div class="sro-total-val">£${fmtN(totalAnnual)}</div></div>`;
+}
+function renderShareDetailMilestones(snap){
+  const milestones=Array.isArray(snap.milestones)?snap.milestones:[];
+  if(!milestones.length)return '<div style="color:#8b949e;padding:20px 0;text-align:center;">No milestones</div>';
+  const sorted=[...milestones.filter(m=>!m.done),...milestones.filter(m=>m.done)];
+  const html=sorted.map(m=>`<div class="sro-ms-row"><div class="sro-ms-tick${m.done?' done':''}">${m.done?'<span style="color:#0d1117;font-size:11px;font-weight:800;">✓</span>':''}</div><div class="sro-ms-content"><div class="sro-ms-name${m.done?' done':''}">${escapeHtml(m.name||'')}</div>${m.date?`<div class="sro-ms-date">${escapeHtml(m.date)}</div>`:''}</div></div>`).join('');
+  const done=milestones.filter(m=>m.done).length;
+  return html+`<div class="sro-total"><div class="sro-total-lbl">Completed</div><div class="sro-total-val">${done} / ${milestones.length}</div></div>`;
+}
 
 load();
 applyDefaultLedgerYear();
