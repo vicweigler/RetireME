@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="RetireMe"/>
 <meta name="theme-color" content="#0d1117"/>
+<meta name="color-scheme" content="dark"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 <title>RetireMe</title>
@@ -50,9 +51,9 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .hdr-admin{font-size:10px;color:#848d97;letter-spacing:0.3px;}
 .hdr-signout{background:transparent;border:1px solid #30363d;color:#e6edf3;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;}
 .hdr-signout:hover{border-color:#484f58;}
-#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(72px + env(safe-area-inset-bottom,0px));}
+#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(58px + env(safe-area-inset-bottom,0px));}
 #tabbar{position:fixed;bottom:0;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:100;}
-.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 4px 7px;gap:3px;background:none;border:none;color:#484f58;font-size:10px;font-weight:500;cursor:pointer;transition:color 0.2s;letter-spacing:0.3px;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 4px 0;gap:3px;background:none;border:none;color:#484f58;font-size:10px;font-weight:500;cursor:pointer;transition:color 0.2s;letter-spacing:0.3px;}
 .tab-btn svg{width:20px;height:20px;stroke-width:1.8;fill:none;stroke:currentColor;}
 .tab-btn.active{color:#00d17a;}
 .tab-panel{display:none;}.tab-panel.active{display:block;}
