@@ -53,7 +53,10 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .hdr-signout{background:transparent;border:1px solid #30363d;color:#e6edf3;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;}
 .hdr-signout:hover{border-color:#484f58;}
 #content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(58px + env(safe-area-inset-bottom,0px));}
-#tabbar{position:fixed;bottom:0;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:100;}
+#tabbar{position:fixed;bottom:0;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;flex-direction:column;z-index:100;}
+.tabbar-row{display:flex;overflow-x:auto;scrollbar-width:none;}
+.tabbar-row::-webkit-scrollbar{display:none;}
+.tabbar-safe{height:env(safe-area-inset-bottom,0px);flex-shrink:0;}
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 4px 0;gap:3px;background:none;border:none;color:#484f58;font-size:10px;font-weight:500;cursor:pointer;transition:color 0.2s;letter-spacing:0.3px;}
 .tab-btn svg{width:20px;height:20px;stroke-width:1.8;fill:none;stroke:currentColor;}
 .tab-btn.active{color:#00d17a;}
@@ -375,6 +378,7 @@ body.light-mode .home-chart-wrap svg .home-chart-label{fill:#000000;}
 body.light-mode{background:#f6f8fb;color:#0f172a;}
 body.light-mode #header{background:#ffffff;border-bottom-color:#d8dee8;}
 body.light-mode #tabbar{background:#ffffff;border-top-color:#d8dee8;}
+body.light-mode .tabbar-safe{background:#ffffff;}
 body.light-mode .card,
 body.light-mode .rw-card,
 body.light-mode .stat-box,
@@ -489,9 +493,6 @@ body.light-mode .ms-swipe-hint{color:#b0bac5;}
 body.light-mode .ms-name-input{color:#0f172a;background:transparent;}
 body.light-mode .ms-add-select{background:#f8fafc;border-color:#d0d7e2;color:#0f172a;}
 
-/* ---- Tab bar: scrollable when many tabs ---- */
-#tabbar{overflow-x:auto;scrollbar-width:none;}
-#tabbar::-webkit-scrollbar{display:none;}
 .tab-btn{flex-shrink:0;}
 
 /* ---- Share Portfolio ---- */
@@ -935,6 +936,7 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
 </div>
 
 <div id="tabbar">
+<div class="tabbar-row">
   <button class="tab-btn active" data-tab="home" onclick="switchTab('home',this)">
     <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-6h6v6"/></svg>Home
   </button>
@@ -957,10 +959,12 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
   </button>
 </div>
+<div class="tabbar-safe"></div>
+</div>
 </div>
 
 <script>
-const APP_VERSION='V3.4';
+const APP_VERSION='V3.5';
 const FIREBASE_CONFIG=window.RETIREME_FIREBASE_CONFIG||null;
 let _db=null;
 let _cloudSaveTimer=null;
