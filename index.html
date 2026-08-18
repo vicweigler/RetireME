@@ -3057,13 +3057,24 @@ function closeShareDetailModal(){
 function sroSwitchYear(year,btn){
   if(!_shareDetailState)return;
   _shareDetailState.year=year;
-  document.querySelectorAll('.sro-lyt').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#sdm-body .sro-lyt').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const share=_receivedShares[_shareDetailState.idx];
   if(!share)return;
   const body=document.getElementById('sdm-portfolio-rows');
   if(!body)return;
   body.innerHTML=renderSharePortfolioYear(share.snapshot||{},year);
+}
+function sroSwitchSpendType(type,btn){
+  if(!_shareDetailState)return;
+  _shareDetailState.spendType=type;
+  document.querySelectorAll('#sdm-body .sro-lyt').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const share=_receivedShares[_shareDetailState.idx];
+  if(!share)return;
+  const body=document.getElementById('sdm-spend-rows');
+  if(!body)return;
+  body.innerHTML=renderShareSpendRows(share.snapshot||{},type);
 }
 function renderShareDetailPanel(snap,panel){
   if(panel==='portfolio'||panel==='home')return renderShareDetailPortfolio(snap);
@@ -3100,15 +3111,18 @@ function renderSharePortfolioYear(snap,year){
 }
 function renderShareDetailSpend(snap){
   const spend=snap.spend||{monthly:[],quarterly:[],annual:[]};
-  const monthly=Array.isArray(spend.monthly)?spend.monthly:[];
-  const quarterly=Array.isArray(spend.quarterly)?spend.quarterly:[];
-  const annual=Array.isArray(spend.annual)?spend.annual:[];
-  const mTotal=monthly.reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
-  const qTotal=quarterly.reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
-  const aTotal=annual.reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
-  const totalAnnualEquivalent=mTotal*12+qTotal*4+aTotal;
-  function spRows(rows){if(!rows.length)return '<div style="color:#484f58;font-size:12px;padding:4px 0;">None</div>';return rows.map(r=>`<div class="sro-row"><div class="sro-row-left"><div class="sro-row-name">${escapeHtml(r.name||'Bill')}</div><div class="sro-row-sub">${escapeHtml(r.type||'General')}</div></div><div class="sro-row-amt" style="color:#f85149;">£${fmtN(parseFloat(r.amount)||0)}</div></div>`).join('');}
-  return `<div class="sro-summary"><div class="sro-summary-chip"><div class="k">Monthly</div><div class="v red">£${fmtN(mTotal)}</div></div><div class="sro-summary-chip"><div class="k">Quarterly</div><div class="v red">£${fmtN(qTotal)}</div></div><div class="sro-summary-chip"><div class="k">Annual</div><div class="v red">£${fmtN(aTotal)}</div></div></div><div class="sro-section">Monthly Bills</div>${spRows(monthly)}<div class="sro-section">Quarterly Bills</div>${spRows(quarterly)}<div class="sro-section">Annual Bills</div>${spRows(annual)}<div class="sro-total"><div class="sro-total-lbl">Total Annual Equivalent</div><div class="sro-total-val" style="color:#f85149;">£${fmtN(totalAnnualEquivalent)}</div></div>`;
+  const mTotal=(Array.isArray(spend.monthly)?spend.monthly:[]).reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
+  const qTotal=(Array.isArray(spend.quarterly)?spend.quarterly:[]).reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
+  const aTotal=(Array.isArray(spend.annual)?spend.annual:[]).reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
+  if(_shareDetailState)_shareDetailState.spendType='monthly';
+  return `<div class="sro-summary"><div class="sro-summary-chip"><div class="k">Monthly</div><div class="v red">£${fmtN(mTotal)}</div></div><div class="sro-summary-chip"><div class="k">Quarterly</div><div class="v red">£${fmtN(qTotal)}</div></div><div class="sro-summary-chip"><div class="k">Annual</div><div class="v red">£${fmtN(aTotal)}</div></div></div><div class="sro-year-tabs" style="margin-top:12px;"><div class="sro-lyt active" onclick="sroSwitchSpendType('monthly',this)">Monthly</div><div class="sro-lyt" onclick="sroSwitchSpendType('quarterly',this)">Quarterly</div><div class="sro-lyt" onclick="sroSwitchSpendType('annual',this)">Annual</div></div><div id="sdm-spend-rows">${renderShareSpendRows(snap,'monthly')}</div>`;
+}
+function renderShareSpendRows(snap,type){
+  const rows=Array.isArray((snap.spend||{})[type])?(snap.spend||{})[type]:[];
+  const total=rows.reduce((s,r)=>s+(parseFloat(r&&r.amount)||0),0);
+  const label=type==='monthly'?'Monthly':type==='quarterly'?'Quarterly':'Annual';
+  const items=rows.length?rows.map(r=>`<div class="sro-row"><div class="sro-row-left"><div class="sro-row-name">${escapeHtml(r.name||'Bill')}</div><div class="sro-row-sub">${escapeHtml(r.type||'General')}</div></div><div class="sro-row-amt" style="color:#f85149;">£${fmtN(parseFloat(r.amount)||0)}</div></div>`).join(''):`<div style="color:#484f58;font-size:12px;padding:12px 0;text-align:center;">No ${label.toLowerCase()} bills</div>`;
+  return items+`<div class="sro-total"><div class="sro-total-lbl">${label} Total</div><div class="sro-total-val" style="color:#f85149;">£${fmtN(total)}</div></div>`;
 }
 function renderShareDetailCashflow(snap){
   const investments=Array.isArray(snap.investments)?snap.investments:[];
