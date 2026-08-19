@@ -45,18 +45,18 @@
         // AppLayout.tsx:209 - How high the bar is off the bottom of the screen (negative margin) before the safe-area spacer is added
         className: 'md:hidden fixed left-0 right-0 flex flex-col z-50',
         style: {
-          bottom:      '-60px',
+          bottom:      '-63px',
           background:  o.bgColor,
           borderTop:   '1px solid ' + o.borderColor,
         },
       },
 
       // Reduced inner row height from h-16 (55px) to h-11 (64px)
-      h('div', { className: 'flex h-[69px] items-center' },
+      h('div', { className: 'flex h-[71px] items-center' },
         tabs.map(function (tab) {
           return h('button', {
             key:       tab.id,
-            className: 'flex-1 flex flex-col items-center justify-center gap-0.5',
+            className: 'flex-1 flex flex-col items-center justify-center gap-0.5 pb-[3px]',
             style: {
               color:                    tab.id === activeId ? o.accentColor : o.inactiveColor,
               background:               'none',
