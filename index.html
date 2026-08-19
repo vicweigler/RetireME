@@ -52,12 +52,12 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .hdr-admin{font-size:10px;color:#848d97;letter-spacing:0.3px;}
 .hdr-signout{background:transparent;border:1px solid #30363d;color:#e6edf3;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;}
 .hdr-signout:hover{border-color:#484f58;}
-#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(54px + min(env(safe-area-inset-bottom,0px),16px));}
+#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(54px + min(env(safe-area-inset-bottom,0px),10px));}
 body::after{display:none;}
 #tabbar{position:fixed;bottom:0;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;flex-direction:column;z-index:100;}
 .tabbar-row{display:flex;width:100%;overflow-x:auto;scrollbar-width:none;}
 .tabbar-row::-webkit-scrollbar{display:none;}
-.tabbar-safe{height:min(env(safe-area-inset-bottom,0px),16px);}
+.tabbar-safe{height:min(env(safe-area-inset-bottom,0px),10px);}
 .tab-btn{flex:1;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:8px 4px 4px;gap:2px;background:none;border:none;color:#484f58;font-size:9px;font-weight:500;cursor:pointer;transition:color 0.2s;letter-spacing:0;}
 .tab-btn svg{width:20px;height:20px;stroke-width:1.8;fill:none;stroke:currentColor;}
 .tab-btn.active{color:#00d17a;}
@@ -959,7 +959,7 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
 </div>
 
 <script>
-const APP_VERSION='V3.8';
+const APP_VERSION='V3.9';
 const FIREBASE_CONFIG=window.RETIREME_FIREBASE_CONFIG||null;
 let _db=null;
 let _cloudSaveTimer=null;
