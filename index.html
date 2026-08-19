@@ -52,14 +52,13 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .hdr-admin{font-size:10px;color:#848d97;letter-spacing:0.3px;}
 .hdr-signout{background:transparent;border:1px solid #30363d;color:#e6edf3;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;}
 .hdr-signout:hover{border-color:#484f58;}
-#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(50px + env(safe-area-inset-bottom,0px));}
-/* Tab bar sits flush above safe area; body::after fills the gap with matching background */
-body::after{content:'';position:fixed;bottom:0;left:0;right:0;height:env(safe-area-inset-bottom,0px);background:#161b22;z-index:99;}
-#tabbar{position:fixed;bottom:env(safe-area-inset-bottom,0px);left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;z-index:100;}
-.tabbar-row{display:flex;overflow-x:auto;scrollbar-width:none;}
+#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(54px + min(env(safe-area-inset-bottom,0px),16px));}
+body::after{display:none;}
+#tabbar{position:fixed;bottom:0;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;flex-direction:column;z-index:100;}
+.tabbar-row{display:flex;width:100%;overflow-x:auto;scrollbar-width:none;}
 .tabbar-row::-webkit-scrollbar{display:none;}
-.tabbar-safe{display:none;}
-.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;gap:2px;background:none;border:none;color:#484f58;font-size:10px;font-weight:500;cursor:pointer;transition:color 0.2s;letter-spacing:0.3px;white-space:nowrap;}
+.tabbar-safe{height:min(env(safe-area-inset-bottom,0px),16px);}
+.tab-btn{flex:1;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:8px 4px 4px;gap:2px;background:none;border:none;color:#484f58;font-size:9px;font-weight:500;cursor:pointer;transition:color 0.2s;letter-spacing:0;}
 .tab-btn svg{width:20px;height:20px;stroke-width:1.8;fill:none;stroke:currentColor;}
 .tab-btn.active{color:#00d17a;}
 .tab-panel{display:none;}.tab-panel.active{display:block;}
@@ -381,7 +380,7 @@ body.light-mode{background:#f6f8fb;color:#0f172a;}
 body.light-mode #header{background:#ffffff;border-bottom-color:#d8dee8;}
 body.light-mode #tabbar{background:#ffffff;border-top-color:#d8dee8;}
 body.light-mode .tabbar-safe{background:#ffffff;}
-body.light-mode::after{background:#ffffff;}
+body.light-mode::after{display:none;}
 body.light-mode .card,
 body.light-mode .rw-card,
 body.light-mode .stat-box,
@@ -967,7 +966,7 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
 </div>
 
 <script>
-const APP_VERSION='V3.6';
+const APP_VERSION='V3.7';
 const FIREBASE_CONFIG=window.RETIREME_FIREBASE_CONFIG||null;
 let _db=null;
 let _cloudSaveTimer=null;
@@ -1681,14 +1680,7 @@ function syncPortfolioCarryOvers(){
 }
 function renderVersionLabels(){
   const ids=['version-header','version-home','version-home-ledger','version-settings','version-login'];
-  // Measure actual safe-area-inset-bottom so we can debug the iOS gap
-  const probe=document.createElement('div');
-  probe.style.cssText='position:fixed;bottom:0;left:0;height:0;padding-bottom:env(safe-area-inset-bottom,0px);visibility:hidden;';
-  document.body.appendChild(probe);
-  const sab=parseFloat(getComputedStyle(probe).paddingBottom)||0;
-  document.body.removeChild(probe);
-  const label=`${APP_VERSION} [sab:${sab}px]`;
-  for(const id of ids){const el=document.getElementById(id);if(el)el.textContent=label;}
+  for(const id of ids){const el=document.getElementById(id);if(el)el.textContent=APP_VERSION;}
 }
 function getHomePortfolioSummary(){
   const totals=new Map();
