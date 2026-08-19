@@ -77,7 +77,7 @@
 
       // Safe-area spacer — full env(safe-area-inset-bottom), uncapped
       h('div', {
-        style: { height: 'env(safe-area-inset-bottom, -10px)', background: o.bgColor },
+        style: { height: 'env(safe-area-inset-bottom, -15px)', background: o.bgColor },
       })
     );
   }
