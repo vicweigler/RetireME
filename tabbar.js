@@ -17,10 +17,10 @@
  * tabs: Array of { id: string, label: string, svg: string (raw SVG element HTML) }
  *
  * options: {
- *   accentColor?:   string  — active tab colour        (default '#00d17a')
- *   bgColor?:       string  — bar background           (default '#161b22')
- *   borderColor?:   string  — top border colour        (default '#21262d')
- *   inactiveColor?: string  — inactive tab colour      (default '#484f58')
+ *   accentColor?:   string  — active tab colour        (default '#818cf8'  = text-indigo-400)
+ *   bgColor?:       string  — bar background           (default '#0D1424'  = bg-[#0D1424])
+ *   borderColor?:   string  — top border colour        (default rgba(255,255,255,0.06) = border-white/[0.06])
+ *   inactiveColor?: string  — inactive tab colour      (default '#64748b'  = text-slate-500)
  *   height?:        number  — bar height in px         (default 64)
  *   contentEl?:     Element — scrollable content elem; its paddingBottom is adjusted automatically
  *   onTabChange?:   function(id, btnEl) — called when a tab is tapped
@@ -38,7 +38,7 @@
     s.textContent =
       '#tabbar-modern{' +
         'position:fixed;bottom:0;left:0;right:0;' +
-        'display:flex;flex-direction:column;z-index:100;' +
+        'display:flex;flex-direction:column;z-index:50;' +
       '}' +
       '@media(min-width:768px){#tabbar-modern{display:none;}}' +
       '#tabbar-modern-row{display:flex;align-items:stretch;}' +
@@ -56,10 +56,10 @@
 
   function TabBar(tabs, opts) {
     this._o = Object.assign({
-      accentColor: '#00d17a',
-      bgColor: '#161b22',
-      borderColor: '#21262d',
-      inactiveColor: '#484f58',
+      accentColor: '#818cf8',
+      bgColor: '#0D1424',
+      borderColor: 'rgba(255,255,255,0.06)',
+      inactiveColor: '#64748b',
       height: 64,
       contentEl: null,
       onTabChange: null,
