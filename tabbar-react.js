@@ -42,7 +42,7 @@
     return h('nav',
       {
         // AppLayout.tsx:209 — change bottom-[-Xpx] to adjust vertical offset
-        className: 'md:hidden fixed bottom-[-25px] left-0 right-0 flex flex-col z-50',
+        className: 'md:hidden fixed bottom-[-5px] left-0 right-0 flex flex-col z-50',
         style: {
           background:  o.bgColor,
           borderTop:   '1px solid ' + o.borderColor,
@@ -77,7 +77,7 @@
 
       // Safe-area spacer — full env(safe-area-inset-bottom), uncapped
       h('div', {
-        style: { height: 'env(safe-area-inset-bottom, 0px)', background: o.bgColor },
+        style: { height: 'env(safe-area-inset-bottom, -10px)', background: o.bgColor },
       })
     );
   }
