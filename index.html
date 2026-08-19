@@ -15,6 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="./tabbar.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{color-scheme:dark;}
@@ -959,7 +960,10 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
 </div>
 
 <script>
-const APP_VERSION='V4.9';
+const APP_VERSION='V5.0';
+// Switch between 'modern' (AppLayout.tsx style) and 'legacy' (original)
+const TAB_BAR_VARIANT = 'modern';
+let _tabBar = null;
 const FIREBASE_CONFIG=window.RETIREME_FIREBASE_CONFIG||null;
 let _db=null;
 let _cloudSaveTimer=null;
@@ -1329,6 +1333,12 @@ function setTheme(mode){
   if(meta)meta.setAttribute('content',S.theme==='light'?'#f6f8fb':'#0d1117');
   const t=document.getElementById('theme-light');
   if(t)t.checked=S.theme==='light';
+  if(_tabBar){
+    _tabBar.setColors(S.theme==='light'
+      ? {bgColor:'#ffffff',borderColor:'#d8dee8',accentColor:'#0ea86d',inactiveColor:'#64748b'}
+      : {bgColor:'#161b22',borderColor:'#21262d',accentColor:'#00d17a',inactiveColor:'#484f58'}
+    );
+  }
   save();
 }
 function registerServiceWorker(){
@@ -1541,6 +1551,7 @@ function load(){
   if(typeof S.useGrowth!=='boolean')S.useGrowth=false;
   if(typeof S.useDrawdown!=='boolean')S.useDrawdown=false;
   applyDOM();
+  initTabBar();
   renderHomeOverview();
   switchTab('home', document.querySelector('.tab-btn[data-tab="home"]'));
   if(isAuthed()){
@@ -2061,6 +2072,7 @@ function switchTab(n,btn){
   if(panel)panel.classList.add('active');
   const targetBtn=btn || document.querySelector('.tab-btn[data-tab="'+n+'"]');
   if(targetBtn)targetBtn.classList.add('active');
+  if(_tabBar)_tabBar.setActive(n);
   if(n==='cashflow'){renderCashflowModelAssets();renderCashflowModelPreview();buildRunway();}
   if(n==='ledger')showLedger(activeLedgerYear(),document.querySelector('.lyt.active')||document.querySelector('.lyt'));
   if(n==='home')renderHomeOverview();
@@ -3167,6 +3179,22 @@ function renderShareDetailMilestones(snap){
   const html=sorted.map(m=>`<div class="sro-ms-row"><div class="sro-ms-tick${m.done?' done':''}">${m.done?'<span style="color:#0d1117;font-size:11px;font-weight:800;">✓</span>':''}</div><div class="sro-ms-content"><div class="sro-ms-name${m.done?' done':''}">${escapeHtml(m.name||'')}</div>${m.date?`<div class="sro-ms-date">${escapeHtml(m.date)}</div>`:''}</div></div>`).join('');
   const done=milestones.filter(m=>m.done).length;
   return html+`<div class="sro-total"><div class="sro-total-lbl">Completed</div><div class="sro-total-val">${done} / ${milestones.length}</div></div>`;
+}
+
+function initTabBar(){
+  if(TAB_BAR_VARIANT!=='modern')return;
+  document.getElementById('tabbar').style.display='none';
+  _tabBar=new TabBar([
+    {id:'home',     label:'Home',      svg:'<svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-6h6v6"/></svg>'},
+    {id:'ledger',   label:'Portfolio', svg:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>'},
+    {id:'spend',    label:'Spend',     svg:'<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>'},
+    {id:'cashflow', label:'Cashflow',  svg:'<svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>'},
+    {id:'shared',   label:'Shared',    svg:'<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>'},
+    {id:'settings', label:'Settings',  svg:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'},
+  ],{
+    contentEl: document.getElementById('content'),
+    onTabChange: function(id){ switchTab(id); },
+  });
 }
 
 load();
