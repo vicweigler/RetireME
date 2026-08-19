@@ -41,8 +41,8 @@
 
     return h('nav',
       {
-        // AppLayout.tsx:209 — exact class string
-        className: 'md:hidden fixed bottom-0 left-0 right-0 flex flex-col z-50',
+        // AppLayout.tsx:209 — change bottom-[-Xpx] to adjust vertical offset
+        className: 'md:hidden fixed bottom-[-25px] left-0 right-0 flex flex-col z-50',
         style: {
           background:  o.bgColor,
           borderTop:   '1px solid ' + o.borderColor,
