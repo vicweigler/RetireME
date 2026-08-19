@@ -793,6 +793,24 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
+    <div class="card">
+      <div class="card-eyebrow">Milestones</div>
+      <select class="ms-add-select" id="ms-add-select" onchange="addMilestoneFromSelect(this)">
+        <option value="">+ Add Milestone...</option>
+        <option value="__new__">✏️ Create New Milestone</option>
+        <optgroup label="UK Retirement Readiness">
+          <option value="Check State Pension forecast on GOV.UK">Check State Pension forecast on GOV.UK</option>
+          <option value="Consolidate old pension pots">Consolidate old pension pots</option>
+          <option value="Book a Pension Wise appointment">Book a Pension Wise appointment</option>
+          <option value="Review SJP pension charges">Review SJP pension charges</option>
+          <option value="Consider Lifetime ISA if eligible">Consider Lifetime ISA if eligible</option>
+          <option value="Draft a Lasting Power of Attorney">Draft a Lasting Power of Attorney</option>
+          <option value="Review your Will">Review your Will</option>
+          <option value="Check National Insurance record">Check National Insurance record</option>
+        </optgroup>
+      </select>
+      <div id="milestones-list"></div>
+    </div>
     <div class="version-note home" id="version-home">V3.1.36</div>
   </div>
 
@@ -860,28 +878,6 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
     </div>
   </div>
 
-  <!-- MILESTONES -->
-  <div class="tab-panel" id="tab-milestones">
-    <div class="card">
-      <div class="card-eyebrow">Milestones</div>
-      <select class="ms-add-select" id="ms-add-select" onchange="addMilestoneFromSelect(this)">
-        <option value="">+ Add Milestone...</option>
-        <option value="__new__">✏️ Create New Milestone</option>
-        <optgroup label="UK Retirement Readiness">
-          <option value="Check State Pension forecast on GOV.UK">Check State Pension forecast on GOV.UK</option>
-          <option value="Consolidate old pension pots">Consolidate old pension pots</option>
-          <option value="Book a Pension Wise appointment">Book a Pension Wise appointment</option>
-          <option value="Review SJP pension charges">Review SJP pension charges</option>
-          <option value="Consider Lifetime ISA if eligible">Consider Lifetime ISA if eligible</option>
-          <option value="Draft a Lasting Power of Attorney">Draft a Lasting Power of Attorney</option>
-          <option value="Review your Will">Review your Will</option>
-          <option value="Check National Insurance record">Check National Insurance record</option>
-        </optgroup>
-      </select>
-      <div id="milestones-list"></div>
-    </div>
-  </div>
-
   <!-- SETTINGS -->
   <div class="tab-panel" id="tab-settings">
     <div class="card">
@@ -900,6 +896,17 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
       <div class="form-group"><label>Retirement Date</label><input type="date" id="s-retire" oninput="fs('retire',this.value)"/></div>
       <div class="form-group"><label>Career Start Date</label><input type="date" id="s-career" oninput="fs('career',this.value)"/></div>
     </div>
+    <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
+      <div class="card-eyebrow">Secure Cloud Sync</div>
+      <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
+      <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
+      <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
+      <div class="version-note settings" id="version-settings">V3.1.36</div>
+    </div>
+  </div>
+
+  <!-- SHARED PORTFOLIOS -->
+  <div class="tab-panel" id="tab-shared">
     <div class="card">
       <div class="card-eyebrow">Share Portfolio</div>
       <div class="section-title" style="margin-top:4px;">Select Panels to Share</div>
@@ -917,17 +924,6 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
       <div class="share-status" id="share-status"></div>
       <button class="btn-primary" onclick="submitSharePortfolio()">Share Selected Panels</button>
     </div>
-    <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
-      <div class="card-eyebrow">Secure Cloud Sync</div>
-      <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
-      <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
-      <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V3.1.36</div>
-    </div>
-  </div>
-
-  <!-- SHARED PORTFOLIOS -->
-  <div class="tab-panel" id="tab-shared">
     <div class="card">
       <div class="card-eyebrow">Shared With Me</div>
       <div id="shared-portfolios-list"><div style="font-size:13px;color:#484f58;text-align:center;padding:20px 0;">No shared portfolios yet</div></div>
@@ -951,9 +947,6 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
   <button class="tab-btn" onclick="switchTab('cashflow',this)">
     <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>Cashflow
   </button>
-  <button class="tab-btn" onclick="switchTab('milestones',this)">
-    <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Milestones
-  </button>
   <button class="tab-btn" data-tab="shared" onclick="switchTab('shared',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Shared
   </button>
@@ -966,7 +959,7 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
 </div>
 
 <script>
-const APP_VERSION='V3.7';
+const APP_VERSION='V3.8';
 const FIREBASE_CONFIG=window.RETIREME_FIREBASE_CONFIG||null;
 let _db=null;
 let _cloudSaveTimer=null;
