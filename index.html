@@ -941,7 +941,7 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
     <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-6h6v6"/></svg>Home
   </button>
   <button class="tab-btn" data-tab="ledger" onclick="switchTab('ledger',this)">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Portfolio View
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Portfolio
   </button>
   <button class="tab-btn" data-tab="spend" onclick="switchTab('spend',this)">
     <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>Spend
@@ -964,7 +964,7 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
 </div>
 
 <script>
-const APP_VERSION='V3.5';
+const APP_VERSION='V3.5d';
 const FIREBASE_CONFIG=window.RETIREME_FIREBASE_CONFIG||null;
 let _db=null;
 let _cloudSaveTimer=null;
@@ -1678,7 +1678,14 @@ function syncPortfolioCarryOvers(){
 }
 function renderVersionLabels(){
   const ids=['version-header','version-home','version-home-ledger','version-settings','version-login'];
-  for(const id of ids){const el=document.getElementById(id);if(el)el.textContent=APP_VERSION;}
+  // Measure actual safe-area-inset-bottom so we can debug the iOS gap
+  const probe=document.createElement('div');
+  probe.style.cssText='position:fixed;bottom:0;left:0;height:0;padding-bottom:env(safe-area-inset-bottom,0px);visibility:hidden;';
+  document.body.appendChild(probe);
+  const sab=parseFloat(getComputedStyle(probe).paddingBottom)||0;
+  document.body.removeChild(probe);
+  const label=`${APP_VERSION} [sab:${sab}px]`;
+  for(const id of ids){const el=document.getElementById(id);if(el)el.textContent=label;}
 }
 function getHomePortfolioSummary(){
   const totals=new Map();
