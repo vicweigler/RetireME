@@ -41,20 +41,23 @@
 
     return h('nav',
       {
-        // Added pb-[env(safe-area-inset-bottom)] directly to the nav to handle home indicator safely
-        className: 'md:hidden fixed bottom-0 left-0 right-0 flex flex-col z-50 pb-[env(safe-area-inset-bottom,0px)]',
+        className: 'md:hidden fixed bottom-0 left-0 right-0 flex flex-col z-50',
         style: {
-          background:  o.bgColor,
-          borderTop:   '1px solid ' + o.borderColor,
+          background:    o.bgColor,
+          borderTop:     '1px solid ' + o.borderColor,
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)', // Guarantees iOS safe area works without Tailwind compiler dependencies
         },
       },
 
-      // Reduced inner row height from h-16 (64px) to h-12 (48px) or h-[50px]
-      h('div', { className: 'flex h-[50px] items-center' },
+      // Compact iOS Tab Height (44px)
+      h('div', { 
+        className: 'flex items-center justify-around',
+        style: { height: '44px' } 
+      },
         tabs.map(function (tab) {
           return h('button', {
             key:       tab.id,
-            className: 'flex-1 flex flex-col items-center justify-center gap-[2px]',
+            className: 'flex-1 flex flex-col items-center justify-center gap-0.5',
             style: {
               color:                    tab.id === activeId ? o.accentColor : o.inactiveColor,
               background:               'none',
@@ -63,13 +66,12 @@
               transition:               'color 0.2s',
               WebkitTapHighlightColor:  'transparent',
               fontFamily:               'inherit',
+              padding:                  '2px 0',
             },
             onClick: function () { onTabChange(tab.id); },
           },
-            // 20px icon
             h('div', { dangerouslySetInnerHTML: { __html: tab.svg } }),
-            // Label
-            h('span', { className: 'text-[10px] font-medium leading-none', style: { letterSpacing: 0 } }, tab.label)
+            h('span', { className: 'text-[10px] font-medium leading-tight' }, tab.label)
           );
         })
       )
@@ -118,7 +120,7 @@
 
     // Mirrors AppLayout.tsx:206: paddingBottom='calc(4rem + env(safe-area-inset-bottom))'
     if (this._o.contentEl) {
-      this._o.contentEl.style.paddingBottom = 'calc(3.125rem + env(safe-area-inset-bottom, 0px))';
+      this._o.contentEl.style.paddingBottom = 'calc(44px + env(safe-area-inset-bottom, 0px))';
     }
   };
 
