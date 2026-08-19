@@ -54,7 +54,7 @@ html,body{height:100%;background:#0d1117;color:#e6edf3;font-family:-apple-system
 .hdr-signout:hover{border-color:#484f58;}
 #content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(40px + min(env(safe-area-inset-bottom,0px),6px));}
 body::after{display:none;}
-#tabbar{position:fixed;bottom:-20px;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;flex-direction:column;z-index:100;}
+#tabbar{position:fixed;bottom:-5px;left:0;right:0;background:#161b22;border-top:1px solid #21262d;display:flex;flex-direction:column;z-index:100;}
 .tabbar-row{display:flex;align-items:center;width:100%;overflow-x:auto;scrollbar-width:none;}
 .tabbar-row::-webkit-scrollbar{display:none;}
 .tabbar-safe{height:min(env(safe-area-inset-bottom,0px),6px);}
@@ -959,7 +959,7 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
 </div>
 
 <script>
-const APP_VERSION='V4.8';
+const APP_VERSION='V4.9';
 const FIREBASE_CONFIG=window.RETIREME_FIREBASE_CONFIG||null;
 let _db=null;
 let _cloudSaveTimer=null;
