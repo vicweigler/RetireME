@@ -45,7 +45,8 @@
         // AppLayout.tsx:209 - How high the bar is off the bottom of the screen (negative margin) before the safe-area spacer is added
         className: 'md:hidden fixed left-0 right-0 flex flex-col z-50',
         style: {
-          bottom:      '-63px',
+          // iOS safe-area ≈34px → -63px; Android 0px → -29px; both expose 42px of bar.
+          bottom:      'calc(-29px - env(safe-area-inset-bottom, 0px))',
           background:  o.bgColor,
           borderTop:   '1px solid ' + o.borderColor,
         },
