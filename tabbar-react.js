@@ -43,7 +43,7 @@
     return h('nav',
       {
         // AppLayout.tsx:209 - How high the bar is off the bottom of the screen (negative margin) before the safe-area spacer is added
-        className: 'md:hidden fixed left-0 right-0 flex flex-col z-50',
+        className: 'fixed left-0 right-0 flex flex-col z-50',
         style: {
           // iOS safe-area ≈34px → -63px; Android 0px → -29px; both expose 42px of bar.
           bottom:      'calc(-29px - env(safe-area-inset-bottom, 0px))',
@@ -57,7 +57,7 @@
         tabs.map(function (tab) {
           return h('button', {
             key:       tab.id,
-            className: 'flex-1 flex flex-col items-center justify-center gap-0.5 pb-[12px]',
+            className: 'flex-1 flex flex-col items-center justify-center gap-0.5 pb-[17px]',
             style: {
               color:                    tab.id === activeId ? o.accentColor : o.inactiveColor,
               background:               'none',
