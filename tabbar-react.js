@@ -51,8 +51,8 @@
         },
       },
 
-      // Reduced inner row height from h-16 (55px) to h-11 (60px)
-      h('div', { className: 'flex h-[60px] items-center' },
+      // Reduced inner row height from h-16 (55px) to h-11 (65px)
+      h('div', { className: 'flex h-[65px] items-center' },
         tabs.map(function (tab) {
           return h('button', {
             key:       tab.id,
