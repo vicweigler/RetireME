@@ -45,7 +45,7 @@
         // AppLayout.tsx:209 - How high the bar is off the bottom of the screen (negative margin) before the safe-area spacer is added
         className: 'md:hidden fixed left-0 right-0 flex flex-col z-50',
         style: {
-          bottom:      '-55px',
+          bottom:      '-58px',
           background:  o.bgColor,
           borderTop:   '1px solid ' + o.borderColor,
         },
