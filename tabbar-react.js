@@ -34,28 +34,27 @@
 
   // Stateless — activeId is owned by the TabBar instance and passed as a prop
   function TabBarComponent(props) {
-    var tabs       = props.tabs;
-    var activeId   = props.activeId;
-    var o          = props.opts;
+    var tabs        = props.tabs;
+    var activeId    = props.activeId;
+    var o           = props.opts;
     var onTabChange = props.onTabChange;
 
     return h('nav',
       {
-        // AppLayout.tsx:209 — change bottom-[-Xpx] to adjust vertical offset
-        className: 'md:hidden fixed bottom-[-5px] left-0 right-0 flex flex-col z-50',
+        // Added pb-[env(safe-area-inset-bottom)] directly to the nav to handle home indicator safely
+        className: 'md:hidden fixed bottom-0 left-0 right-0 flex flex-col z-50 pb-[env(safe-area-inset-bottom,0px)]',
         style: {
           background:  o.bgColor,
           borderTop:   '1px solid ' + o.borderColor,
         },
       },
 
-      // Inner bar — h-16 = 4rem = 64 px (AppLayout.tsx inner row)
-      h('div', { className: 'flex h-16' },
+      // Reduced inner row height from h-16 (64px) to h-12 (48px) or h-[50px]
+      h('div', { className: 'flex h-[50px] items-center' },
         tabs.map(function (tab) {
           return h('button', {
             key:       tab.id,
-            // flex-1 so all tabs share width equally; no overflow/scroll
-            className: 'flex-1 flex flex-col items-center justify-center gap-1',
+            className: 'flex-1 flex flex-col items-center justify-center gap-[2px]',
             style: {
               color:                    tab.id === activeId ? o.accentColor : o.inactiveColor,
               background:               'none',
@@ -67,18 +66,13 @@
             },
             onClick: function () { onTabChange(tab.id); },
           },
-            // 20 px icon — sized via injected CSS rule targeting svg inside #tabbar-modern
+            // 20px icon
             h('div', { dangerouslySetInnerHTML: { __html: tab.svg } }),
-            // text-[10px] font-medium matches AppLayout.tsx label styling
-            h('span', { className: 'text-[10px] font-medium', style: { letterSpacing: 0 } }, tab.label)
+            // Label
+            h('span', { className: 'text-[10px] font-medium leading-none', style: { letterSpacing: 0 } }, tab.label)
           );
         })
-      ),
-
-      // Safe-area spacer — full env(safe-area-inset-bottom), uncapped
-      h('div', {
-        style: { height: 'env(safe-area-inset-bottom, -15px)', background: o.bgColor },
-      })
+      )
     );
   }
 
@@ -124,7 +118,7 @@
 
     // Mirrors AppLayout.tsx:206: paddingBottom='calc(4rem + env(safe-area-inset-bottom))'
     if (this._o.contentEl) {
-      this._o.contentEl.style.paddingBottom = 'calc(4rem + env(safe-area-inset-bottom, 0px))';
+      this._o.contentEl.style.paddingBottom = 'calc(3.125rem + env(safe-area-inset-bottom, 0px))';
     }
   };
 
