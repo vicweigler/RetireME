@@ -33,27 +33,25 @@
   }
 
   // Stateless — activeId is owned by the TabBar instance and passed as a prop
+  // Stateless — activeId is owned by the TabBar instance and passed as a prop
   function TabBarComponent(props) {
-    var tabs        = props.tabs;
-    var activeId    = props.activeId;
-    var o           = props.opts;
+    var tabs       = props.tabs;
+    var activeId   = props.activeId;
+    var o          = props.opts;
     var onTabChange = props.onTabChange;
 
     return h('nav',
       {
+        // AppLayout.tsx:209
         className: 'md:hidden fixed bottom-0 left-0 right-0 flex flex-col z-50',
         style: {
-          background:    o.bgColor,
-          borderTop:     '1px solid ' + o.borderColor,
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)', // Guarantees iOS safe area works without Tailwind compiler dependencies
+          background:  o.bgColor,
+          borderTop:   '1px solid ' + o.borderColor,
         },
       },
 
-      // Compact iOS Tab Height (44px)
-      h('div', { 
-        className: 'flex items-center justify-around',
-        style: { height: '44px' } 
-      },
+      // Reduced inner row height from h-16 (64px) to h-11 (44px)
+      h('div', { className: 'flex h-11 items-center' },
         tabs.map(function (tab) {
           return h('button', {
             key:       tab.id,
@@ -66,15 +64,19 @@
               transition:               'color 0.2s',
               WebkitTapHighlightColor:  'transparent',
               fontFamily:               'inherit',
-              padding:                  '2px 0',
             },
             onClick: function () { onTabChange(tab.id); },
           },
             h('div', { dangerouslySetInnerHTML: { __html: tab.svg } }),
-            h('span', { className: 'text-[10px] font-medium leading-tight' }, tab.label)
+            h('span', { className: 'text-[10px] font-medium leading-none', style: { letterSpacing: 0 } }, tab.label)
           );
         })
-      )
+      ),
+
+      // Safe-area spacer
+      h('div', {
+        style: { height: 'env(safe-area-inset-bottom, 0px)', background: o.bgColor },
+      })
     );
   }
 
@@ -118,9 +120,9 @@
     this._root = global.ReactDOM.createRoot(container);
     this._render();
 
-    // Mirrors AppLayout.tsx:206: paddingBottom='calc(4rem + env(safe-area-inset-bottom))'
+    // Adjusted from 4rem (64px) down to 2.75rem (44px)
     if (this._o.contentEl) {
-      this._o.contentEl.style.paddingBottom = 'calc(44px + env(safe-area-inset-bottom, 0px))';
+      this._o.contentEl.style.paddingBottom = 'calc(2.75rem + env(safe-area-inset-bottom, 0px))';
     }
   };
 
