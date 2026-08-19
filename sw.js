@@ -1,4 +1,4 @@
-const CACHE = 'retireme-v47';
+const CACHE = 'retireme-v48';
 const ASSETS = ['./', './index.html', './icon.png', './apple-touch-icon.png', './manifest.json'];
 
 self.addEventListener('install', e => {
