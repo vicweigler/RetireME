@@ -43,8 +43,9 @@
     return h('nav',
       {
         // AppLayout.tsx:209
-        className: 'md:hidden fixed bottom-0 left-0 right-0 flex flex-col z-50',
+        className: 'md:hidden fixed left-0 right-0 flex flex-col z-50',
         style: {
+          bottom:      '-30px',
           background:  o.bgColor,
           borderTop:   '1px solid ' + o.borderColor,
         },
