@@ -964,7 +964,7 @@ body.light-mode .sro-lyt.active{background:#00d17a;color:#073b24;border-color:#0
 </div>
 
 <script>
-const APP_VERSION='V8.4';
+const APP_VERSION='V8.5';
 // Switch between 'modern' (AppLayout.tsx style) and 'legacy' (original)
 const TAB_BAR_VARIANT = 'modern';
 let _tabBar = null;
@@ -1374,21 +1374,17 @@ async function forceRefreshApp(){
     }
     if('serviceWorker' in navigator){
       const regs=await navigator.serviceWorker.getRegistrations();
+      // Keep SW registered — it handles navigation with cache:'reload', bypassing HTTP cache.
       await Promise.all(regs.map(async reg=>{
         try{reg.active&&reg.active.postMessage({type:'PURGE_CACHES'});}catch(e){}
         try{reg.waiting&&reg.waiting.postMessage({type:'PURGE_CACHES'});}catch(e){}
-        try{await reg.unregister();}catch(e){}
+        try{reg.waiting&&reg.waiting.postMessage('SKIP_WAITING');}catch(e){}
       }));
-      try{await navigator.serviceWorker.register('./sw.js?v='+Date.now(),{scope:'./'});}catch(e){}
     }
-    // Probe the latest HTML with no-store to break through browser/proxy caches before navigation.
     try{await fetch('./index.html?refresh_probe='+Date.now(),{cache:'no-store',credentials:'same-origin'});}catch(e){}
   }catch(e){}
-  const u=new URL(window.location.href);
-  u.searchParams.set('v',Date.now().toString());
-  u.searchParams.set('refresh','1');
-  // Assign creates a normal top-level navigation that tends to bypass stubborn back-forward cache behavior better than replace.
-  window.location.assign(u.toString());
+  // Navigate to a clean URL so the active SW can serve it fresh via cache:'reload'.
+  window.location.replace('./index.html?v='+Date.now());
 }
 function safeParseJSON(raw){
   if(!raw)return null;
