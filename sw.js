@@ -1,4 +1,4 @@
-const CACHE = 'retireme-v40';
+const CACHE = 'retireme-v41';
 const ASSETS = ['./', './index.html', './icon.png', './apple-touch-icon.png', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -34,7 +34,9 @@ self.addEventListener('fetch', e => {
     url.pathname.endsWith('/index.html') ||
     url.pathname.endsWith('/manifest.json') ||
     url.pathname.endsWith('/icon.png') ||
-    url.pathname.endsWith('/apple-touch-icon.png')
+    url.pathname.endsWith('/apple-touch-icon.png') ||
+    url.pathname.endsWith('/tabbar-react.js') ||
+    url.pathname.endsWith('/tabbar.js')
   );
   if (isAppShell) {
     e.respondWith(
