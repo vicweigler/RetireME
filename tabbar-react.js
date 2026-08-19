@@ -45,7 +45,7 @@
         // AppLayout.tsx:209
         className: 'md:hidden fixed left-0 right-0 flex flex-col z-50',
         style: {
-          bottom:      '-30px',
+          bottom:      '-35px',
           background:  o.bgColor,
           borderTop:   '1px solid ' + o.borderColor,
         },
