@@ -57,7 +57,7 @@
         tabs.map(function (tab) {
           return h('button', {
             key:       tab.id,
-            className: 'flex-1 flex flex-col items-center justify-center gap-0.5 pb-[17px]',
+            className: 'flex-1 flex flex-col items-center justify-center gap-0.5 pb-[22px]',
             style: {
               color:                    tab.id === activeId ? o.accentColor : o.inactiveColor,
               background:               'none',
