@@ -1123,6 +1123,18 @@ body::after {
   -webkit-appearance: none;
   appearance: none;
 }
+.form-group textarea {
+  width: 100%;
+  background: #080d1a;
+  border: 1px solid #1f2d45;
+  border-radius: 10px;
+  padding: 11px 13px;
+  color: #e6edf3;
+  font-size: 15px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
 .form-group input:focus { border-color: #00d17a; }
 input[type=date]::-webkit-calendar-picker-indicator { filter: invert(1); }
 input[type=range] { padding: 4px 0; accent-color: #00d17a; }
@@ -1226,6 +1238,21 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   color: #848d97;
   cursor: pointer;
   margin-top: 6px;
+}
+
+/* iOS Safari auto-zooms when editable controls are under 16px. */
+@supports (-webkit-touch-callout: none) {
+  #login-screen input,
+  #login-screen select,
+  #login-screen textarea,
+  .share-modal input,
+  .share-modal select,
+  .share-modal textarea,
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 16px !important;
+  }
 }
 .edit-panel {
   background: #080d1a;
@@ -3151,6 +3178,12 @@ body.light-mode .sro-lyt.active {
       <button class="btn-danger" style="margin-top:0;" onclick="adminLoadUsers()">List All Users</button>
     </div>
     <div class="form-group" style="margin-bottom:10px;">
+      <label>Registration Requests</label>
+      <div style="font-size:11px;color:#484f58;margin-bottom:8px;">Approve or reject pending access requests.</div>
+      <button class="btn-danger" style="margin-top:0;" onclick="adminLoadRegistrationRequests()">Load Requests</button>
+      <div id="admin-request-list" class="admin-user-list" style="margin-top:8px;"><div style="font-size:12px;color:#484f58;padding:4px 0;">Tap "Load Requests" to view pending approvals.</div></div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px;">
       <label>Select User ID (Email shown)</label>
       <select id="admin-user-select" class="share-user-select"><option value="">Select a user...</option></select>
       <div style="display:flex;gap:8px;margin-top:8px;">
@@ -3480,7 +3513,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V10.0';
+const APP_VERSION = 'V10.1';
 
 /**
  * Tab bar variant selector:
@@ -3536,6 +3569,51 @@ let _swRegistrationAttempted = false;
 const SW_CACHE_BUST = encodeURIComponent(APP_VERSION || 'dev');
 const ADMIN_EMAIL = 'vicweigler@gmail.com';
 const ADMIN_DELETE_USER_URL = (window.RETIREME_ADMIN_DELETE_USER_URL || '').toString().trim();
+
+function registrationEmailKey(email) {
+  return encodeURIComponent(String(email || '').trim().toLowerCase());
+}
+
+async function getRegistrationRequest(email) {
+  if (!_db || !email) return null;
+  try {
+    const key = registrationEmailKey(email);
+    const snap = await _db.collection('registrationRequests').doc(key).get();
+    return snap.exists ? (snap.data() || null) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function isRegistrationAuthorized(email) {
+  const normalized = String(email || '').trim().toLowerCase();
+  if (!normalized) return false;
+  if (normalized === ADMIN_EMAIL) return true;
+  const req = await getRegistrationRequest(normalized);
+  return String((req && req.status) || '').toLowerCase() === 'authorized';
+}
+
+async function submitRegistrationRequest(email) {
+  if (!_db || !email) return false;
+  try {
+    const normalized = String(email || '').trim().toLowerCase();
+    const key = registrationEmailKey(normalized);
+    const existing = await getRegistrationRequest(normalized);
+    if (existing && String(existing.status || '').toLowerCase() === 'authorized') return true;
+    await _db.collection('registrationRequests').doc(key).set({
+      email: normalized,
+      emailKey: key,
+      status: 'pending',
+      requestedAt: existing && existing.requestedAt ? existing.requestedAt : Date.now(),
+      updatedAt: Date.now(),
+      reviewedAt: null,
+      reviewedBy: null,
+    }, { merge: true });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 /**
  * Default Assets Catalog (DA):
@@ -3890,6 +3968,17 @@ function initFirebase() {
         _firebaseUser = u || null;
 
         if (_firebaseUser) {
+          const approved = await isRegistrationAuthorized(_firebaseUser.email || '');
+          if (!approved) {
+            try { await auth.signOut(); } catch (e) {}
+            loginStatus('Your access request is pending review. Requests are processed within 24 hours.', '#d29922');
+            try { localStorage.setItem('loggedIn', 'false'); } catch (e) {}
+            renderAuthHeader();
+            renderAuthGate();
+            cloudStatus('access pending approval', '#d29922');
+            return;
+          }
+
           clearLegacyPortfolioCache();
           try {
             if (_firebaseUser.email) localStorage.setItem('userEmail', _firebaseUser.email);
@@ -4000,6 +4089,12 @@ async function loginWithPassword(event) {
       loginStatus('Enter email and password.', '#f85149');
       return;
     }
+    const approved = await isRegistrationAuthorized(email);
+    if (!approved) {
+      await submitRegistrationRequest(email);
+      loginStatus('Access request submitted. Requests are reviewed within 24 hours.', '#d29922');
+      return;
+    }
     clearLegacyPortfolioCache();
     loginStatus('Signing in...', '#d29922');
     await auth.signInWithEmailAndPassword(email, password);
@@ -4025,6 +4120,12 @@ async function createAccountWithPassword() {
     const password = (passEl && passEl.value || '').trim();
     if (!email || !password) {
       loginStatus('Enter email and password to create account.', '#f85149');
+      return;
+    }
+    const approved = await isRegistrationAuthorized(email);
+    if (!approved) {
+      await submitRegistrationRequest(email);
+      loginStatus('Request submitted. We review registration requests within 24 hours. If approved, you can sign in after that window.', '#d29922');
       return;
     }
     loginStatus('Creating account...', '#d29922');
@@ -4058,6 +4159,12 @@ async function createAccountWithPassword() {
       // In fallback admin-delete mode, Firestore data can be removed while Auth account still exists.
       // Try signing in with entered password first; if it fails, trigger password reset to recover the account.
       try {
+        const approved = await isRegistrationAuthorized(email);
+        if (!approved) {
+          await submitRegistrationRequest(email);
+          loginStatus('Request submitted. We review registration requests within 24 hours.', '#d29922');
+          return;
+        }
         await safeFirebaseAuth().signInWithEmailAndPassword(email, password);
         loginStatus('Account already existed in Auth. Signed in successfully - your app data will be reinitialized.', '#00d17a');
         return;
@@ -4394,6 +4501,93 @@ function openAdminModal() {
   const modal = document.getElementById('admin-modal');
   if (modal) modal.style.display = 'flex';
   adminStatus('Ready.', '#8b949e');
+  adminLoadRegistrationRequests();
+}
+
+async function adminLoadRegistrationRequests() {
+  const listEl = document.getElementById('admin-request-list');
+  if (!isAdminEmail()) {
+    adminStatus('Access denied.', '#f85149');
+    return;
+  }
+  if (!_db) {
+    adminStatus('Database not connected.', '#f85149');
+    return;
+  }
+  if (listEl) listEl.innerHTML = '<div style="font-size:12px;color:#484f58;padding:4px 0;">Loading requests...</div>';
+  try {
+    const snap = await _db.collection('registrationRequests').get();
+    const rows = [];
+    snap.forEach(doc => {
+      const d = doc.data() || {};
+      const email = String(d.email || '').trim().toLowerCase();
+      const status = String(d.status || 'pending').toLowerCase();
+      if (!email || email === ADMIN_EMAIL) return;
+      rows.push({ key: doc.id, email, status, updatedAt: Number(d.updatedAt || d.requestedAt || 0) });
+    });
+    rows.sort((a, b) => b.updatedAt - a.updatedAt);
+    if (!rows.length) {
+      if (listEl) listEl.innerHTML = '<div style="font-size:12px;color:#484f58;padding:4px 0;">No requests found.</div>';
+      return;
+    }
+    if (listEl) {
+      listEl.innerHTML = rows.map(r => `<div class="admin-user-row">
+        <div>
+          <div class="admin-user-email">${escapeHtml(r.email)}</div>
+          <div class="admin-user-uid">Status: ${escapeHtml(r.status)}</div>
+        </div>
+        <div class="admin-user-actions">
+          <button class="admin-action-btn reset" onclick="adminAuthorizeRequest(decodeURIComponent('${encodeURIComponent(r.email)}'))">Authorize</button>
+          <button class="admin-action-btn delete" onclick="adminRejectRequest(decodeURIComponent('${encodeURIComponent(r.email)}'))">Reject</button>
+        </div>
+      </div>`).join('');
+    }
+  } catch (e) {
+    if (listEl) listEl.innerHTML = '<div style="font-size:12px;color:#f85149;padding:4px 0;">Failed to load requests.</div>';
+    adminStatus('Request load failed: ' + ((e && e.message) || 'unknown error'), '#f85149');
+  }
+}
+
+async function adminAuthorizeRequest(email) {
+  if (!isAdminEmail() || !_db) return;
+  const normalized = String(email || '').trim().toLowerCase();
+  if (!normalized || normalized === ADMIN_EMAIL) return;
+  try {
+    const key = registrationEmailKey(normalized);
+    await _db.collection('registrationRequests').doc(key).set({
+      email: normalized,
+      emailKey: key,
+      status: 'authorized',
+      updatedAt: Date.now(),
+      reviewedAt: Date.now(),
+      reviewedBy: ADMIN_EMAIL,
+    }, { merge: true });
+    adminStatus('Authorized ' + normalized + '.', '#00d17a');
+    await adminLoadRegistrationRequests();
+  } catch (e) {
+    adminStatus('Authorize failed: ' + ((e && e.message) || 'unknown error'), '#f85149');
+  }
+}
+
+async function adminRejectRequest(email) {
+  if (!isAdminEmail() || !_db) return;
+  const normalized = String(email || '').trim().toLowerCase();
+  if (!normalized || normalized === ADMIN_EMAIL) return;
+  try {
+    const key = registrationEmailKey(normalized);
+    await _db.collection('registrationRequests').doc(key).set({
+      email: normalized,
+      emailKey: key,
+      status: 'rejected',
+      updatedAt: Date.now(),
+      reviewedAt: Date.now(),
+      reviewedBy: ADMIN_EMAIL,
+    }, { merge: true });
+    adminStatus('Rejected ' + normalized + '.', '#d29922');
+    await adminLoadRegistrationRequests();
+  } catch (e) {
+    adminStatus('Reject failed: ' + ((e && e.message) || 'unknown error'), '#f85149');
+  }
 }
 
 async function adminLoadUsers() {
@@ -4536,6 +4730,16 @@ async function adminDeleteUserAndData(uid, email) {
     const verifySharedTo = await _db.collection('sharedPortfolios').where('toUid', '==', targetUid).get();
     const anyRemaining = verifyUserDoc.exists || verifyProfileDoc.exists || !verifyAppsSnap.empty || !verifySharedFrom.empty || !verifySharedTo.empty;
     if (anyRemaining) throw new Error('Delete verification failed: some user data still exists.');
+
+    const reqKey = registrationEmailKey(targetEmail);
+    await _db.collection('registrationRequests').doc(reqKey).set({
+      email: targetEmail,
+      emailKey: reqKey,
+      status: 'deleted',
+      updatedAt: Date.now(),
+      reviewedAt: Date.now(),
+      reviewedBy: ADMIN_EMAIL,
+    }, { merge: true });
   }
 
   adminStatus('Deleting user...', '#d29922');
@@ -4569,12 +4773,14 @@ async function adminDeleteUserAndData(uid, email) {
       }
       adminStatus('User account and data deleted for ' + targetEmail + '.', '#00d17a');
       await adminLoadUsers();
+      await adminLoadRegistrationRequests();
       return;
     }
 
     await deleteUserDataFromFirestore();
     adminStatus('User data deleted for ' + targetEmail + '. (Auth account not deleted in this mode.)', '#d29922');
     await adminLoadUsers();
+    await adminLoadRegistrationRequests();
   } catch (e) {
     const msg = ((e && e.message) || 'unknown error');
     adminStatus('Delete failed: ' + msg + (String(msg).toLowerCase().includes('permission') ? ' (check Cloud Function deployment and admin token).' : ''), '#f85149');
