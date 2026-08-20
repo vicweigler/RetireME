@@ -1274,8 +1274,7 @@ body.modal-open {
   .share-modal {
     width: 100% !important;
     max-width: 460px !important;
-    height: 70svh !important;
-    max-height: 70svh !important;
+    max-height: calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px) !important;
     box-sizing: border-box;
     margin: 0 auto;
   }
@@ -3590,7 +3589,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V11.5';
+const APP_VERSION = 'V11.6';
 
 /**
  * Tab bar variant selector:
