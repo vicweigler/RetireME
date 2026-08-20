@@ -1,4 +1,5 @@
 const { onRequest } = require('firebase-functions/v2/https');
+const { defineSecret } = require('firebase-functions/params');
 const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
@@ -6,6 +7,87 @@ if (!admin.apps.length) {
 }
 
 const ADMIN_EMAIL = 'vicweigler@gmail.com';
+const FUNCTIONS_CONFIG_EXPORT = defineSecret('FUNCTIONS_CONFIG_EXPORT');
+
+function registrationEmailKey(email) {
+  return encodeURIComponent(String(email || '').trim().toLowerCase());
+}
+
+exports.requestRegistration = onRequest(
+  { cors: true, secrets: [FUNCTIONS_CONFIG_EXPORT] },
+  async (req, res) => {
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ ok: false, error: 'Method not allowed' });
+      return;
+    }
+
+    const email = String((req.body && req.body.email) || '').trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      res.status(400).json({ ok: false, error: 'A valid email address is required.' });
+      return;
+    }
+    if (email === ADMIN_EMAIL) {
+      res.status(400).json({ ok: false, error: 'The admin account does not require approval.' });
+      return;
+    }
+
+    try {
+      const db = admin.firestore();
+      const key = registrationEmailKey(email);
+      const ref = db.collection('registrationRequests').doc(key);
+      const existingSnap = await ref.get();
+      const existing = existingSnap.exists ? existingSnap.data() : null;
+      if (existing && String(existing.status || '').toLowerCase() === 'authorized') {
+        res.status(200).json({ ok: true, status: 'authorized' });
+        return;
+      }
+
+      await ref.set({
+        email,
+        emailKey: key,
+        status: 'pending',
+        requestedAt: existing && existing.requestedAt ? existing.requestedAt : Date.now(),
+        updatedAt: Date.now(),
+        reviewedAt: null,
+        reviewedBy: null,
+      }, { merge: true });
+
+      let config = {};
+      try {
+        config = JSON.parse(FUNCTIONS_CONFIG_EXPORT.value() || '{}');
+      } catch (parseError) {
+        throw new Error('Gmail SMTP configuration is not valid JSON.');
+      }
+      const gmailUser = config.gmail && config.gmail.user;
+      const gmailAppPassword = config.gmail && config.gmail.app_password;
+      if (!gmailUser || !gmailAppPassword) {
+        throw new Error('Gmail SMTP configuration is missing.');
+      }
+
+      const nodemailer = require('nodemailer');
+      const mailer = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: gmailUser, pass: gmailAppPassword },
+      });
+      await mailer.sendMail({
+        from: `RetireMe <${gmailUser}>`,
+        to: ADMIN_EMAIL,
+        subject: `RetireMe registration request: ${email}`,
+        text: `A new RetireMe user is requesting authorization.\n\nEmail: ${email}\n\nOpen RetireMe, use the Admin button, and authorize or reject this request.`,
+        html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:#1a1a1a"><h2>RetireMe registration request</h2><p>A new user is requesting authorization:</p><p><strong>${email}</strong></p><p>Open RetireMe, use the Admin button, and authorize or reject this request.</p></div>`,
+      });
+
+      res.status(200).json({ ok: true, status: 'pending', emailSent: true });
+    } catch (err) {
+      console.error('[requestRegistration] Error:', err);
+      res.status(500).json({ ok: false, error: 'Request saved, but the admin email could not be sent.' });
+    }
+  }
+);
 
 async function verifyAdminCaller(req) {
   const authHeader = String(req.headers.authorization || '');

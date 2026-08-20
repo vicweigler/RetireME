@@ -2518,8 +2518,27 @@ body.light-mode .share-modal {
 }
 body.light-mode #portfolio-type-modal .login-btn.secondary { color: #000000; }
 body.light-mode #portfolio-type-taxable {
+  -webkit-appearance: none;
+  appearance: none;
   background-color: #ffffff;
   border: 1px solid #94a3b8;
+  border-radius: 3px;
+  position: relative;
+}
+body.light-mode #portfolio-type-taxable:checked {
+  background-color: #00d17a;
+  border-color: #00a85e;
+}
+body.light-mode #portfolio-type-taxable:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 9px;
+  border: solid #080d1a;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 body.light-mode .share-modal-title { color: #0f172a; }
 body.light-mode .share-modal-close { color: #64748b; }
@@ -3552,7 +3571,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V10.9';
+const APP_VERSION = 'V11.0';
 
 /**
  * Tab bar variant selector:
@@ -3608,6 +3627,7 @@ let _swRegistrationAttempted = false;
 const SW_CACHE_BUST = encodeURIComponent(APP_VERSION || 'dev');
 const ADMIN_EMAIL = 'vicweigler@gmail.com';
 const ADMIN_DELETE_USER_URL = (window.RETIREME_ADMIN_DELETE_USER_URL || '').toString().trim();
+const REGISTRATION_REQUEST_URL = (window.RETIREME_REGISTRATION_REQUEST_URL || '').toString().trim();
 
 function registrationEmailKey(email) {
   return encodeURIComponent(String(email || '').trim().toLowerCase());
@@ -3636,6 +3656,14 @@ async function submitRegistrationRequest(email) {
   if (!_db || !email) return false;
   try {
     const normalized = String(email || '').trim().toLowerCase();
+    if (REGISTRATION_REQUEST_URL) {
+      const response = await fetch(REGISTRATION_REQUEST_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: normalized }),
+      });
+      if (response.ok) return true;
+    }
     const key = registrationEmailKey(normalized);
     const existing = await getRegistrationRequest(normalized);
     if (existing && String(existing.status || '').toLowerCase() === 'authorized') return true;
@@ -3886,8 +3914,8 @@ function loginStatus(msg, color) {
  */
 function authErrorMessage(e, forLogin) {
   const code = (e && e.code) || '';
-  if (code === 'auth/invalid-credential') return 'Invalid email/password for this new RetireMe project. Create Account first or reset password.';
-  if (code === 'auth/user-not-found') return 'No account found for this email. Use Create Account.';
+  if (code === 'auth/invalid-credential') return forLogin ? 'No User Found, Please Create and Account' : 'Invalid email/password.';
+  if (code === 'auth/user-not-found') return 'No User Found, Please Create and Account';
   if (code === 'auth/wrong-password') return 'Password is incorrect. Try again or reset password.';
   if (code === 'auth/email-already-in-use') return 'This email already has an account. Use Login instead.';
   if (code === 'auth/weak-password') return 'Password is too weak. Use at least 6 characters.';
@@ -4126,12 +4154,6 @@ async function loginWithPassword(event) {
     const password = (passEl && passEl.value || '').trim();
     if (!email || !password) {
       loginStatus('Enter email and password.', '#f85149');
-      return;
-    }
-    const approved = await isRegistrationAuthorized(email);
-    if (!approved) {
-      await submitRegistrationRequest(email);
-      loginStatus('Access request submitted. Requests are reviewed within 24 hours.', '#d29922');
       return;
     }
     clearLegacyPortfolioCache();

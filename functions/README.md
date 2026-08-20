@@ -1,5 +1,33 @@
 # Admin User Deletion Cloud Function
 
+## Registration Request Email
+
+`requestRegistration` writes the pending request to `registrationRequests` and sends an email to `vicweigler@gmail.com` using Gmail SMTP. Configure the sender credentials as a Firebase Secret Manager JSON secret; do not put them in source control.
+
+From the repository root, run:
+
+```bash
+firebase functions:secrets:set FUNCTIONS_CONFIG_EXPORT --format json
+```
+
+When prompted, enter:
+
+```json
+{"gmail":{"user":"your-sending-gmail@gmail.com","app_password":"your-16-character-gmail-app-password"}}
+```
+
+Use a Gmail App Password, not the normal Gmail password. Then deploy:
+
+```bash
+firebase deploy --only functions:requestRegistration --project retireme-prod
+```
+
+The production frontend is configured to call:
+
+```text
+https://us-central1-retireme-prod.cloudfunctions.net/requestRegistration
+```
+
 This function allows the RetireMe admin account (`vicweigler@gmail.com`) to delete:
 
 - Firebase Auth user account

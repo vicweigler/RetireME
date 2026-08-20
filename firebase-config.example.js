@@ -10,3 +10,4 @@ window.RETIREME_FIREBASE_CONFIG = {
 // Optional: URL of secure Cloud Function that can delete Firebase Auth users.
 // Example: https://europe-west2-retireme-prod.cloudfunctions.net/adminDeleteUser
 window.RETIREME_ADMIN_DELETE_USER_URL = '';
+window.RETIREME_REGISTRATION_REQUEST_URL = '';
