@@ -3571,7 +3571,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V11.0';
+const APP_VERSION = 'V11.1';
 
 /**
  * Tab bar variant selector:
@@ -4594,13 +4594,19 @@ async function adminLoadRegistrationRequests() {
   try {
     const snap = await _db.collection('registrationRequests').get();
     const rows = [];
+    const terminalDeletes = [];
     snap.forEach(doc => {
       const d = doc.data() || {};
       const email = String(d.email || '').trim().toLowerCase();
       const status = String(d.status || 'pending').toLowerCase();
       if (!email || email === ADMIN_EMAIL) return;
+      if (status === 'rejected' || status === 'deleted') {
+        terminalDeletes.push(doc.ref.delete());
+        return;
+      }
       rows.push({ key: doc.id, email, status, updatedAt: Number(d.updatedAt || d.requestedAt || 0) });
     });
+    if (terminalDeletes.length) await Promise.all(terminalDeletes);
     rows.sort((a, b) => b.updatedAt - a.updatedAt);
     if (!rows.length) {
       if (listEl) listEl.innerHTML = '<div style="font-size:12px;color:#484f58;padding:4px 0;">No requests found.</div>';
@@ -4651,14 +4657,7 @@ async function adminRejectRequest(email) {
   if (!normalized || normalized === ADMIN_EMAIL) return;
   try {
     const key = registrationEmailKey(normalized);
-    await _db.collection('registrationRequests').doc(key).set({
-      email: normalized,
-      emailKey: key,
-      status: 'rejected',
-      updatedAt: Date.now(),
-      reviewedAt: Date.now(),
-      reviewedBy: ADMIN_EMAIL,
-    }, { merge: true });
+    await _db.collection('registrationRequests').doc(key).delete();
     adminStatus('Rejected ' + normalized + '.', '#d29922');
     await adminLoadRegistrationRequests();
   } catch (e) {
@@ -4808,14 +4807,7 @@ async function adminDeleteUserAndData(uid, email) {
     if (anyRemaining) throw new Error('Delete verification failed: some user data still exists.');
 
     const reqKey = registrationEmailKey(targetEmail);
-    await _db.collection('registrationRequests').doc(reqKey).set({
-      email: targetEmail,
-      emailKey: reqKey,
-      status: 'deleted',
-      updatedAt: Date.now(),
-      reviewedAt: Date.now(),
-      reviewedBy: ADMIN_EMAIL,
-    }, { merge: true });
+    await _db.collection('registrationRequests').doc(reqKey).delete();
   }
 
   adminStatus('Deleting user...', '#d29922');
