@@ -1245,8 +1245,10 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 }
 
 body.modal-open {
-  position: fixed;
-  width: 100%;
+  overflow: hidden;
+}
+body.modal-open #content {
+  overflow: hidden;
 }
 
 /* iOS Safari auto-zooms when editable controls are under 16px. */
@@ -3589,7 +3591,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V11.6';
+const APP_VERSION = 'V11.7';
 
 /**
  * Tab bar variant selector:
@@ -4575,15 +4577,15 @@ function closeAdminModal() {
 
 let _modalScrollY = 0;
 function lockModalViewport() {
-  _modalScrollY = window.scrollY || window.pageYOffset || 0;
+  const content = document.getElementById('content');
+  _modalScrollY = content ? content.scrollTop : 0;
   document.body.classList.add('modal-open');
-  document.body.style.top = `-${_modalScrollY}px`;
 }
 
 function unlockModalViewport() {
   document.body.classList.remove('modal-open');
-  document.body.style.top = '';
-  window.scrollTo(0, _modalScrollY || 0);
+  const content = document.getElementById('content');
+  if (content) content.scrollTop = _modalScrollY || 0;
 }
 
 function openAdminModal() {
