@@ -1242,6 +1242,11 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   margin-top: 6px;
 }
 
+body.modal-open {
+  position: fixed;
+  width: 100%;
+}
+
 /* iOS Safari auto-zooms when editable controls are under 16px. */
 @supports (-webkit-touch-callout: none) {
   #login-screen input,
@@ -1254,6 +1259,21 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   .form-group select,
   .form-group textarea {
     font-size: 16px !important;
+  }
+
+  .modal-backdrop {
+    align-items: center !important;
+    padding-top: max(12px, env(safe-area-inset-top, 0px));
+    padding-right: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    padding-left: 12px;
+  }
+
+  .share-modal {
+    width: min(460px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    max-height: calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px);
+    margin: 0 auto;
   }
 }
 .edit-panel {
@@ -2494,6 +2514,7 @@ body.light-mode .share-modal {
   background: #f3f4f6;
   border-color: #d8dee8;
 }
+body.light-mode #portfolio-type-modal .login-btn.secondary { color: #000000; }
 body.light-mode .share-modal-title { color: #0f172a; }
 body.light-mode .share-modal-close { color: #64748b; }
 body.light-mode .income-model-metric {
@@ -3525,7 +3546,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V10.2';
+const APP_VERSION = 'V10.3';
 
 /**
  * Tab bar variant selector:
@@ -4501,8 +4522,22 @@ function adminStatus(msg, color) {
 }
 
 function closeAdminModal() {
+  unlockModalViewport();
   const modal = document.getElementById('admin-modal');
   if (modal) modal.style.display = 'none';
+}
+
+let _modalScrollY = 0;
+function lockModalViewport() {
+  _modalScrollY = window.scrollY || window.pageYOffset || 0;
+  document.body.classList.add('modal-open');
+  document.body.style.top = `-${_modalScrollY}px`;
+}
+
+function unlockModalViewport() {
+  document.body.classList.remove('modal-open');
+  document.body.style.top = '';
+  window.scrollTo(0, _modalScrollY || 0);
 }
 
 function openAdminModal() {
@@ -4510,6 +4545,7 @@ function openAdminModal() {
     window.alert('Admin access is restricted.');
     return;
   }
+  lockModalViewport();
   const modal = document.getElementById('admin-modal');
   if (modal) modal.style.display = 'flex';
   adminStatus('Ready.', '#8b949e');
@@ -5512,6 +5548,7 @@ function openPortfolioTypeModal(year, idx) {
   const shareFields = document.getElementById('portfolio-type-share-fields');
   if (shareFields) shareFields.classList.toggle('visible', rowType.toLowerCase() === 'shares');
   updatePortfolioTypeModalPreview();
+  lockModalViewport();
   if (modal) modal.style.display = 'flex';
 }
 
@@ -5525,6 +5562,7 @@ function closePortfolioTypeModal(saveCurrent = true) {
     return;
   }
   _portfolioTypeEditor = null;
+  unlockModalViewport();
   const modal = document.getElementById('portfolio-type-modal');
   if (modal) modal.style.display = 'none';
 }
@@ -5587,6 +5625,7 @@ function savePortfolioTypeModal() {
   }
   save();
   const modal = document.getElementById('portfolio-type-modal');
+  unlockModalViewport();
   if (modal) modal.style.display = 'none';
   _portfolioTypeEditor = null;
   showLedger(editor.year, document.querySelector('.lyt.active') || undefined);
@@ -5610,6 +5649,7 @@ function openShareModal(year, idx) {
   if (sharesEl2) sharesEl2.value = parseFloat(row.shares) || 0;
   if (scEl) scEl.value = row.shareCode || '';
   updateShareModalPreview();
+  lockModalViewport();
   if (modal) modal.style.display = 'flex';
 }
 
@@ -5618,6 +5658,7 @@ function openShareModal(year, idx) {
  */
 function closeShareModal() {
   _shareEditor = null;
+  unlockModalViewport();
   const modal = document.getElementById('share-modal');
   if (modal) modal.style.display = 'none';
 }
@@ -5641,6 +5682,7 @@ function openIncomeModelModal(idx) {
   if (taxEl) taxEl.value = String((row.modelTaxBracket !== undefined ? row.modelTaxBracket : row.taxBracket) || 'none');
   renderIncomeModelAssetList();
   updateIncomeModelModalPreview();
+  lockModalViewport();
   if (modal) modal.style.display = 'flex';
 }
 
@@ -5649,6 +5691,7 @@ function openIncomeModelModal(idx) {
  */
 function closeIncomeModelModal() {
   _incomeModelEditor = null;
+  unlockModalViewport();
   const modal = document.getElementById('income-model-modal');
   if (modal) modal.style.display = 'none';
 }
@@ -7202,11 +7245,13 @@ function openShareDetailModal(idx, panel) {
   if (title) title.textContent = panelLabels[panel] || panel;
   if (body) body.innerHTML = renderShareDetailPanel(share.snapshot || {}, panel);
   const modal = document.getElementById('share-detail-modal');
+  lockModalViewport();
   if (modal) modal.style.display = 'flex';
 }
 
 function closeShareDetailModal() {
   _shareDetailState = null;
+  unlockModalViewport();
   const modal = document.getElementById('share-detail-modal');
   if (modal) modal.style.display = 'none';
 }
