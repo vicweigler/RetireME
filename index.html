@@ -3591,7 +3591,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V11.8';
+const APP_VERSION = 'V11.9';
 
 /**
  * Tab bar variant selector:
@@ -5545,6 +5545,15 @@ function onShareCodeInput() {
   }
 }
 
+function realignIOSModalTouch(modal, field) {
+  if (!modal || !field || !('ontouchstart' in window)) return;
+  requestAnimationFrame(() => {
+    field.focus({ preventScroll: true });
+    void modal.offsetHeight;
+    requestAnimationFrame(() => field.blur());
+  });
+}
+
 function openPortfolioTypeModal(year, idx) {
   const row = portfolioRows(year)[idx];
   if (!row) return;
@@ -5593,6 +5602,7 @@ function openPortfolioTypeModal(year, idx) {
     void modal.offsetHeight;
   }
   lockModalViewport();
+  realignIOSModalTouch(modal, titleEl);
 }
 
 /**
