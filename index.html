@@ -3,7 +3,7 @@
  RetireMe - Personal Wealth Vault & UK Retirement Financial Modeler
 ================================================================================
  @file        index.html
- @version     V9.3
+ @version     V9.7
  @description Comprehensive single-page Progressive Web Application (PWA) designed
               for UK retirement financial planning, multi-asset wealth tracking,
               5-year rolling carry-over forecasting (2026-2030), cashflow modeling,
@@ -1345,6 +1345,10 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 .cashflow-row-model > *:not(.cashflow-title-wrap) {
   display: none;
 }
+.cashflow-row.cashflow-row-plain {
+  grid-template-columns: 1fr 240px;
+  align-items: flex-start;
+}
 .cashflow-title-wrap { min-width: 0; }
 .cashflow-name-input {
   width: 100%;
@@ -1474,7 +1478,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   text-align: right;
 }
 .cashflow-amount-input:focus, .cashflow-monthly-input:focus { border-color: #00d17a; }
-.cashflow-amount-input { padding-left: 10px; color: #e6edf3; }
+.cashflow-amount-input { padding-left: 22px; color: #e6edf3; }
 .cashflow-monthly-input { color: #00d17a; }
 .cashflow-monthly-input[readonly] { cursor: default; }
 
@@ -1494,7 +1498,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   justify-content: center;
 }
 .summary-chip .k {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.75px;
   text-transform: uppercase;
   color: #8b949e;
@@ -1503,7 +1507,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   margin-bottom: 4px;
 }
 .summary-chip .v {
-  font-size: 10px;
+  font-size: 14px;
   line-height: 1.2;
   font-weight: 800;
   letter-spacing: -0.1px;
@@ -1603,20 +1607,30 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   margin-left: auto;
 }
 .cashflow-model-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 5px;
   margin-top: 6px;
 }
+.cashflow-model-summary-row {
+  display: flex;
+  gap: 5px;
+  height: 56px;
+  min-height: 56px;
+  max-height: 56px;
+  overflow: hidden;
+}
 .cashflow-model-summary-item {
+  flex: 1;
+  box-sizing: border-box;
   background: #0d1117;
   border: 1px solid #21262d;
   border-radius: 8px;
   padding: 6px 8px;
-  min-height: 46px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: hidden;
 }
 .cashflow-model-summary-item .k {
   font-size: 8px;
@@ -1626,7 +1640,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   font-weight: 700;
 }
 .cashflow-model-summary-item .v {
-  font-size: 9px;
+  font-size: 13px;
   color: #e6edf3;
   font-weight: 800;
   line-height: 1.15;
@@ -2375,6 +2389,7 @@ body.light-mode .pf-head {
 }
 body.light-mode .tab-btn { color: #64748b; }
 body.light-mode .tab-btn.active { color: #0ea86d; }
+body.light-mode .toggle-label { color: #0f172a; }
 body.light-mode .lyt {
   background: #ffffff;
   color: #64748b;
@@ -3073,18 +3088,18 @@ body.light-mode .sro-lyt.active {
   <!-- TAB 3: CASHFLOW (Income Sources, Summary & Asset Yield Modeler)          -->
   <!-- ======================================================================== -->
   <div class="tab-panel" id="tab-cashflow">
-    <!-- Recurring Income Sources Table -->
-    <div class="card">
-      <div class="card-eyebrow">Income Sources</div>
-      <div class="cashflow-head-grid"><div>Name</div><div>M/A</div><div>Tax Band</div><div>Amount (£)</div><div>Monthly</div></div>
-      <div id="income-sources-list"></div>
-      <button class="btn-primary" onclick="addInvestment()">+ Add Income Source</button>
-    </div>
-    
     <!-- Cashflow Summary Matrix (Income vs Spend Net Remaining) -->
     <div class="card cashflow-summary-card">
       <div class="card-eyebrow">Cashflow Summary</div>
       <div class="summary-grid" id="cashflow-summary"></div>
+    </div>
+
+    <!-- Recurring Income Sources Table -->
+    <div class="card">
+      <div class="card-eyebrow">Income Sources</div>
+      <div class="cashflow-head-grid"><div>Name</div><div>M/A</div><div>Tax Band</div><div>Annual</div><div>Monthly</div></div>
+      <div id="income-sources-list"></div>
+      <button class="btn-primary" onclick="addInvestment()">+ Add Income Source</button>
     </div>
     
     <!-- Asset Income Modeler (Yield generation from portfolio assets) -->
@@ -3151,7 +3166,13 @@ body.light-mode .sro-lyt.active {
         <label class="switch"><input type="checkbox" id="theme-light" onchange="setTheme(this.checked?'light':'dark')"/><span class="slider-round"></span></label>
       </div>
     </div>
-    
+
+    <!-- Tab Bar Order -->
+    <div class="card">
+      <div class="section-title">Tab Order</div>
+      <div id="tab-order-list"></div>
+    </div>
+
     <!-- Personal Details (Dates for Timeline Modeling) -->
     <div class="card">
       <div class="section-title">Personal Details</div>
@@ -3234,7 +3255,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V9.3';
+const APP_VERSION = 'V9.7';
 
 /**
  * Tab bar variant selector:
@@ -3352,7 +3373,8 @@ const DEFAULT_S = {
   investments: [],
   spend: { monthly: [], quarterly: [], annual: [] },
   checklist: {},
-  milestones: []
+  milestones: [],
+  tabOrder: ['home', 'ledger', 'spend', 'cashflow', 'shared', 'settings']
 };
 
 /** Active global application state */
@@ -4219,6 +4241,7 @@ function load() {
     if (!Array.isArray(S.spend[t])) S.spend[t] = [];
   }
   if (!Array.isArray(S.milestones)) S.milestones = [];
+  if (!Array.isArray(S.tabOrder) || S.tabOrder.length < 6) S.tabOrder = ['home', 'ledger', 'spend', 'cashflow', 'shared', 'settings'];
   if ((!S.spend.monthly || S.spend.monthly.length === 0) && Array.isArray(S.monthlyBills)) {
     S.spend.monthly = S.monthlyBills.map(normalizeSpendRow).filter(Boolean);
   }
@@ -4301,6 +4324,7 @@ function applyDOM() {
   renderCashflowModelAssets();
   renderCashflowModelPreview();
   renderSpendAll();
+  renderTabOrderSettings();
 }
 
 /**
@@ -4990,6 +5014,7 @@ function switchTab(n, btn) {
   if (n === 'spend') renderSpendAll();
   if (n === 'milestones') renderMilestones();
   if (n === 'shared') loadReceivedShares();
+  if (n === 'settings') renderTabOrderSettings();
 }
 
 /**
@@ -5428,15 +5453,12 @@ function renderInvestments() {
     const taxLabel = bracket === 'none' ? 'No Tax' : bracket === 'basic' ? 'Basic 20%' : bracket === 'higher' ? 'Higher 40%' : bracket === 'additional' ? 'Additional 45%' : bracket === 'pa-taper' ? 'PA Taper 60%' : String(bracket);
     const annualDisplay = isModel ? '£' + fmtN(incomeSourceAnnualValue(i)) : '£' + fmtN(annualValue);
     const monthlyDisplay = '£' + fmt2(monthly);
-    const summaryGrid = isModel ? `<div class="cashflow-model-summary-grid"><div class="cashflow-model-summary-item"><div class="k">Tax</div><div class="v">${escapeHtml(taxLabel)}</div></div><div class="cashflow-model-summary-item"><div class="k">Rate</div><div class="v green">${Number(i.modelRate || 0).toFixed(1)}%</div></div><div class="cashflow-model-summary-item"><div class="k">Annual Income</div><div class="v">${annualDisplay}</div></div><div class="cashflow-model-summary-item"><div class="k">Monthly Income</div><div class="v green">${monthlyDisplay}</div></div></div>` : '';
+    const summaryGrid = isModel ? `<div class="cashflow-model-summary-grid"><div class="cashflow-model-summary-row" style="display:flex;gap:5px;height:56px;min-height:56px;max-height:56px;overflow:hidden;"><div class="cashflow-model-summary-item"><div class="k">Tax</div><div class="v">${escapeHtml(taxLabel)}</div></div><div class="cashflow-model-summary-item"><div class="k">Rate</div><div class="v green">${Number(i.modelRate || 0).toFixed(1)}%</div></div></div><div class="cashflow-model-summary-row" style="display:flex;gap:5px;height:56px;min-height:56px;max-height:56px;overflow:hidden;"><div class="cashflow-model-summary-item"><div class="k">Annual Income</div><div class="v">${annualDisplay}</div></div><div class="cashflow-model-summary-item"><div class="k">Monthly Income</div><div class="v green">${monthlyDisplay}</div></div></div></div>` : '';
     return `<div class="cashflow-row-wrap">
     <div class="cashflow-swipe-delete-bg">Swipe left to delete</div>
-    <div class="cashflow-row${isModel ? ' cashflow-row-model' : ''}" data-inc-row="${rowKey}" onpointerdown="incPointerStart(event,${idx})" onpointermove="incPointerMove(event,${idx})" onpointerup="incPointerEnd(event,${idx})" onpointercancel="incPointerEnd(event,${idx})">
-      <div class="cashflow-title-wrap">${isModel ? `<div class="cashflow-model-title-row"><button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(headingWithGross)}</button><div class="cashflow-frequency-toggle"><span>Mon</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency) === 'annual' ? 'checked' : ''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>Ann</span></div></div>${i.plannedInvestmentType ? `<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate || 0).toFixed(1)}%</div>` : ''}${assetNames.length > 0 ? `<div class="cashflow-model-sublist">${assetNames.map(name => `<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>` : ''}${summaryGrid}` : `<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name || '')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/>`}</div>
-      ${isModel ? '' : `<div class="cashflow-frequency-toggle"><span>M</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency) === 'annual' ? 'checked' : ''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>A</span></div>
-      <select class="cashflow-tax-select" onchange="updateInvestment(${idx},'taxBracket',this.value)"><option value="none" ${bracket === 'none' ? 'selected' : ''}>No Tax</option><option value="basic" ${bracket === 'basic' ? 'selected' : ''}>Basic 20%</option><option value="higher" ${bracket === 'higher' ? 'selected' : ''}>Higher 40%</option><option value="additional" ${bracket === 'additional' ? 'selected' : ''}>Additional 45%</option><option value="pa-taper" ${bracket === 'pa-taper' ? 'selected' : ''}>PA Taper 60%</option></select>
-      <input class="cashflow-amount-input" type="text" inputmode="decimal" value="${fmt2(annualValue)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmt2(parseFloat(this.value||0))" onchange="updateInvestment(${idx},'amount',this.value)"/>
-      <div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-monthly-input ${monthly >= 0 ? 'amt-pos' : 'amt-neg'}" type="text" value="${fmt2(monthly)}" readonly/></div>`}
+    <div class="cashflow-row${isModel ? ' cashflow-row-model' : ' cashflow-row-plain'}" data-inc-row="${rowKey}" onpointerdown="incPointerStart(event,${idx})" onpointermove="incPointerMove(event,${idx})" onpointerup="incPointerEnd(event,${idx})" onpointercancel="incPointerEnd(event,${idx})">
+      <div class="cashflow-title-wrap">${isModel ? `<div class="cashflow-model-title-row"><button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(headingWithGross)}</button><div class="cashflow-frequency-toggle"><span>Mon</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency) === 'annual' ? 'checked' : ''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>Ann</span></div></div>${i.plannedInvestmentType ? `<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate || 0).toFixed(1)}%</div>` : ''}${assetNames.length > 0 ? `<div class="cashflow-model-sublist">${assetNames.map(name => `<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>` : ''}${summaryGrid}` : `<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name || '')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/><div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><div class="cashflow-frequency-toggle"><span>M</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency) === 'annual' ? 'checked' : ''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>A</span></div><select class="cashflow-tax-select" style="flex:1;" onchange="updateInvestment(${idx},'taxBracket',this.value)"><option value="none" ${bracket === 'none' ? 'selected' : ''}>No Tax</option><option value="basic" ${bracket === 'basic' ? 'selected' : ''}>Basic 20%</option><option value="higher" ${bracket === 'higher' ? 'selected' : ''}>Higher 40%</option><option value="additional" ${bracket === 'additional' ? 'selected' : ''}>Additional 45%</option><option value="pa-taper" ${bracket === 'pa-taper' ? 'selected' : ''}>PA Taper 60%</option></select></div>`}</div>
+      ${isModel ? '' : `<div style="display:flex;gap:6px;align-items:flex-start;"><div style="min-width:110px;"><div style="font-size:9px;color:#484f58;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">Annual</div><div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-amount-input" type="text" inputmode="decimal" value="${fmt2(annualValue)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmt2(parseFloat(this.value||0))" onchange="updateInvestment(${idx},'amount',this.value)"/></div></div><div style="min-width:110px;"><div style="font-size:9px;color:#484f58;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">Monthly</div><div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-monthly-input ${monthly >= 0 ? 'amt-pos' : 'amt-neg'}" type="text" value="${fmt2(monthly)}" readonly/></div></div></div>`}
     </div>
   </div>`;
   }).join('');
@@ -6329,20 +6351,60 @@ function renderShareDetailMilestones(snap) {
    SECTION 18: TABBAR INITIALIZATION & APPLICATION BOOTSTRAP
    ========================================================================== */
 
+const TAB_CATALOG = {
+  home:     { id: 'home',     label: 'Home',      svg: '<svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-6h6v6"/></svg>' },
+  ledger:   { id: 'ledger',   label: 'Portfolio', svg: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>' },
+  spend:    { id: 'spend',    label: 'Spend',     svg: '<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>' },
+  cashflow: { id: 'cashflow', label: 'Cashflow',  svg: '<svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>' },
+  shared:   { id: 'shared',   label: 'Shared',    svg: '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>' },
+  settings: { id: 'settings', label: 'Settings',  svg: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' },
+};
+
+function orderedTabs() {
+  const order = (Array.isArray(S.tabOrder) && S.tabOrder.length === 6) ? S.tabOrder : ['home', 'ledger', 'spend', 'cashflow', 'shared', 'settings'];
+  return order.map(id => TAB_CATALOG[id]).filter(Boolean);
+}
+
+function moveTab(idx, dir) {
+  if (!Array.isArray(S.tabOrder) || S.tabOrder.length < 6) S.tabOrder = ['home', 'ledger', 'spend', 'cashflow', 'shared', 'settings'];
+  const next = idx + dir;
+  if (next < 0 || next >= S.tabOrder.length) return;
+  const tmp = S.tabOrder[idx]; S.tabOrder[idx] = S.tabOrder[next]; S.tabOrder[next] = tmp;
+  save();
+  renderTabOrderSettings();
+  refreshTabBar();
+}
+
+function renderTabOrderSettings() {
+  const el = document.getElementById('tab-order-list');
+  if (!el) return;
+  const order = (Array.isArray(S.tabOrder) && S.tabOrder.length === 6) ? S.tabOrder : ['home', 'ledger', 'spend', 'cashflow', 'shared', 'settings'];
+  const labels = { home: 'Home', ledger: 'Portfolio', spend: 'Spend', cashflow: 'Cashflow', shared: 'Shared', settings: 'Settings' };
+  el.innerHTML = order.map((id, idx) => `<div class="toggle-row" style="margin-bottom:6px;"><div style="display:flex;align-items:center;gap:10px;"><div class="row-arrows"><button class="row-arrow-btn" onclick="moveTab(${idx},-1)" ${idx === 0 ? 'disabled' : ''}>▲</button><button class="row-arrow-btn" onclick="moveTab(${idx},1)" ${idx === order.length - 1 ? 'disabled' : ''}>▼</button></div><div class="toggle-label">${escapeHtml(labels[id] || id)}</div></div></div>`).join('');
+}
+
+function refreshTabBar() {
+  if (!_tabBar || typeof _tabBar.destroy !== 'function') return;
+  _tabBar.destroy();
+  _tabBar = new TabBar(orderedTabs(), {
+    accentColor: S.theme === 'light' ? '#0ea86d' : '#00d17a',
+    bgColor: S.theme === 'light' ? '#ffffff' : '#161b22',
+    borderColor: S.theme === 'light' ? '#d8dee8' : '#21262d',
+    inactiveColor: '#484f58',
+    contentEl: document.getElementById('content'),
+    onTabChange: function (id) { switchTab(id); },
+  });
+  const active = document.querySelector('.tab-panel.active');
+  if (active) _tabBar.setActive(active.id.replace('tab-', ''));
+}
+
 /**
  * Initializes the modern bottom TabBar component (React 18 + Tailwind).
  */
 function initTabBar() {
   if (TAB_BAR_VARIANT !== 'modern') return;
   document.getElementById('tabbar').style.display = 'none';
-  _tabBar = new TabBar([
-    { id: 'home', label: 'Home', svg: '<svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-6h6v6"/></svg>' },
-    { id: 'ledger', label: 'Portfolio', svg: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>' },
-    { id: 'spend', label: 'Spend', svg: '<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>' },
-    { id: 'cashflow', label: 'Cashflow', svg: '<svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>' },
-    { id: 'shared', label: 'Shared', svg: '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>' },
-    { id: 'settings', label: 'Settings', svg: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' },
-  ], {
+  _tabBar = new TabBar(orderedTabs(), {
     accentColor: '#00d17a',
     bgColor: '#161b22',
     borderColor: '#21262d',
