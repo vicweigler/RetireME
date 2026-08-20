@@ -3,7 +3,7 @@
  RetireMe - Personal Wealth Vault & UK Retirement Financial Modeler
 ================================================================================
  @file        index.html
- @version     V9.7
+ @version     V9.9
  @description Comprehensive single-page Progressive Web Application (PWA) designed
               for UK retirement financial planning, multi-asset wealth tracking,
               5-year rolling carry-over forecasting (2026-2030), cashflow modeling,
@@ -65,7 +65,7 @@
 <meta name="apple-mobile-web-app-title" content="RetireMe"/>
 
 <!-- Browser Theme Color & Dark Mode Preference -->
-<meta name="theme-color" content="#0d1117"/>
+<meta name="theme-color" content="#080d1a"/>
 <meta name="color-scheme" content="dark"/>
 
 <!-- PWA Manifest & App Icons -->
@@ -110,7 +110,7 @@
 }
 html, body {
   height: 100%;
-  background: #0d1117;
+  background: #080d1a;
   color: #e6edf3;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
   overflow: hidden; /* Prevents outer page bounce on iOS Safari */
@@ -127,12 +127,12 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: radial-gradient(1200px 500px at 20% -10%, rgba(0, 209, 122, 0.15), transparent 50%), #0d1117;
+  background: radial-gradient(1200px 500px at 20% -10%, rgba(0, 209, 122, 0.15), transparent 50%), #080d1a;
 }
 .login-card {
   width: min(420px, 100%);
-  background: #161b22;
-  border: 1px solid #21262d;
+  background: #0d1525;
+  border: 1px solid #182035;
   border-radius: 16px;
   padding: 22px;
 }
@@ -148,8 +148,8 @@ html, body {
   border-radius: 14px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: #080d1a;
+  border: 1px solid #1f2d45;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,8 +191,8 @@ html, body {
 }
 .login-input {
   width: 100%;
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: #080d1a;
+  border: 1px solid #1f2d45;
   border-radius: 10px;
   padding: 11px 12px;
   color: #e6edf3;
@@ -218,11 +218,11 @@ html, body {
 }
 .login-btn.primary {
   background: linear-gradient(135deg, #00d17a, #00a85e);
-  color: #0d1117;
+  color: #080d1a;
 }
 .login-btn.secondary {
   background: transparent;
-  border: 1px solid #30363d;
+  border: 1px solid #1f2d45;
   color: #e6edf3;
 }
 .login-status {
@@ -242,7 +242,7 @@ html, body {
   width: 100%;
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid #30363d;
+  border: 1px solid #1f2d45;
   background: transparent;
   color: #8b949e;
   font-size: 12px;
@@ -261,8 +261,8 @@ html, body {
   padding-top: env(safe-area-inset-top, 0px);
 }
 #header {
-  background: #161b22;
-  border-bottom: 1px solid #21262d;
+  background: #0d1525;
+  border-bottom: 1px solid #182035;
   padding: 12px 18px 10px;
   flex-shrink: 0;
 }
@@ -310,6 +310,11 @@ html, body {
   align-items: flex-end;
   gap: 4px;
 }
+.hdr-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 .sync-dot {
   width: 7px;
   height: 7px;
@@ -335,7 +340,7 @@ html, body {
 }
 .hdr-signout {
   background: transparent;
-  border: 1px solid #30363d;
+  border: 1px solid #1f2d45;
   color: #e6edf3;
   border-radius: 8px;
   padding: 4px 8px;
@@ -346,6 +351,60 @@ html, body {
 }
 .hdr-signout:hover {
   border-color: #484f58;
+}
+.admin-user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+.admin-user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: #0d1525;
+  border: 1px solid #1f2d45;
+  border-radius: 10px;
+  padding: 10px;
+}
+.admin-user-email {
+  font-size: 13px;
+  color: #e6edf3;
+  font-weight: 600;
+  word-break: break-all;
+}
+.admin-user-uid {
+  font-size: 11px;
+  color: #8b949e;
+  margin-top: 2px;
+  word-break: break-all;
+}
+.admin-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.admin-action-btn {
+  border: 1px solid #1f2d45;
+  background: transparent;
+  color: #e6edf3;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+.admin-action-btn.reset:hover {
+  border-color: #00d17a;
+  color: #00d17a;
+}
+.admin-action-btn.delete:hover {
+  border-color: #f85149;
+  color: #f85149;
 }
 #content {
   flex: 1;
@@ -365,8 +424,8 @@ body::after {
   bottom: -5px;
   left: 0;
   right: 0;
-  background: #161b22;
-  border-top: 1px solid #21262d;
+  background: #0d1525;
+  border-top: 1px solid #182035;
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -423,11 +482,11 @@ body::after {
    SECTION 5: CARDS, METRIC BOXES & COLOR UTILITIES
    ========================================================================== */
 .card {
-  background: #161b22;
+  background: #0d1525;
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 12px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
 }
 .card-eyebrow {
   font-size: 10px;
@@ -444,11 +503,11 @@ body::after {
   margin-bottom: 12px;
 }
 .cd-cell {
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 10px;
   padding: 14px 8px;
   text-align: center;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
 }
 .cd-num {
   font-size: 30px;
@@ -473,10 +532,10 @@ body::after {
   gap: 8px;
 }
 .stat-box {
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 10px;
   padding: 14px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
 }
 .stat-big {
   font-size: 28px;
@@ -512,7 +571,7 @@ body::after {
   font-size: 12px;
 }
 .prog-track {
-  background: #21262d;
+  background: #182035;
   border-radius: 99px;
   height: 6px;
 }
@@ -532,10 +591,10 @@ body::after {
   align-items: center;
   justify-content: space-between;
   margin-top: 10px;
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 10px;
   padding: 12px 14px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
 }
 .liquid-lbl {
   font-size: 10px;
@@ -569,12 +628,12 @@ body::after {
 }
 .seg-ctrl {
   display: flex;
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 10px;
   padding: 3px;
   gap: 2px;
   margin-bottom: 14px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
 }
 .seg-btn {
   flex: 1;
@@ -601,7 +660,7 @@ body::after {
   flex-shrink: 0;
 }
 .seg-btn.active {
-  background: #21262d;
+  background: #182035;
   color: #e6edf3;
 }
 .slider-grid {
@@ -643,7 +702,7 @@ body::after {
   letter-spacing: 1px;
   text-transform: uppercase;
   color: #484f58;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
   border-radius: 4px;
   padding: 2px 7px;
 }
@@ -652,11 +711,11 @@ body::after {
    SECTION 6: RETIREMENT RUNWAY & 5-YEAR TIMELINE
    ========================================================================== */
 .runway-base {
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 10px;
   padding: 14px 16px;
   margin-bottom: 8px;
-  border: 1px solid #30363d;
+  border: 1px solid #1f2d45;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -703,13 +762,13 @@ body::after {
   height: 10px;
   background: #00d17a;
   border-radius: 50%;
-  border: 2px solid #0d1117;
+  border: 2px solid #080d1a;
 }
 .rw-card {
-  background: #1c2128;
+  background: #101c30;
   border-radius: 12px;
   padding: 14px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
 }
 .rw-header {
   display: flex;
@@ -747,7 +806,7 @@ body::after {
   margin-bottom: 10px;
 }
 .rw-box {
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 8px;
   padding: 8px 6px;
 }
@@ -767,7 +826,7 @@ body::after {
 .rw-box-val.red { color: #f85149; }
 
 .rw-tax-row {
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 8px;
   padding: 10px 12px;
   margin-bottom: 8px;
@@ -794,7 +853,7 @@ body::after {
   justify-content: space-between;
   align-items: center;
   padding-top: 8px;
-  border-top: 1px solid #21262d;
+  border-top: 1px solid #182035;
   margin-top: 4px;
 }
 .rw-net-lbl {
@@ -838,7 +897,7 @@ body::after {
 .contrib-bar-row .lbl { color: #848d97; }
 .contrib-bar-row .val { font-weight: 600; color: #e6edf3; }
 .bar-track {
-  background: #21262d;
+  background: #182035;
   border-radius: 99px;
   height: 5px;
   margin-bottom: 10px;
@@ -847,10 +906,10 @@ body::after {
 .bar-fill-gold { height: 5px; border-radius: 99px; background: #d29922; }
 .bar-fill-blue { height: 5px; border-radius: 99px; background: #58a6ff; }
 .star-section {
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 12px;
   padding: 20px 16px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
   margin: 14px 0;
   text-align: center;
 }
@@ -883,10 +942,10 @@ body::after {
   margin-top: 16px;
 }
 .contrib-cell {
-  background: #161b22;
+  background: #0d1525;
   border-radius: 10px;
   padding: 10px 12px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
   text-align: center;
 }
 .contrib-cell .c-lbl { font-size: 10px; color: #484f58; margin-bottom: 4px; }
@@ -900,10 +959,10 @@ body::after {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 10px;
   margin-bottom: 8px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
 }
 .ms-icon { font-size: 22px; width: 32px; text-align: center; flex-shrink: 0; }
 .ms-title { font-size: 13px; font-weight: 600; color: #e6edf3; }
@@ -938,8 +997,8 @@ body::after {
   grid-template-columns: 18px 28px 1fr;
   gap: 10px;
   align-items: center;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 10px 12px;
   touch-action: pan-y;
@@ -989,8 +1048,8 @@ body::after {
 .ms-date-input:focus { color: #00d17a; }
 .ms-add-select {
   width: 100%;
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: #080d1a;
+  border: 1px solid #1f2d45;
   border-radius: 10px;
   padding: 11px 13px;
   color: #e6edf3;
@@ -1007,17 +1066,17 @@ body::after {
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 10px;
   margin-bottom: 8px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
   cursor: pointer;
 }
 .ck-box {
   width: 20px;
   height: 20px;
   border-radius: 5px;
-  border: 2px solid #30363d;
+  border: 2px solid #1f2d45;
   flex-shrink: 0;
   margin-top: 1px;
   display: flex;
@@ -1031,7 +1090,7 @@ body::after {
 }
 .ck-check {
   display: none;
-  color: #0d1117;
+  color: #080d1a;
   font-size: 12px;
   font-weight: 800;
 }
@@ -1054,8 +1113,8 @@ body::after {
 .form-group label span { color: #00d17a; font-weight: 700; }
 .form-group input, .form-group select {
   width: 100%;
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: #080d1a;
+  border: 1px solid #1f2d45;
   border-radius: 10px;
   padding: 11px 13px;
   color: #e6edf3;
@@ -1081,17 +1140,17 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 10px;
   margin-bottom: 6px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
 }
 .asset-row.total { border-color: rgba(0, 209, 122, 0.3); }
 .asset-name { font-size: 13px; color: #e6edf3; }
 .asset-sub2 { font-size: 11px; color: #484f58; margin-top: 1px; }
 .asset-inp {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: #0d1525;
+  border: 1px solid #1f2d45;
   border-radius: 8px;
   color: #d29922;
   font-size: 14px;
@@ -1117,8 +1176,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   flex-shrink: 0;
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1px solid #21262d;
-  background: #0d1117;
+  border: 1px solid #182035;
+  background: #080d1a;
   color: #484f58;
   font-size: 12px;
   font-weight: 700;
@@ -1128,13 +1187,13 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 .lyt.active {
   background: #00d17a;
   border-color: #00d17a;
-  color: #0d1117;
+  color: #080d1a;
 }
 .paste-area {
   width: 100%;
   min-height: 90px;
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: #080d1a;
+  border: 1px solid #1f2d45;
   border-radius: 10px;
   color: #e6edf3;
   font-size: 12px;
@@ -1152,7 +1211,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   font-size: 14px;
   font-weight: 700;
   background: linear-gradient(135deg, #00d17a, #00a85e);
-  color: #0d1117;
+  color: #080d1a;
   cursor: pointer;
   margin-top: 10px;
 }
@@ -1160,7 +1219,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   width: 100%;
   padding: 11px;
   border-radius: 11px;
-  border: 1px solid #30363d;
+  border: 1px solid #1f2d45;
   font-size: 13px;
   font-weight: 600;
   background: transparent;
@@ -1169,11 +1228,11 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   margin-top: 6px;
 }
 .edit-panel {
-  background: #0d1117;
+  background: #080d1a;
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 12px;
-  border: 1px solid #30363d;
+  border: 1px solid #1f2d45;
 }
 .edit-toggle {
   background: rgba(0, 209, 122, 0.08);
@@ -1189,13 +1248,13 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   display: flex;
   gap: 11px;
   padding: 10px 0;
-  border-bottom: 1px solid #21262d;
+  border-bottom: 1px solid #182035;
   align-items: flex-start;
 }
 .install-step:last-child { border-bottom: none; }
 .step-num {
   background: #00d17a;
-  color: #0d1117;
+  color: #080d1a;
   border-radius: 50%;
   width: 24px;
   height: 24px;
@@ -1219,8 +1278,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 10px 12px;
 }
@@ -1237,7 +1296,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background: #30363d;
+  background: #1f2d45;
   transition: 0.2s;
   border-radius: 24px;
 }
@@ -1263,8 +1322,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 }
 .invest-row select, .invest-row input {
   width: 100%;
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: #080d1a;
+  border: 1px solid #1f2d45;
   border-radius: 8px;
   padding: 8px 10px;
   color: #e6edf3;
@@ -1272,7 +1331,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 }
 .btn-inline-danger {
   background: transparent;
-  border: 1px solid #30363d;
+  border: 1px solid #1f2d45;
   color: #f85149;
   border-radius: 8px;
   padding: 8px 6px;
@@ -1296,8 +1355,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   margin-top: 10px;
 }
 .year-chip {
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 8px;
   padding: 8px;
 }
@@ -1332,8 +1391,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   grid-template-columns: minmax(0, 1fr) 64px 98px 132px 132px;
   gap: 8px;
   align-items: flex-start;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 10px 12px;
   touch-action: pan-y;
@@ -1346,8 +1405,9 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   display: none;
 }
 .cashflow-row.cashflow-row-plain {
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 1fr;
   align-items: flex-start;
+  background: #0f1a30;
 }
 .cashflow-title-wrap { min-width: 0; }
 .cashflow-name-input {
@@ -1440,8 +1500,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 .cashflow-taxable input { accent-color: #00d17a; }
 .cashflow-tax-select {
   width: 100%;
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: #0d1525;
+  border: 1px solid #1f2d45;
   border-radius: 8px;
   padding: 7px 8px;
   color: #e6edf3;
@@ -1467,8 +1527,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 }
 .cashflow-amount-input, .cashflow-monthly-input {
   width: 100%;
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: #0d1525;
+  border: 1px solid #1f2d45;
   border-radius: 8px;
   padding: 8px 10px 8px 22px;
   color: #e6edf3;
@@ -1488,8 +1548,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   gap: 6px;
 }
 .summary-chip {
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 9px;
   padding: 8px 8px;
   min-height: 74px;
@@ -1530,8 +1590,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 8px;
   padding: 8px 10px;
 }
@@ -1623,8 +1683,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 .cashflow-model-summary-item {
   flex: 1;
   box-sizing: border-box;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 8px;
   padding: 6px 8px;
   display: flex;
@@ -1687,8 +1747,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   flex-direction: column;
   gap: 5px;
   min-height: 98px;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 10px 10px 8px;
 }
@@ -1710,8 +1770,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 }
 .income-model-metric select, .income-model-metric input {
   width: 100%;
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: #0d1525;
+  border: 1px solid #1f2d45;
   border-radius: 8px;
   padding: 8px 10px;
   color: #e6edf3;
@@ -1749,8 +1809,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   grid-template-columns: 18px 1fr 120px;
   gap: 10px;
   align-items: center;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 10px 12px;
   touch-action: pan-y;
@@ -1813,8 +1873,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 }
 .pf-mini-input {
   width: 100%;
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: #0d1525;
+  border: 1px solid #1f2d45;
   border-radius: 8px;
   padding: 7px 8px;
   color: #e6edf3;
@@ -1865,8 +1925,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 }
 .pf-amount-wrap input {
   width: 100%;
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: #0d1525;
+  border: 1px solid #1f2d45;
   border-radius: 8px;
   padding: 8px 10px 8px 22px;
   color: #f85149;
@@ -1887,7 +1947,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 .move-col { display: flex; flex-direction: column; gap: 4px; justify-content: center; }
 .move-btn {
   background: transparent;
-  border: 1px solid #30363d;
+  border: 1px solid #1f2d45;
   color: #8b949e;
   border-radius: 6px;
   padding: 3px 7px;
@@ -1917,8 +1977,19 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   font-weight: 700;
   cursor: pointer;
 }
-.mini-action-btn.cancel { background: transparent; border-color: #30363d; color: #8b949e; }
+.mini-action-btn.cancel { background: transparent; border-color: #1f2d45; color: #8b949e; }
 .spend-summary-card { margin-bottom: 10px; }
+.spend-collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #484f58;
+  font-size: 12px;
+  padding: 2px 4px;
+  transition: transform 0.2s;
+  line-height: 1;
+  flex-shrink: 0;
+}
 
 /* ==========================================================================
    SECTION 11: HOME OVERVIEW SVG CHART & LEGEND
@@ -1929,11 +2000,11 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   width: 54px;
   height: 54px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #0d1117, #161b22);
+  background: linear-gradient(135deg, #080d1a, #0d1525);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #30363d;
+  border: 1px solid #1f2d45;
   overflow: hidden;
   box-shadow: 0 8px 22px rgba(0, 209, 122, 0.18);
 }
@@ -1957,7 +2028,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   min-height: 220px;
   background: linear-gradient(180deg, rgba(13, 17, 23, 0.2), rgba(13, 17, 23, 0.45));
   border-radius: 16px;
-  border: 1px solid #21262d;
+  border: 1px solid #182035;
   padding: 8px;
   max-width: 520px;
   width: 100%;
@@ -1981,8 +2052,8 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 8px 10px;
 }
@@ -2018,7 +2089,7 @@ body.light-mode .home-chart-wrap svg .home-chart-label { fill: #000000; }
   font-weight: 700;
   letter-spacing: 0.2px;
 }
-.home-chart-border { fill: none; stroke: #30363d; stroke-width: 1; }
+.home-chart-border { fill: none; stroke: #1f2d45; stroke-width: 1; }
 
 /* ==========================================================================
    SECTION 12: SPEND TRACKER ROWS
@@ -2030,8 +2101,8 @@ body.light-mode .home-chart-wrap svg .home-chart-label { fill: #000000; }
   gap: 10px;
   font-size: 12px;
   color: #c9d1d9;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 8px;
   padding: 7px 10px;
 }
@@ -2061,8 +2132,8 @@ body.light-mode .home-chart-wrap svg .home-chart-label { fill: #000000; }
   grid-template-columns: 18px 1fr 120px;
   gap: 10px;
   align-items: center;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 10px 12px;
   touch-action: pan-y;
@@ -2106,8 +2177,8 @@ body.light-mode .home-chart-wrap svg .home-chart-label { fill: #000000; }
 }
 .sp-amount-wrap input {
   width: 100%;
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: #0d1525;
+  border: 1px solid #1f2d45;
   border-radius: 8px;
   padding: 8px 10px 8px 22px;
   color: #f85149;
@@ -2135,8 +2206,8 @@ body.light-mode .home-chart-wrap svg .home-chart-label { fill: #000000; }
 .share-modal {
   width: min(460px, 100%);
   max-height: calc(100vh - 40px);
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: #0d1525;
+  border: 1px solid #1f2d45;
   border-radius: 16px;
   padding: 16px;
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
@@ -2177,7 +2248,7 @@ body.light-mode .home-chart-wrap svg .home-chart-label { fill: #000000; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #0d1117;
+  background: #080d1a;
   border: 1px solid rgba(0, 209, 122, 0.3);
   border-radius: 10px;
   padding: 10px 12px;
@@ -2275,6 +2346,21 @@ body.light-mode .hdr-signout:hover {
   border-color: #94a3b8;
   color: #000000;
 }
+body.light-mode .admin-user-row {
+  background: #ffffff;
+  border-color: #d0d7e2;
+}
+body.light-mode .admin-user-email {
+  color: #0f172a;
+}
+body.light-mode .admin-user-uid {
+  color: #64748b;
+}
+body.light-mode .admin-action-btn {
+  background: #ffffff;
+  border-color: #b8c2cf;
+  color: #0f172a;
+}
 body.light-mode .pf-name-input,
 body.light-mode .pf-type-input,
 body.light-mode .sp-name-input,
@@ -2288,6 +2374,40 @@ body.light-mode .sp-name-input {
 body.light-mode .cashflow-row {
   background: #ffffff;
   border-color: #d8dee8;
+}
+body.light-mode .cashflow-row.cashflow-row-plain {
+  background: #d4dff0;
+  border-color: #b8c9e0;
+}
+body.light-mode #cashflow-model-total {
+  background: #f0f5ff !important;
+  border-color: #b8c9e0 !important;
+}
+body.light-mode #settings-share-prices input[type="number"] {
+  background: #ffffff !important;
+  border-color: #d0d7e2 !important;
+  color: #000000 !important;
+}
+body.light-mode #settings-share-prices input[type="number"]::placeholder {
+  color: #64748b;
+}
+body.light-mode .settings-share-price-row {
+  background: #ffffff !important;
+  border-color: #d0d7e2 !important;
+}
+body.light-mode .settings-share-price-code {
+  color: #000000 !important;
+}
+body.light-mode .settings-share-price-sub {
+  color: #64748b !important;
+}
+body.light-mode .settings-share-price-pound {
+  color: #64748b !important;
+}
+body.light-mode .cashflow-model-asset input[type="text"] {
+  background: #ffffff !important;
+  border: 1px solid #b8c9e0 !important;
+  color: #00d17a !important;
 }
 body.light-mode .cashflow-name-input { color: #0f172a; }
 body.light-mode .cashflow-model-link { color: #0f172a; }
@@ -2427,8 +2547,8 @@ body.light-mode .ms-add-select {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 8px;
   padding: 10px 12px;
   cursor: pointer;
@@ -2448,8 +2568,8 @@ body.light-mode .ms-add-select {
 }
 .share-user-select {
   width: 100%;
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: #080d1a;
+  border: 1px solid #1f2d45;
   border-radius: 10px;
   padding: 11px 13px;
   color: #e6edf3;
@@ -2470,8 +2590,8 @@ body.light-mode .ms-add-select {
 
 /* Received share cards */
 .rcv-share-card {
-  background: #1c2128;
-  border: 1px solid #21262d;
+  background: #101c30;
+  border: 1px solid #182035;
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 10px;
@@ -2503,8 +2623,8 @@ body.light-mode .ms-add-select {
   gap: 6px;
 }
 .rcv-data-cell {
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 8px;
   padding: 8px 10px;
 }
@@ -2577,8 +2697,8 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
   flex-shrink: 0;
   padding: 5px 12px;
   border-radius: 20px;
-  border: 1px solid #21262d;
-  background: #0d1117;
+  border: 1px solid #182035;
+  background: #080d1a;
   color: #484f58;
   font-size: 12px;
   font-weight: 700;
@@ -2588,7 +2708,7 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
 .sro-lyt.active {
   background: #00d17a;
   border-color: #00d17a;
-  color: #0d1117;
+  color: #080d1a;
 }
 .sro-section {
   font-size: 10px;
@@ -2603,8 +2723,8 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 6px;
@@ -2624,7 +2744,7 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #0d1117;
+  background: #080d1a;
   border: 1px solid rgba(0, 209, 122, 0.3);
   border-radius: 10px;
   padding: 10px 14px;
@@ -2639,8 +2759,8 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
   margin-top: 10px;
 }
 .sro-summary-chip {
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 9px;
   padding: 8px;
   text-align: center;
@@ -2661,8 +2781,8 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
 .sro-summary-chip .v.green { color: #00d17a; }
 .sro-summary-chip .v.red { color: #f85149; }
 .sro-model-card {
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 12px;
   margin-bottom: 8px;
@@ -2685,8 +2805,8 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
   margin-bottom: 8px;
 }
 .sro-model-cell {
-  background: #161b22;
-  border: 1px solid #21262d;
+  background: #0d1525;
+  border: 1px solid #182035;
   border-radius: 7px;
   padding: 7px 9px;
 }
@@ -2708,8 +2828,8 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
 .sro-model-asset-chip {
   font-size: 10px;
   color: #8b949e;
-  background: #161b22;
-  border: 1px solid #21262d;
+  background: #0d1525;
+  border: 1px solid #182035;
   border-radius: 6px;
   padding: 2px 8px;
 }
@@ -2717,8 +2837,8 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  background: #0d1117;
-  border: 1px solid #21262d;
+  background: #080d1a;
+  border: 1px solid #182035;
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 6px;
@@ -2727,7 +2847,7 @@ body.light-mode .rcv-data-cell .v { color: #0f172a; }
   width: 22px;
   height: 22px;
   border-radius: 5px;
-  border: 2px solid #30363d;
+  border: 2px solid #1f2d45;
   flex-shrink: 0;
   margin-top: 1px;
   display: flex;
@@ -2844,10 +2964,25 @@ body.light-mode .sro-lyt.active {
       <button class="share-modal-close" type="button" onclick="closePortfolioTypeModal(true)">&times;</button>
     </div>
     
-    <!-- Asset Category / Type Input -->
+    <!-- Title / Name -->
+    <div class="form-group">
+      <label>Title</label>
+      <input id="portfolio-type-title" type="text" placeholder="e.g. Lloyds Bank ISA"/>
+    </div>
+
+    <!-- Asset Type Dropdown -->
     <div class="form-group">
       <label>Type</label>
-      <input id="portfolio-type-name" type="text" oninput="updatePortfolioTypeModalPreview()"/>
+      <select id="portfolio-type-select" onchange="onPortfolioTypeSelect(this.value)">
+        <option value="Asset">Asset</option>
+        <option value="Investment">Investment</option>
+        <option value="Pension">Pension</option>
+        <option value="Shares">Shares</option>
+        <option value="Other">Other (custom)</option>
+      </select>
+    </div>
+    <div class="form-group" id="portfolio-type-custom-group" style="display:none;">
+      <input id="portfolio-type-name" type="text" placeholder="Enter custom type..." oninput="updatePortfolioTypeModalPreview()"/>
     </div>
     
     <!-- Taxable Flag (Triggers 45% tax deduction / 0.55 net multiplier if checked) -->
@@ -2859,15 +2994,24 @@ body.light-mode .sro-lyt.active {
     </div>
     
     <!-- Dynamic Share Fields (Visible only when Type is 'Shares') -->
+    <div class="form-group" id="portfolio-type-amount-group">
+      <label>Amount (£)</label>
+      <input id="portfolio-type-amount-input" type="number" min="0" step="100" placeholder="0" oninput="updatePortfolioTypeModalPreview()"/>
+    </div>
     <div id="portfolio-type-share-fields">
       <div class="form-group">
-        <label>Number of shares</label>
-        <input id="portfolio-type-shares" type="number" min="0" step="1" oninput="updatePortfolioTypeModalPreview()"/>
+        <label>FTSE Share Code</label>
+        <input id="portfolio-type-sharecode" type="text" placeholder="e.g. LLOY" style="text-transform:uppercase;" oninput="onShareCodeInput();updatePortfolioTypeModalPreview()"/>
       </div>
       <div class="form-group">
-        <label>Share price</label>
-        <input id="portfolio-type-price" type="number" min="0" step="0.01" oninput="updatePortfolioTypeModalPreview()"/>
+        <label>Share Price (£)</label>
+        <input id="portfolio-type-shareprice" type="number" step="0.01" min="0" placeholder="0.00" oninput="updatePortfolioTypeModalPreview()"/>
       </div>
+      <div class="form-group">
+        <label>Number of Shares</label>
+        <input id="portfolio-type-shares" type="number" min="0" step="1" oninput="updatePortfolioTypeModalPreview()"/>
+      </div>
+      <div style="font-size:11px;color:#484f58;margin-top:-4px;margin-bottom:8px;">Share price can also be updated in Settings → Share Prices</div>
     </div>
     
     <!-- Live Calculated Amount Preview -->
@@ -2900,8 +3044,8 @@ body.light-mode .sro-lyt.active {
       <input id="share-modal-shares" type="number" min="0" step="1" oninput="updateShareModalPreview()"/>
     </div>
     <div class="form-group">
-      <label>Share price</label>
-      <input id="share-modal-price" type="number" min="0" step="0.01" oninput="updateShareModalPreview()"/>
+      <label>FTSE Share Code</label>
+      <input id="share-modal-sharecode" type="text" placeholder="e.g. LLOY" style="text-transform:uppercase;" oninput="updateShareModalPreview()"/>
     </div>
     
     <div class="pf-total share-preview">
@@ -2991,6 +3135,37 @@ body.light-mode .sro-lyt.active {
   </div>
 </div>
 
+<!-- MODAL 2.5: Admin User Management -->
+<div id="admin-modal" class="modal-backdrop" onclick="if(event.target===this)closeAdminModal()">
+  <div class="share-modal" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+    <div class="share-modal-head">
+      <div>
+        <div class="share-modal-k">Administrator</div>
+        <div class="share-modal-title" id="admin-modal-title">User Management</div>
+      </div>
+      <button class="share-modal-close" type="button" onclick="closeAdminModal()">&times;</button>
+    </div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>Users</label>
+      <div style="font-size:11px;color:#484f58;margin-bottom:8px;">List all users and choose actions for each email address.</div>
+      <button class="btn-danger" style="margin-top:0;" onclick="adminLoadUsers()">List All Users</button>
+    </div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>Select User ID (Email shown)</label>
+      <select id="admin-user-select" class="share-user-select"><option value="">Select a user...</option></select>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="admin-action-btn reset" type="button" onclick="adminResetSelectedUser()">Reset Password</button>
+        <button class="admin-action-btn delete" type="button" onclick="adminDeleteSelectedUser()">Delete User + Data</button>
+      </div>
+    </div>
+    <div id="admin-user-list" class="admin-user-list"><div style="font-size:12px;color:#484f58;padding:4px 0;">Tap "List All Users" to load users.</div></div>
+    <div id="admin-status" style="font-size:12px;color:#8b949e;min-height:18px;"></div>
+    <div class="login-actions" style="margin-top:12px;">
+      <button class="login-btn secondary" type="button" onclick="closeAdminModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========================================================================== -->
 <!-- 3. MAIN APPLICATION SHELL                                                  -->
 <!-- ========================================================================== -->
@@ -3008,7 +3183,10 @@ body.light-mode .sro-lyt.active {
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
       <div class="hdr-id" id="device-id">ID: —</div>
       <div class="hdr-admin" id="admin-badge" style="display:none;">Admin</div>
-      <button class="hdr-signout" id="signout-btn" onclick="signOutUser()">Sign out</button>
+      <div class="hdr-actions">
+        <button class="hdr-signout" id="admin-btn" style="display:none;" onclick="openAdminModal()">Admin</button>
+        <button class="hdr-signout" id="signout-btn" onclick="signOutUser()">Sign out</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3037,13 +3215,37 @@ body.light-mode .sro-lyt.active {
     <div class="card">
       <div class="card-eyebrow">Portfolio Overview</div>
       <div class="home-overview-grid">
-        <div class="home-chart-wrap">
-          <svg id="home-portfolio-chart" viewBox="0 0 320 230" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="home-chart-wrap" style="flex-direction:column;">
+          <div id="home-chart-year-btns" style="display:flex;gap:4px;justify-content:center;margin-bottom:8px;"></div>
+          <div style="display:flex;gap:8px;align-items:stretch;">
+            <div id="home-chart-side-btns" style="display:flex;flex-direction:column;justify-content:center;gap:4px;"></div>
+            <svg id="home-portfolio-chart" viewBox="0 0 320 230" preserveAspectRatio="xMidYMid meet" style="flex:1;"></svg>
+          </div>
         </div>
         <div id="home-portfolio-legend" class="home-legend"></div>
       </div>
     </div>
     
+    <!-- Assets Card -->
+    <div class="card">
+      <div class="card-eyebrow">Assets</div>
+      <div id="home-assets-list"></div>
+      <div id="home-assets-form" style="display:none;">
+        <div class="form-group"><label>Asset Name</label><input type="text" id="ha-name" placeholder="e.g. Main Residence"/></div>
+        <div class="form-group"><label>Asset Type</label><input type="text" id="ha-type" placeholder="e.g. Property"/></div>
+        <div class="form-group"><label>Estimated Value (£)</label><input type="number" id="ha-value" min="0" step="1000" placeholder="0"/></div>
+        <div style="display:flex;gap:8px;"><button class="btn-primary" style="margin-top:0;" onclick="saveHomeAsset()">Save</button><button class="btn-danger" style="margin-top:0;" onclick="cancelHomeAsset()">Cancel</button></div>
+      </div>
+      <button class="btn-danger" id="ha-add-btn" onclick="showHomeAssetForm()" style="margin-top:6px;">+ Add Asset</button>
+      <div class="toggle-row" style="margin-top:14px;margin-bottom:0;">
+        <div>
+          <div class="toggle-label">Include in Portfolio</div>
+          <div class="toggle-meta">Adds asset values to Portfolio Overview totals</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="ha-toggle" onchange="setHomeAssetsInPortfolio(this.checked)"/><span class="slider-round"></span></label>
+      </div>
+    </div>
+
     <!-- Retirement Readiness & Milestones Checklist -->
     <div class="card">
       <div class="card-eyebrow">Milestones</div>
@@ -3111,6 +3313,7 @@ body.light-mode .sro-lyt.active {
         <div class="cashflow-model-asset-list" id="cashflow-model-assets"></div>
       </div>
       <div class="cashflow-model-preview" id="cashflow-model-preview"></div>
+      <div id="cashflow-model-total" style="display:none;justify-content:space-between;align-items:center;background:#080d1a;border:1px solid #182035;border-radius:10px;padding:10px 14px;margin-bottom:8px;"></div>
       <div class="cashflow-model-actions">
         <button class="btn-primary" onclick="addCashflowModelIncomeSource()">Add to Income Sources</button>
         <button class="btn-danger" type="button" onclick="clearCashflowModelSelection()">Clear Selection</button>
@@ -3131,23 +3334,38 @@ body.light-mode .sro-lyt.active {
     
     <!-- Monthly Bills Table -->
     <div class="card">
-      <div class="card-eyebrow">Monthly Bills</div>
-      <div id="spend-monthly-list"></div>
-      <button class="btn-primary" onclick="addSpend('monthly')">+ Add Monthly Bill</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="card-eyebrow" style="margin-bottom:0;">Monthly Bills</div>
+        <button class="spend-collapse-btn" id="spend-monthly-arrow" onclick="toggleSpendSection('monthly')">&#9660;</button>
+      </div>
+      <div id="spend-monthly-body">
+        <div id="spend-monthly-list"></div>
+        <button class="btn-primary" onclick="addSpend('monthly')">+ Add Monthly Bill</button>
+      </div>
     </div>
     
     <!-- Quarterly Bills Table -->
     <div class="card">
-      <div class="card-eyebrow">Quarterly Bills</div>
-      <div id="spend-quarterly-list"></div>
-      <button class="btn-primary" onclick="addSpend('quarterly')">+ Add Quarterly Bill</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="card-eyebrow" style="margin-bottom:0;">Quarterly Bills</div>
+        <button class="spend-collapse-btn" id="spend-quarterly-arrow" onclick="toggleSpendSection('quarterly')">&#9660;</button>
+      </div>
+      <div id="spend-quarterly-body">
+        <div id="spend-quarterly-list"></div>
+        <button class="btn-primary" onclick="addSpend('quarterly')">+ Add Quarterly Bill</button>
+      </div>
     </div>
     
     <!-- Annual Bills Table -->
     <div class="card">
-      <div class="card-eyebrow">Annual Bills</div>
-      <div id="spend-annual-list"></div>
-      <button class="btn-primary" onclick="addSpend('annual')">+ Add Annual Bill</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="card-eyebrow" style="margin-bottom:0;">Annual Bills</div>
+        <button class="spend-collapse-btn" id="spend-annual-arrow" onclick="toggleSpendSection('annual')">&#9660;</button>
+      </div>
+      <div id="spend-annual-body">
+        <div id="spend-annual-list"></div>
+        <button class="btn-primary" onclick="addSpend('annual')">+ Add Annual Bill</button>
+      </div>
     </div>
   </div>
 
@@ -3181,8 +3399,15 @@ body.light-mode .sro-lyt.active {
       <div class="form-group"><label>Career Start Date</label><input type="date" id="s-career" oninput="fs('career',this.value)"/></div>
     </div>
     
+    <!-- Share Prices -->
+    <div class="card">
+      <div class="section-title">Share Prices</div>
+      <div style="font-size:11px;color:#484f58;margin-bottom:10px;">Enter current share prices for codes used in Portfolio tab.</div>
+      <div id="settings-share-prices"></div>
+    </div>
+
     <!-- Cloud Sync & Diagnostic Controls -->
-    <div class="card" style="background:rgba(0,0,0,0);border:1px solid #21262d;">
+    <div class="card" style="background:rgba(0,0,0,0);border:1px solid #182035;">
       <div class="card-eyebrow">Secure Cloud Sync</div>
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
@@ -3255,7 +3480,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V9.7';
+const APP_VERSION = 'V10.0';
 
 /**
  * Tab bar variant selector:
@@ -3266,6 +3491,10 @@ const TAB_BAR_VARIANT = 'modern';
 
 /** TabBar instance handle */
 let _tabBar = null;
+
+let _homeChartYear = '2026';
+
+const _spendCollapsed = { monthly: false, quarterly: false, annual: false };
 
 /** Firebase config loaded from global window or null if offline/standalone */
 const FIREBASE_CONFIG = window.RETIREME_FIREBASE_CONFIG || null;
@@ -3305,6 +3534,8 @@ let _swRegistrationAttempted = false;
 
 /** Query parameter string for Service Worker script cache busting */
 const SW_CACHE_BUST = encodeURIComponent(APP_VERSION || 'dev');
+const ADMIN_EMAIL = 'vicweigler@gmail.com';
+const ADMIN_DELETE_USER_URL = (window.RETIREME_ADMIN_DELETE_USER_URL || '').toString().trim();
 
 /**
  * Default Assets Catalog (DA):
@@ -3374,7 +3605,11 @@ const DEFAULT_S = {
   spend: { monthly: [], quarterly: [], annual: [] },
   checklist: {},
   milestones: [],
-  tabOrder: ['home', 'ledger', 'spend', 'cashflow', 'shared', 'settings']
+  tabOrder: ['home', 'ledger', 'spend', 'cashflow', 'shared', 'settings'],
+  cashflowModelAmounts: {},
+  homeAssets: [],
+  homeAssetsInPortfolio: false,
+  sharePrices: {}
 };
 
 /** Active global application state */
@@ -3819,6 +4054,24 @@ async function createAccountWithPassword() {
     }
     loginStatus('Account created. You are now signed in.', '#00d17a');
   } catch (e) {
+    if ((e && e.code) === 'auth/email-already-in-use') {
+      // In fallback admin-delete mode, Firestore data can be removed while Auth account still exists.
+      // Try signing in with entered password first; if it fails, trigger password reset to recover the account.
+      try {
+        await safeFirebaseAuth().signInWithEmailAndPassword(email, password);
+        loginStatus('Account already existed in Auth. Signed in successfully - your app data will be reinitialized.', '#00d17a');
+        return;
+      } catch (signInErr) {
+        try {
+          await safeFirebaseAuth().sendPasswordResetEmail(email);
+          loginStatus('This email still exists in Auth. Password reset email sent. Set a new password, then log in.', '#d29922');
+          return;
+        } catch (resetErr) {
+          loginStatus('Email already exists in Auth. Use Reset Password to recover access.', '#f85149');
+          return;
+        }
+      }
+    }
     loginStatus(authErrorMessage(e, false), '#f85149');
   }
 }
@@ -3963,13 +4216,13 @@ function setTheme(mode) {
   S.theme = mode === 'light' ? 'light' : 'dark';
   document.body.classList.toggle('light-mode', S.theme === 'light');
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', S.theme === 'light' ? '#f6f8fb' : '#0d1117');
+  if (meta) meta.setAttribute('content', S.theme === 'light' ? '#f6f8fb' : '#080d1a');
   const t = document.getElementById('theme-light');
   if (t) t.checked = S.theme === 'light';
   if (_tabBar) {
     _tabBar.setColors(S.theme === 'light'
       ? { bgColor: '#ffffff', borderColor: '#d8dee8', accentColor: '#0ea86d', inactiveColor: '#64748b' }
-      : { bgColor: '#161b22', borderColor: '#21262d', accentColor: '#00d17a', inactiveColor: '#484f58' }
+      : { bgColor: '#0d1525', borderColor: '#182035', accentColor: '#00d17a', inactiveColor: '#484f58' }
     );
   }
   save();
@@ -4083,12 +4336,18 @@ function readAuthSession() {
   return { loggedIn, isAdmin, userKey: String(rawUserKey || '') };
 }
 
+function isAdminEmail() {
+  const email = ((currentFirebaseUser() && currentFirebaseUser().email) || readStorageValue('userEmail') || '').toString().trim().toLowerCase();
+  return email === ADMIN_EMAIL;
+}
+
 /**
  * Renders the top header bar with active account information, admin badge, and sign-out button.
  */
 function renderAuthHeader() {
   const auth = readAuthSession();
   const adminBadge = document.getElementById('admin-badge');
+  const adminBtn = document.getElementById('admin-btn');
   const signoutBtn = document.getElementById('signout-btn');
   const idEl = document.getElementById('device-id');
   let liveUser = null;
@@ -4099,14 +4358,226 @@ function renderAuthHeader() {
   const liveAccount = (liveUser && (liveUser.email || liveUser.uid)) || (_firebaseUser && (_firebaseUser.email || _firebaseUser.uid)) || '';
   const storedAccount = readStorageValue('userEmail') || readStorageValue('uid') || '';
   const account = (liveAccount || storedAccount || auth.userKey || 'local').toString();
+  const adminByEmail = isAdminEmail();
   if (idEl) idEl.textContent = 'Acct: ' + account;
-  if (adminBadge) adminBadge.style.display = auth.loggedIn && auth.isAdmin ? 'block' : 'none';
+  if (adminBadge) adminBadge.style.display = auth.loggedIn && (auth.isAdmin || adminByEmail) ? 'block' : 'none';
+  if (adminBtn) {
+    adminBtn.style.display = auth.loggedIn && adminByEmail ? 'inline-flex' : 'none';
+    adminBtn.disabled = !(auth.loggedIn && adminByEmail);
+  }
   if (signoutBtn) {
     signoutBtn.style.display = 'inline-flex';
     signoutBtn.disabled = false;
     signoutBtn.style.opacity = '1';
     signoutBtn.textContent = auth.loggedIn ? 'Sign out' : 'Sign in';
     signoutBtn.onclick = auth.loggedIn ? signOutUser : signInUser;
+  }
+}
+
+function adminStatus(msg, color) {
+  const el = document.getElementById('admin-status');
+  if (!el) return;
+  el.textContent = msg || '';
+  if (color) el.style.color = color;
+}
+
+function closeAdminModal() {
+  const modal = document.getElementById('admin-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function openAdminModal() {
+  if (!isAdminEmail()) {
+    window.alert('Admin access is restricted.');
+    return;
+  }
+  const modal = document.getElementById('admin-modal');
+  if (modal) modal.style.display = 'flex';
+  adminStatus('Ready.', '#8b949e');
+}
+
+async function adminLoadUsers() {
+  const listEl = document.getElementById('admin-user-list');
+  const selEl = document.getElementById('admin-user-select');
+  if (!isAdminEmail()) {
+    adminStatus('Access denied.', '#f85149');
+    return;
+  }
+  if (!_db) {
+    adminStatus('Database not connected.', '#f85149');
+    return;
+  }
+  if (listEl) listEl.innerHTML = '<div style="font-size:12px;color:#484f58;padding:4px 0;">Loading users...</div>';
+  adminStatus('Loading users...', '#d29922');
+  try {
+    const snap = await _db.collection('publicProfiles').get();
+    const users = [];
+    snap.forEach(doc => {
+      const d = doc.data() || {};
+      const email = String(d.email || '').trim();
+      const uid = String(d.uid || doc.id || '').trim();
+      if (email && uid) users.push({ uid, email });
+    });
+    users.sort((a, b) => a.email.localeCompare(b.email));
+    if (!users.length) {
+      if (selEl) selEl.innerHTML = '<option value="">Select a user...</option>';
+      if (listEl) listEl.innerHTML = '<div style="font-size:12px;color:#484f58;padding:4px 0;">No users found.</div>';
+      adminStatus('No users found.', '#848d97');
+      return;
+    }
+    if (selEl) {
+      selEl.innerHTML = '<option value="">Select a user...</option>' + users.map(u => `<option value="${escapeHtml(u.uid)}" data-email="${escapeHtml(u.email)}">${escapeHtml(u.uid)} - ${escapeHtml(u.email)}</option>`).join('');
+    }
+    if (listEl) {
+      listEl.innerHTML = users.map(u => `<div class="admin-user-row">
+        <div>
+          <div class="admin-user-email">${escapeHtml(u.email)}</div>
+          <div class="admin-user-uid">UID: ${escapeHtml(u.uid)}</div>
+        </div>
+        <div class="admin-user-actions">
+          <button class="admin-action-btn reset" onclick="adminResetUserPassword(decodeURIComponent('${encodeURIComponent(u.email)}'))">Reset Password</button>
+          ${String(u.email || '').trim().toLowerCase() === ADMIN_EMAIL
+            ? '<button class="admin-action-btn delete" type="button" disabled title="Protected admin account" style="opacity:0.45;cursor:not-allowed;">Delete User</button>'
+            : `<button class="admin-action-btn delete" onclick="adminDeleteUserAndData(decodeURIComponent('${encodeURIComponent(u.uid)}'),decodeURIComponent('${encodeURIComponent(u.email)}'))">Delete User</button>`}
+        </div>
+      </div>`).join('');
+    }
+    adminStatus(users.length + ' user(s) loaded.', '#00d17a');
+  } catch (e) {
+    adminStatus('Load failed: ' + ((e && e.message) || 'unknown error'), '#f85149');
+    if (listEl) listEl.innerHTML = '<div style="font-size:12px;color:#f85149;padding:4px 0;">Failed to load users.</div>';
+  }
+}
+
+function adminSelectedUser() {
+  const sel = document.getElementById('admin-user-select');
+  if (!sel || !sel.value) return null;
+  const email = (sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].dataset.email) || '';
+  return { uid: String(sel.value || '').trim(), email: String(email || '').trim() };
+}
+
+function adminResetSelectedUser() {
+  const selected = adminSelectedUser();
+  if (!selected) {
+    adminStatus('Select a user first.', '#f85149');
+    return;
+  }
+  adminResetUserPassword(selected.email);
+}
+
+function adminDeleteSelectedUser() {
+  const selected = adminSelectedUser();
+  if (!selected) {
+    adminStatus('Select a user first.', '#f85149');
+    return;
+  }
+  adminDeleteUserAndData(selected.uid, selected.email);
+}
+
+async function adminResetUserPassword(email) {
+  if (!isAdminEmail()) {
+    adminStatus('Access denied.', '#f85149');
+    return;
+  }
+  const targetEmail = String(email || '').trim();
+  if (!targetEmail) return;
+  const ok = window.confirm('Send password reset email to ' + targetEmail + '?');
+  if (!ok) return;
+  try {
+    const auth = safeFirebaseAuth();
+    if (!auth) throw new Error('Auth unavailable');
+    await auth.sendPasswordResetEmail(targetEmail);
+    adminStatus('Password reset email sent to ' + targetEmail + '.', '#00d17a');
+  } catch (e) {
+    adminStatus('Reset failed: ' + ((e && e.message) || 'unknown error'), '#f85149');
+  }
+}
+
+async function adminDeleteUserAndData(uid, email) {
+  if (!isAdminEmail()) {
+    adminStatus('Access denied.', '#f85149');
+    return;
+  }
+  const targetUid = String(uid || '').trim();
+  const targetEmail = String(email || '').trim();
+  if (!targetUid) return;
+  const currentUid = String((currentFirebaseUser() && currentFirebaseUser().uid) || '').trim();
+  if (targetEmail.toLowerCase() === ADMIN_EMAIL || (currentUid && targetUid === currentUid)) {
+    adminStatus('Cannot delete the admin user vicweigler@gmail.com.', '#f85149');
+    return;
+  }
+  const ok = window.confirm(
+    'WARNING: You are about to permanently delete user "' + targetEmail + '".\n\n' +
+    'This will permanently remove the user account data, profile, and all shared portfolio records.\n\n' +
+    'This action cannot be undone. Continue?'
+  );
+  if (!ok) return;
+
+  async function deleteUserDataFromFirestore() {
+    if (!_db) throw new Error('Database not connected.');
+    adminStatus('Deleting user data...', '#d29922');
+    const ops = [];
+    const appsSnap = await _db.collection('users').doc(targetUid).collection('apps').get();
+    appsSnap.forEach(doc => ops.push(doc.ref.delete()));
+    ops.push(_db.collection('users').doc(targetUid).delete());
+    ops.push(_db.collection('publicProfiles').doc(targetUid).delete());
+
+    const sharedFrom = await _db.collection('sharedPortfolios').where('fromUid', '==', targetUid).get();
+    sharedFrom.forEach(doc => ops.push(doc.ref.delete()));
+    const sharedTo = await _db.collection('sharedPortfolios').where('toUid', '==', targetUid).get();
+    sharedTo.forEach(doc => ops.push(doc.ref.delete()));
+
+    await Promise.all(ops);
+
+    const verifyUserDoc = await _db.collection('users').doc(targetUid).get();
+    const verifyProfileDoc = await _db.collection('publicProfiles').doc(targetUid).get();
+    const verifyAppsSnap = await _db.collection('users').doc(targetUid).collection('apps').get();
+    const verifySharedFrom = await _db.collection('sharedPortfolios').where('fromUid', '==', targetUid).get();
+    const verifySharedTo = await _db.collection('sharedPortfolios').where('toUid', '==', targetUid).get();
+    const anyRemaining = verifyUserDoc.exists || verifyProfileDoc.exists || !verifyAppsSnap.empty || !verifySharedFrom.empty || !verifySharedTo.empty;
+    if (anyRemaining) throw new Error('Delete verification failed: some user data still exists.');
+  }
+
+  adminStatus('Deleting user...', '#d29922');
+  try {
+    if (ADMIN_DELETE_USER_URL) {
+      const auth = safeFirebaseAuth();
+      const currentUser = auth && auth.currentUser;
+      if (!currentUser || typeof currentUser.getIdToken !== 'function') {
+        throw new Error('Current admin auth token unavailable.');
+      }
+      const idToken = await currentUser.getIdToken(true);
+      const res = await fetch(ADMIN_DELETE_USER_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + idToken,
+        },
+        body: JSON.stringify({ uid: targetUid, email: targetEmail }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || payload.ok === false) {
+        const statusCode = Number(res.status || 0);
+        if (statusCode === 404 || statusCode === 0) {
+          adminStatus('Delete service unavailable, falling back to Firestore admin delete...', '#d29922');
+          await deleteUserDataFromFirestore();
+          adminStatus('User data deleted for ' + targetEmail + '. (Auth account not deleted in this fallback mode.)', '#d29922');
+          await adminLoadUsers();
+          return;
+        }
+        throw new Error((payload && payload.error) || ('Delete service failed (' + res.status + ')'));
+      }
+      adminStatus('User account and data deleted for ' + targetEmail + '.', '#00d17a');
+      await adminLoadUsers();
+      return;
+    }
+
+    await deleteUserDataFromFirestore();
+    adminStatus('User data deleted for ' + targetEmail + '. (Auth account not deleted in this mode.)', '#d29922');
+    await adminLoadUsers();
+  } catch (e) {
+    const msg = ((e && e.message) || 'unknown error');
+    adminStatus('Delete failed: ' + msg + (String(msg).toLowerCase().includes('permission') ? ' (check Cloud Function deployment and admin token).' : ''), '#f85149');
   }
 }
 
@@ -4242,6 +4713,10 @@ function load() {
   }
   if (!Array.isArray(S.milestones)) S.milestones = [];
   if (!Array.isArray(S.tabOrder) || S.tabOrder.length < 6) S.tabOrder = ['home', 'ledger', 'spend', 'cashflow', 'shared', 'settings'];
+  if (!S.cashflowModelAmounts || typeof S.cashflowModelAmounts !== 'object') S.cashflowModelAmounts = {};
+  if (!Array.isArray(S.homeAssets)) S.homeAssets = [];
+  if (typeof S.homeAssetsInPortfolio !== 'boolean') S.homeAssetsInPortfolio = false;
+  if (!S.sharePrices || typeof S.sharePrices !== 'object') S.sharePrices = {};
   if ((!S.spend.monthly || S.spend.monthly.length === 0) && Array.isArray(S.monthlyBills)) {
     S.spend.monthly = S.monthlyBills.map(normalizeSpendRow).filter(Boolean);
   }
@@ -4325,6 +4800,8 @@ function applyDOM() {
   renderCashflowModelPreview();
   renderSpendAll();
   renderTabOrderSettings();
+  renderSettingsSharePrices();
+  renderHomeAssets();
 }
 
 /**
@@ -4418,8 +4895,11 @@ function calcPortfolioNonShareAmount(row) {
  */
 function calcPortfolioShareAmount(row) {
   const shares = parseFloat(row && row.shares) || 0;
-  const sharePrice = parseFloat(row && row.sharePrice) || 0;
-  const gross = shares * sharePrice;
+  const shareCode = row && row.shareCode ? String(row.shareCode).trim().toUpperCase() : '';
+  const price = (shareCode && S.sharePrices && S.sharePrices[shareCode] !== undefined)
+    ? parseFloat(S.sharePrices[shareCode]) || 0
+    : parseFloat(row && row.sharePrice) || 0;
+  const gross = shares * price;
   return (row && row.taxable) ? gross * 0.55 : gross;
 }
 
@@ -4528,6 +5008,27 @@ function renderVersionLabels() {
  * Aggregates portfolio holdings by asset category across 2026 and 2030 for chart visualization.
  * @returns {{ total: number, entries: Array<{ label: string, value: number, value2026: number, value2030: number, color: string, share: number }> }}
  */
+function getPortfolioSummaryForYear(year) {
+  const palette = ['#00d17a', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#f97316', '#14b8a6', '#f43f5e'];
+  const totals = new Map();
+  for (const row of portfolioRows(year)) {
+    if (isPortfolioCarryOverRow(row)) continue;
+    const label = (String(row && row.type || '').trim() || 'Asset') || 'Asset';
+    const amount = Number(calcPortfolioRowAmount(row) || 0);
+    if (amount <= 0) continue;
+    totals.set(label, (totals.get(label) || 0) + amount);
+  }
+  const entries = [...totals.entries()].map(([label, value], index) => ({
+    label, value, color: palette[index % palette.length]
+  })).sort((a, b) => b.value - a.value);
+  return { total: entries.reduce((s, e) => s + e.value, 0), entries };
+}
+
+function setHomeChartYear(year) {
+  _homeChartYear = year;
+  renderHomeOverview();
+}
+
 function getHomePortfolioSummary() {
   const totals = new Map();
   const palette = ['#00d17a', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#f97316', '#14b8a6', '#f43f5e'];
@@ -4561,6 +5062,73 @@ function getHomePortfolioSummary() {
  * Renders user greeting name, calculates coordinates, and draws the SVG bar chart comparing
  * 2026 current holdings with 2030 projections along with the color-coded category legend.
  */
+function renderHomeAssets() {
+  const list = document.getElementById('home-assets-list');
+  const toggle = document.getElementById('ha-toggle');
+  if (toggle) toggle.checked = !!S.homeAssetsInPortfolio;
+  if (!list) return;
+  const assets = Array.isArray(S.homeAssets) ? S.homeAssets : [];
+  if (assets.length === 0) {
+    list.innerHTML = '<div style="font-size:12px;color:#484f58;padding:4px 0 8px;">No assets added yet.</div>';
+    return;
+  }
+  const total = assets.reduce((sum, a) => sum + (parseFloat(a.value) || 0), 0);
+  list.innerHTML = assets.map((a, idx) => `<div class="home-legend-row" style="margin-bottom:6px;">
+    <div class="home-legend-label" style="flex:1;min-width:0;">
+      <div style="min-width:0;"><div class="home-legend-name" style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(a.name || 'Asset')}</div><div style="font-size:11px;color:#484f58;">${escapeHtml(a.type || 'Asset')}</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <span class="home-legend-value" style="color:#00d17a;">£${fmtN(parseFloat(a.value) || 0)}</span>
+      <button onclick="deleteHomeAsset(${idx})" style="background:transparent;border:none;color:#484f58;font-size:18px;cursor:pointer;padding:0;line-height:1;">&times;</button>
+    </div>
+  </div>`).join('') + `<div style="display:flex;justify-content:space-between;padding:6px 0 4px;border-top:1px solid #182035;font-size:12px;margin-top:4px;"><span style="color:#484f58;padding-left:10px;">Total</span><span style="color:#00d17a;font-weight:700;padding-right:28px;">£${fmtN(total)}</span></div>`;
+}
+
+function showHomeAssetForm() {
+  const form = document.getElementById('home-assets-form');
+  const btn = document.getElementById('ha-add-btn');
+  if (form) form.style.display = '';
+  if (btn) btn.style.display = 'none';
+  const nameEl = document.getElementById('ha-name');
+  if (nameEl) { nameEl.value = ''; nameEl.focus(); }
+  const typeEl = document.getElementById('ha-type'); if (typeEl) typeEl.value = '';
+  const valEl = document.getElementById('ha-value'); if (valEl) valEl.value = '';
+}
+
+function cancelHomeAsset() {
+  const form = document.getElementById('home-assets-form');
+  const btn = document.getElementById('ha-add-btn');
+  if (form) form.style.display = 'none';
+  if (btn) btn.style.display = '';
+}
+
+function saveHomeAsset() {
+  const name = (document.getElementById('ha-name')?.value || '').trim();
+  const type = (document.getElementById('ha-type')?.value || '').trim();
+  const value = parseFloat(document.getElementById('ha-value')?.value || '0') || 0;
+  if (!name) { document.getElementById('ha-name')?.focus(); return; }
+  if (!Array.isArray(S.homeAssets)) S.homeAssets = [];
+  S.homeAssets.push({ id: uid('ha'), name, type: type || 'Asset', value });
+  save();
+  cancelHomeAsset();
+  renderHomeAssets();
+  renderHomeOverview();
+}
+
+function deleteHomeAsset(idx) {
+  if (!Array.isArray(S.homeAssets)) return;
+  S.homeAssets.splice(idx, 1);
+  save();
+  renderHomeAssets();
+  renderHomeOverview();
+}
+
+function setHomeAssetsInPortfolio(checked) {
+  S.homeAssetsInPortfolio = !!checked;
+  save();
+  renderHomeOverview();
+}
+
 function renderHomeOverview() {
   let userEmail = 'User';
   try {
@@ -4578,17 +5146,38 @@ function renderHomeOverview() {
   }
   const chart = document.getElementById('home-portfolio-chart');
   const legend = document.getElementById('home-portfolio-legend');
-  const summary = getHomePortfolioSummary();
+  const sideBtns = document.getElementById('home-chart-side-btns');
+  if (sideBtns) {
+    sideBtns.innerHTML = ['2026','2027','2028','2029','2030'].map(y =>
+      `<button class="lyt${y === _homeChartYear ? ' active' : ''}" style="font-size:10px;padding:4px 8px;writing-mode:initial;" onclick="setHomeChartYear('${y}')">${y}</button>`
+    ).join('');
+  }
+  const summary = getPortfolioSummaryForYear(_homeChartYear);
   if (!chart || !legend) return;
   const { entries, total } = summary;
-  const total2026 = portfolioYearTotal('2026') || 0;
-  const total2030 = portfolioYearTotal('2030') || 0;
+  const homeAssetsTotal = (S.homeAssetsInPortfolio && Array.isArray(S.homeAssets) && S.homeAssets.length > 0)
+    ? S.homeAssets.reduce((sum, a) => sum + (parseFloat(a.value) || 0), 0) : 0;
+  const total2026 = (portfolioYearTotal(_homeChartYear) || 0) + homeAssetsTotal;
+  const total2030 = (portfolioYearTotal('2030') || 0) + homeAssetsTotal;
+  const isDark = !document.body.classList.contains('light-mode');
+  const carryOverValue = portfolioRows(_homeChartYear).filter(r => isPortfolioCarryOverRow(r)).reduce((s, r) => s + Number(calcPortfolioRowAmount(r) || 0), 0);
+  const _cb = isDark ? '#101c30' : '#e8eef8', _cbd = isDark ? '#182035' : '#b8c9e0', _cbk = isDark ? '#8b949e' : '#64748b';
+  const infoBtns = document.getElementById('home-chart-year-btns');
+  if (infoBtns) {
+    let chips = '';
+    if (carryOverValue > 0) chips += `<div style="background:${_cb};border:1px solid ${_cbd};border-radius:8px;padding:5px 10px;flex:1;min-width:90px;"><div style="font-size:8px;color:${_cbk};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Carry Over</div><div style="font-size:13px;font-weight:700;color:#64748b;">£${fmtN(carryOverValue)}</div></div>`;
+    if (homeAssetsTotal > 0) chips += `<div style="background:${_cb};border:1px solid ${_cbd};border-radius:8px;padding:5px 10px;flex:1;min-width:90px;"><div style="font-size:8px;color:${_cbk};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Other Assets</div><div style="font-size:13px;font-weight:700;color:#94a3b8;">£${fmtN(homeAssetsTotal)}</div></div>`;
+    chips += `<div style="background:${_cb};border:1px solid ${_cbd};border-radius:8px;padding:5px 10px;flex:1;min-width:110px;"><div style="font-size:8px;color:${_cbk};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">${_homeChartYear} Total</div><div style="font-size:13px;font-weight:700;color:${isDark ? '#e6edf3' : '#0f172a'};">£${fmtN(total2026)}</div><div style="font-size:8px;color:${_cbk};margin-top:2px;">2030: £${fmtN(total2030)}</div></div>`;
+    infoBtns.style.display = 'flex';
+    infoBtns.innerHTML = chips;
+  }
+  const labelFill = isDark ? '#c9d1d9' : '#000000';
   if (!entries.length || total <= 0) {
-    chart.innerHTML = '<rect x="20" y="20" width="280" height="150" rx="12" fill="rgba(22,27,34,0.8)" stroke="#30363d" stroke-width="1"/><text x="160" y="110" fill="#8b949e" font-size="16" text-anchor="middle">No holdings yet</text>';
+    chart.innerHTML = '<rect x="20" y="20" width="280" height="150" rx="12" fill="rgba(22,27,34,0.8)" stroke="#1f2d45" stroke-width="1"/><text x="160" y="110" fill="#8b949e" font-size="16" text-anchor="middle">No holdings yet</text>';
     legend.innerHTML = '<div class="home-legend-row"><div class="home-legend-label"><span class="home-legend-swatch" style="background:#8b949e"></span><span class="home-legend-name">No data</span></div><span class="home-legend-value">£0</span></div>';
     return;
   }
-  const maxValue = Math.max(...entries.map(item => Math.max(item.value2026 || 0, item.value2030 || 0)), 1);
+  const maxValue = Math.max(...entries.map(item => item.value || 0), 1);
   const chartWidth = 320, chartHeight = 220;
   const leftPad = 24, rightPad = 18, topPad = 18, bottomPad = 28;
   const plotWidth = chartWidth - leftPad - rightPad;
@@ -4597,28 +5186,25 @@ function renderHomeOverview() {
   const gap = 18;
   const barWidth = Math.min(maxBarWidth, Math.max(18, (plotWidth - gap * (entries.length - 1)) / entries.length));
   const bars = entries.map((item, index) => {
-    const projectionHeight = (Number(item.value2030 || 0) / maxValue) * plotHeight;
-    const currentHeight = (Number(item.value2026 || 0) / maxValue) * plotHeight;
+    const currentHeight = (Number(item.value || 0) / maxValue) * plotHeight;
     const x = leftPad + index * (barWidth + gap);
-    const yProjection = chartHeight - bottomPad - projectionHeight;
     const yCurrent = chartHeight - bottomPad - currentHeight;
     const labelY = chartHeight - 8;
-    const shadowFill = item.color + '66';
+    const cx = x + barWidth / 2;
+    const valueY = Math.max(12, yCurrent - 8);
+    const valueLabel = currentHeight > 0
+      ? `<text x="${cx}" y="${valueY}" text-anchor="middle" font-size="9" fill="${labelFill}" font-weight="700">£${fmtN(item.value)}</text>`
+      : '';
     return `
-      <rect x="${x}" y="${yProjection}" width="${barWidth}" height="${projectionHeight}" rx="8" fill="${shadowFill}"></rect>
       <rect x="${x}" y="${yCurrent}" width="${barWidth}" height="${currentHeight}" rx="8" fill="${item.color}" opacity="0.92"></rect>
-      <text x="${x + barWidth / 2}" y="${Math.min(yCurrent - 8, yProjection - 8)}" text-anchor="middle" font-size="9" fill="#c9d1d9" font-weight="700">£${fmtN(item.value)}</text>
-      <text x="${x + barWidth / 2}" y="${labelY}" text-anchor="middle" font-size="9" fill="#8b949e">${escapeHtml(item.label.slice(0, 7))}${item.label.length > 7 ? '...' : ''}</text>
+      ${valueLabel}
+      <text x="${cx}" y="${labelY}" text-anchor="middle" font-size="9" fill="#8b949e">${escapeHtml(item.label.slice(0, 7))}${item.label.length > 7 ? '...' : ''}</text>
     `;
   }).join('');
   chart.innerHTML = `
-    <line x1="${leftPad}" y1="${chartHeight - bottomPad}" x2="${chartWidth - rightPad}" y2="${chartHeight - bottomPad}" stroke="#30363d" stroke-width="1"/>
-    <line x1="${leftPad}" y1="${topPad}" x2="${leftPad}" y2="${chartHeight - bottomPad}" stroke="#30363d" stroke-width="1"/>
+    <line x1="${leftPad}" y1="${chartHeight - bottomPad}" x2="${chartWidth - rightPad}" y2="${chartHeight - bottomPad}" stroke="#1f2d45" stroke-width="1"/>
+    <line x1="${leftPad}" y1="${topPad}" x2="${leftPad}" y2="${chartHeight - bottomPad}" stroke="#1f2d45" stroke-width="1"/>
     ${bars}
-    <text x="${chartWidth - 18}" y="${topPad + 12}" text-anchor="end" font-size="9" fill="#8b949e">2026 Total</text>
-    <text x="${chartWidth - 18}" y="${topPad + 32}" text-anchor="end" font-size="17" font-weight="700" fill="#e6edf3">£${fmtN(total2026)}</text>
-    <text x="${chartWidth - 18}" y="${topPad + 50}" text-anchor="end" font-size="8.5" fill="#8b949e">Projection to 2030</text>
-    <text x="${chartWidth - 18}" y="${topPad + 68}" text-anchor="end" font-size="13" font-weight="700" fill="#c9d1d9">£${fmtN(total2030)}</text>
   `;
   legend.innerHTML = entries.map(item => `<div class="home-legend-row"><div class="home-legend-label"><span class="home-legend-swatch" style="background:${item.color}"></span><span class="home-legend-name">${escapeHtml(item.label)}</span></div><span class="home-legend-value">£${fmtN(item.value)}</span></div>`).join('');
 }
@@ -4635,6 +5221,36 @@ let _portfolioTypeEditor = null;
  * @param {string} year 4-digit year string
  * @param {number} idx Array index of row in portfolio[year]
  */
+function getPortfolioTypeValue() {
+  const sel = document.getElementById('portfolio-type-select');
+  if (sel && sel.value === 'Other') {
+    const custom = document.getElementById('portfolio-type-name');
+    return (custom && custom.value.trim()) || 'Other';
+  }
+  return (sel && sel.value) || 'Asset';
+}
+
+function onPortfolioTypeSelect(val) {
+  const customGroup = document.getElementById('portfolio-type-custom-group');
+  const shareFields = document.getElementById('portfolio-type-share-fields');
+  const amtGroup = document.getElementById('portfolio-type-amount-group');
+  if (amtGroup) amtGroup.style.display = val === 'Shares' ? 'none' : '';
+  if (customGroup) customGroup.style.display = val === 'Other' ? '' : 'none';
+  if (shareFields) shareFields.classList.toggle('visible', val === 'Shares');
+  if (val === 'Shares') onShareCodeInput();
+  updatePortfolioTypeModalPreview();
+}
+
+function onShareCodeInput() {
+  const codeEl = document.getElementById('portfolio-type-sharecode');
+  const priceEl = document.getElementById('portfolio-type-shareprice');
+  if (!codeEl || !priceEl) return;
+  const code = codeEl.value.trim().toUpperCase();
+  if (code && S.sharePrices && S.sharePrices[code] !== undefined) {
+    priceEl.value = S.sharePrices[code];
+  }
+}
+
 function openPortfolioTypeModal(year, idx) {
   const row = portfolioRows(year)[idx];
   if (!row) return;
@@ -4643,13 +5259,40 @@ function openPortfolioTypeModal(year, idx) {
   const title = document.getElementById('portfolio-type-title-label');
   const nameEl = document.getElementById('portfolio-type-name');
   const taxableEl = document.getElementById('portfolio-type-taxable');
+  const titleEl = document.getElementById('portfolio-type-title');
   const sharesEl = document.getElementById('portfolio-type-shares');
-  const priceEl = document.getElementById('portfolio-type-price');
+  const shareCodeEl = document.getElementById('portfolio-type-sharecode');
+  const sharePriceEl = document.getElementById('portfolio-type-shareprice');
+  const selectEl = document.getElementById('portfolio-type-select');
+  const customGroupEl = document.getElementById('portfolio-type-custom-group');
+  const rowType = String(row.type || 'Asset');
+  const stdTypes = ['Asset', 'Investment', 'Pension', 'Shares'];
   if (title) title.textContent = row.name || 'Asset';
-  if (nameEl) nameEl.value = String(row.type || 'Asset');
+  if (titleEl) titleEl.value = row.name || '';
   if (taxableEl) taxableEl.checked = !!row.taxable;
   if (sharesEl) sharesEl.value = parseFloat(row.shares) || 0;
-  if (priceEl) priceEl.value = parseFloat(row.sharePrice) || 0;
+  if (shareCodeEl) shareCodeEl.value = row.shareCode || '';
+  if (selectEl) {
+    if (stdTypes.includes(rowType)) {
+      selectEl.value = rowType;
+      if (customGroupEl) customGroupEl.style.display = 'none';
+      if (nameEl) nameEl.value = '';
+    } else {
+      selectEl.value = 'Other';
+      if (nameEl) nameEl.value = rowType;
+      if (customGroupEl) customGroupEl.style.display = '';
+    }
+  }
+  if (sharePriceEl) {
+    const code = String(row.shareCode || '').trim().toUpperCase();
+    sharePriceEl.value = (code && S.sharePrices && S.sharePrices[code] !== undefined) ? S.sharePrices[code] : '';
+  }
+  const amtInputEl = document.getElementById('portfolio-type-amount-input');
+  if (amtInputEl) amtInputEl.value = parseFloat(row.nonShareGross !== undefined ? row.nonShareGross : row.amount) || 0;
+  const amtGroupEl = document.getElementById('portfolio-type-amount-group');
+  if (amtGroupEl) amtGroupEl.style.display = rowType.toLowerCase() === 'shares' ? 'none' : '';
+  const shareFields = document.getElementById('portfolio-type-share-fields');
+  if (shareFields) shareFields.classList.toggle('visible', rowType.toLowerCase() === 'shares');
   updatePortfolioTypeModalPreview();
   if (modal) modal.style.display = 'flex';
 }
@@ -4675,7 +5318,7 @@ function updatePortfolioTypeModalPreview() {
   if (!_portfolioTypeEditor) return;
   const row = portfolioRows(_portfolioTypeEditor.year)[_portfolioTypeEditor.idx];
   if (!row) return;
-  const typeValue = String(document.getElementById('portfolio-type-name')?.value || row.type || 'Asset').trim() || 'Asset';
+  const typeValue = getPortfolioTypeValue();
   const taxable = !!document.getElementById('portfolio-type-taxable')?.checked;
   const shareFields = document.getElementById('portfolio-type-share-fields');
   if (shareFields) {
@@ -4684,9 +5327,12 @@ function updatePortfolioTypeModalPreview() {
   const typePreview = document.getElementById('portfolio-type-title-label');
   if (typePreview) typePreview.textContent = typeValue;
   const shares = parseFloat(document.getElementById('portfolio-type-shares')?.value || row.shares || 0) || 0;
-  const sharePrice = parseFloat(document.getElementById('portfolio-type-price')?.value || row.sharePrice || 0) || 0;
+  const shareCode = String(document.getElementById('portfolio-type-sharecode')?.value || row.shareCode || '').trim().toUpperCase();
+  const previewPrice = (shareCode && S.sharePrices && S.sharePrices[shareCode] !== undefined)
+    ? parseFloat(S.sharePrices[shareCode]) || 0
+    : parseFloat(document.getElementById('portfolio-type-shareprice')?.value || 0) || 0;
   const previewAmount = (String(typeValue).trim().toLowerCase() === 'shares')
-    ? calcPortfolioShareAmount({ ...row, taxable, shares, sharePrice })
+    ? calcPortfolioShareAmount({ ...row, taxable, shares, shareCode })
     : calcPortfolioNonShareAmount({ ...row, taxable, nonShareGross: (parseFloat(row.nonShareGross !== undefined ? row.nonShareGross : row.amount) || 0) });
   const amountEl = document.getElementById('portfolio-type-amount');
   if (amountEl) amountEl.textContent = '£' + fmtN(previewAmount);
@@ -4700,17 +5346,23 @@ function savePortfolioTypeModal() {
   const editor = { ..._portfolioTypeEditor };
   const row = portfolioRows(editor.year)[editor.idx];
   if (!row) return;
-  const typeVal = String(document.getElementById('portfolio-type-name')?.value || row.type || 'Asset').trim() || 'Asset';
+  const titleVal = (document.getElementById('portfolio-type-title')?.value || '').trim();
+  if (titleVal) row.name = titleVal;
+  const typeVal = getPortfolioTypeValue();
   const taxable = !!document.getElementById('portfolio-type-taxable')?.checked;
   row.type = typeVal;
   row.taxable = taxable;
   if (String(typeVal).trim().toLowerCase() === 'shares') {
     row.shares = parseFloat(document.getElementById('portfolio-type-shares')?.value || row.shares || 0) || 0;
-    row.sharePrice = parseFloat(document.getElementById('portfolio-type-price')?.value || row.sharePrice || 0) || 0;
+    row.shareCode = String(document.getElementById('portfolio-type-sharecode')?.value || row.shareCode || '').trim().toUpperCase();
+    const spInput = document.getElementById('portfolio-type-shareprice');
+    const spVal = Math.round((parseFloat(spInput?.value || 0) || 0) * 100) / 100;
+    if (row.shareCode && spVal > 0) { if (!S.sharePrices) S.sharePrices = {}; S.sharePrices[row.shareCode] = spVal; }
     ensurePortfolioShareFields(row);
     row.amount = calcPortfolioShareAmount(row);
   } else {
-    const gross = parseFloat(row.nonShareGross !== undefined ? row.nonShareGross : row.amount) || 0;
+    const enteredAmt = parseFloat(document.getElementById('portfolio-type-amount-input')?.value || 0) || 0;
+    const gross = enteredAmt || (parseFloat(row.nonShareGross !== undefined ? row.nonShareGross : row.amount) || 0);
     row.nonShareGross = gross;
     row.amount = gross;
     row.name = row.name || 'Asset';
@@ -4734,11 +5386,11 @@ function openShareModal(year, idx) {
   _shareEditor = { year, idx };
   const modal = document.getElementById('share-modal');
   const title = document.getElementById('share-modal-title-label');
-  const sharesEl = document.getElementById('share-modal-shares');
-  const priceEl = document.getElementById('share-modal-price');
+  const sharesEl2 = document.getElementById('share-modal-shares');
+  const scEl = document.getElementById('share-modal-sharecode');
   if (title) title.textContent = row.name || 'Shares';
-  if (sharesEl) sharesEl.value = parseFloat(row.shares) || 0;
-  if (priceEl) priceEl.value = parseFloat(row.sharePrice) || 0;
+  if (sharesEl2) sharesEl2.value = parseFloat(row.shares) || 0;
+  if (scEl) scEl.value = row.shareCode || '';
   updateShareModalPreview();
   if (modal) modal.style.display = 'flex';
 }
@@ -4908,9 +5560,12 @@ function saveIncomeModelModal() {
  */
 function updateShareModalPreview() {
   const shares = parseFloat(document.getElementById('share-modal-shares')?.value || 0) || 0;
-  const price = parseFloat(document.getElementById('share-modal-price')?.value || 0) || 0;
+  const shareCode = String(document.getElementById('share-modal-sharecode')?.value || '').trim().toUpperCase();
   const row = _shareEditor ? portfolioRows(_shareEditor.year)[_shareEditor.idx] : null;
   const taxable = !!(row && row.taxable);
+  const price = (shareCode && S.sharePrices && S.sharePrices[shareCode] !== undefined)
+    ? parseFloat(S.sharePrices[shareCode]) || 0
+    : 0;
   const amount = (shares * price) * (taxable ? 0.55 : 1);
   const amountEl = document.getElementById('share-modal-amount');
   if (amountEl) amountEl.textContent = '£' + fmtN(amount);
@@ -4927,7 +5582,7 @@ function saveShareModal() {
   if (!row) return;
   row.type = 'shares';
   row.shares = parseFloat(document.getElementById('share-modal-shares')?.value || 0) || 0;
-  row.sharePrice = parseFloat(document.getElementById('share-modal-price')?.value || 0) || 0;
+  row.shareCode = String(document.getElementById('share-modal-sharecode')?.value || '').trim().toUpperCase();
   row.amount = calcPortfolioShareAmount(row);
   save();
   closeShareModal();
@@ -5010,11 +5665,11 @@ function switchTab(n, btn) {
   if (_tabBar) _tabBar.setActive(n);
   if (n === 'cashflow') { renderCashflowModelAssets(); renderCashflowModelPreview(); buildRunway(); }
   if (n === 'ledger') showLedger(activeLedgerYear(), document.querySelector('.lyt.active') || document.querySelector('.lyt'));
-  if (n === 'home') renderHomeOverview();
+  if (n === 'home') { renderHomeOverview(); renderHomeAssets(); }
   if (n === 'spend') renderSpendAll();
   if (n === 'milestones') renderMilestones();
   if (n === 'shared') loadReceivedShares();
-  if (n === 'settings') renderTabOrderSettings();
+  if (n === 'settings') { renderTabOrderSettings(); renderSettingsSharePrices(); }
 }
 
 /**
@@ -5133,38 +5788,75 @@ function portfolioModelAssets() {
 }
 
 /** Toggles selection of an asset in the cashflow model builder */
+function getAssetAllocatedAmount(assetId) {
+  let total = 0;
+  for (const row of S.investments) {
+    if (!row) continue;
+    if (row.modelAssetAllocations && row.modelAssetAllocations[assetId] !== undefined) {
+      total += parseFloat(row.modelAssetAllocations[assetId]) || 0;
+    } else if (Array.isArray(row.modelAssets) && row.modelAssets.includes(assetId)) {
+      const asset = portfolioRows('2026').find(r => r.id === assetId);
+      total += asset ? (parseFloat(asset.amount) || 0) : 0;
+    }
+  }
+  return total;
+}
+
+function getAssetAvailableAmount(assetId) {
+  const asset = portfolioRows('2026').find(r => r.id === assetId);
+  if (!asset) return 0;
+  return Math.max(0, (parseFloat(asset.amount) || 0) - getAssetAllocatedAmount(assetId));
+}
+
 function toggleCashflowModelAsset(id, checked) {
   if (!Array.isArray(S.cashflowModelSelection)) S.cashflowModelSelection = [];
-  if (checked && isAssetUsedInIncomeModel(id)) return;
+  if (!S.cashflowModelAmounts) S.cashflowModelAmounts = {};
+  if (checked && getAssetAvailableAmount(id) <= 0) return;
   const next = new Set(S.cashflowModelSelection);
-  if (checked) next.add(id); else next.delete(id);
+  if (checked) {
+    next.add(id);
+    if (S.cashflowModelAmounts[id] === undefined) S.cashflowModelAmounts[id] = getAssetAvailableAmount(id);
+  } else {
+    next.delete(id);
+    delete S.cashflowModelAmounts[id];
+  }
   S.cashflowModelSelection = Array.from(next);
   save();
+  renderCashflowModelAssets();
   renderCashflowModelPreview();
 }
 
-/** Returns set of asset IDs already linked to existing income models */
+/** Returns set of asset IDs that are fully allocated across all income models */
 function usedIncomeModelAssetIds() {
   const used = new Set();
   for (const row of S.investments) {
     if (!row || !Array.isArray(row.modelAssets)) continue;
-    for (const id of row.modelAssets) { if (id) used.add(id); }
+    for (const id of row.modelAssets) { if (id && getAssetAvailableAmount(id) <= 0) used.add(id); }
   }
   return used;
 }
 
-/** Checks whether a specific asset ID is already utilized by an income model */
+/** Checks whether a specific asset ID is fully allocated */
 function isAssetUsedInIncomeModel(id) {
   if (!id) return false;
-  return usedIncomeModelAssetIds().has(id);
+  return getAssetAvailableAmount(id) <= 0;
 }
 
 /** Clears selected assets in the cashflow model builder */
 function clearCashflowModelSelection() {
   S.cashflowModelSelection = [];
+  S.cashflowModelAmounts = {};
   save();
   renderCashflowModelAssets();
   renderCashflowModelPreview();
+  renderCashflowModelTotal();
+}
+
+function updateModelAssetAmount(id, value) {
+  if (!S.cashflowModelAmounts) S.cashflowModelAmounts = {};
+  const available = getAssetAvailableAmount(id);
+  S.cashflowModelAmounts[id] = Math.min(Math.max(0, parseFloat(String(value).replace(/,/g, '')) || 0), available);
+  renderCashflowModelTotal();
 }
 
 /** Returns array of portfolio asset rows currently selected for modeling */
@@ -5173,9 +5865,15 @@ function selectedCashflowModelRows() {
   return portfolioModelAssets().filter(r => ids.has(r.id));
 }
 
-/** Returns sum of principal amounts of selected model assets */
+/** Returns sum of allocation amounts for selected model assets */
 function cashflowModelPrincipal() {
-  return selectedCashflowModelRows().reduce((sum, row) => sum + (parseFloat(row.amount) || 0), 0);
+  if (!Array.isArray(S.cashflowModelSelection)) return 0;
+  const amounts = S.cashflowModelAmounts || {};
+  return S.cashflowModelSelection.reduce((sum, id) => {
+    const available = getAssetAvailableAmount(id);
+    const alloc = amounts[id] !== undefined ? Math.min(parseFloat(amounts[id]) || 0, available) : available;
+    return sum + alloc;
+  }, 0);
 }
 
 /** Default annual yield interest rate (4.0%) */
@@ -5189,30 +5887,64 @@ function cashflowModelMonthlyGross() { return cashflowModelAnnualGross() / 12; }
 
 function cashflowModelMonthlyNet() { return cashflowModelMonthlyGross(); }
 
-/** Renders the list of available portfolio assets with checkboxes for modeling */
+/** Renders portfolio assets; shows amount input on checked rows for partial allocation */
+function renderCashflowModelTotal() {
+  const el = document.getElementById('cashflow-model-total');
+  if (!el) return;
+  const count = (S.cashflowModelSelection || []).length;
+  const total = cashflowModelPrincipal();
+  if (count === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  el.innerHTML = `<span style="font-size:11px;color:#484f58;text-transform:uppercase;letter-spacing:0.8px;">${count} asset${count > 1 ? 's' : ''} selected</span><span style="font-size:16px;font-weight:800;color:#00d17a;">£${fmtN(total)}</span>`;
+}
+
+function renderCashflowModelTotal() {
+  const el = document.getElementById('cashflow-model-total');
+  if (!el) return;
+  const count = (S.cashflowModelSelection || []).length;
+  const total = cashflowModelPrincipal();
+  if (count === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  el.innerHTML = `<span style="font-size:11px;color:#484f58;text-transform:uppercase;letter-spacing:0.8px;">${count} asset${count > 1 ? 's' : ''} selected</span><span style="font-size:16px;font-weight:800;color:#00d17a;">£${fmtN(total)}</span>`;
+}
+
 function renderCashflowModelAssets() {
   const list = document.getElementById('cashflow-model-assets');
   if (!list) return;
   if (!Array.isArray(S.cashflowModelSelection)) S.cashflowModelSelection = [];
-  const used = usedIncomeModelAssetIds();
-  const filteredSelection = S.cashflowModelSelection.filter(id => !used.has(id));
-  if (filteredSelection.length !== S.cashflowModelSelection.length) S.cashflowModelSelection = filteredSelection;
+  if (!S.cashflowModelAmounts) S.cashflowModelAmounts = {};
+  S.cashflowModelSelection = S.cashflowModelSelection.filter(id => getAssetAvailableAmount(id) > 0);
+  renderCashflowModelTotal();
   const selected = new Set(S.cashflowModelSelection);
-  const rows = portfolioModelAssets().filter(row => !used.has(row.id));
+  const rows = portfolioModelAssets().filter(row => getAssetAvailableAmount(row.id) > 0 || selected.has(row.id));
   if (rows.length === 0) {
     list.innerHTML = '<div class="spend-type-row"><span>No available portfolio assets to model</span><span class="type-total">£0</span></div>';
     return;
   }
-  list.innerHTML = rows.map(row => `<div class="cashflow-model-asset">
-    <label>
-      <input type="checkbox" ${selected.has(row.id) ? 'checked' : ''} onchange="toggleCashflowModelAsset('${row.id}',this.checked)"/>
-      <span class="cashflow-model-label">
-        <span class="cashflow-model-name">${escapeHtml(row.name || 'Asset')}</span>
-        <span class="cashflow-model-type">${escapeHtml(row.type || 'Portfolio Asset')}</span>
-      </span>
-    </label>
-    <div class="amt">£${fmtN(parseFloat(row.amount) || 0)}</div>
-  </div>`).join('');
+  list.innerHTML = rows.map(row => {
+    const available = getAssetAvailableAmount(row.id);
+    const isChecked = selected.has(row.id);
+    const allocAmt = isChecked ? (S.cashflowModelAmounts[row.id] !== undefined ? S.cashflowModelAmounts[row.id] : available) : available;
+    return `<div class="cashflow-model-asset">
+      <label>
+        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleCashflowModelAsset('${row.id}',this.checked)"/>
+        <span class="cashflow-model-label">
+          <span class="cashflow-model-name">${escapeHtml(row.name || 'Asset')}</span>
+          <span class="cashflow-model-type">${escapeHtml(row.type || 'Portfolio Asset')} · £${fmtN(available)} avail</span>
+        </span>
+      </label>
+      ${isChecked
+        ? `<div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
+             <span style="font-size:12px;color:#8b949e;font-weight:700;">£</span>
+             <input type="text" inputmode="decimal"
+               style="width:88px;background:#0d1525;border:1px solid #1f2d45;border-radius:6px;padding:4px 6px;color:#00d17a;font-size:12px;font-weight:700;text-align:right;outline:none;"
+               value="${fmtN(allocAmt)}"
+               onfocus="this.value=this.value.replace(/,/g,'')"
+               onblur="this.value=fmtN(parseFloat(this.value.replace(/,/g,'')||0))"
+               oninput="updateModelAssetAmount('${row.id}',this.value)"/></div>`
+        : `<div class="amt">£${fmtN(available)}</div>`}
+    </div>`;
+  }).join('');
 }
 
 function renderCashflowModelPreview() {
@@ -5221,18 +5953,27 @@ function renderCashflowModelPreview() {
   el.innerHTML = '';
 }
 
-/** Converts selected assets into a structured income model and adds to S.investments */
+/** Converts selected assets (with custom allocations) into a structured income model */
 function addCashflowModelIncomeSource() {
-  const rows = selectedCashflowModelRows().filter(r => !isAssetUsedInIncomeModel(r.id));
+  if (!S.cashflowModelAmounts) S.cashflowModelAmounts = {};
+  const rows = selectedCashflowModelRows().filter(r => getAssetAvailableAmount(r.id) > 0);
   if (rows.length === 0) return;
-  const principal = cashflowModelPrincipal();
+  const allocations = {};
+  let principal = 0;
+  for (const r of rows) {
+    const available = getAssetAvailableAmount(r.id);
+    const alloc = S.cashflowModelAmounts[r.id] !== undefined
+      ? Math.min(Math.max(0, parseFloat(S.cashflowModelAmounts[r.id]) || 0), available)
+      : available;
+    allocations[r.id] = alloc;
+    principal += alloc;
+  }
   const rate = cashflowModelRate();
   const annualGross = principal * (rate / 100);
   const modelCount = S.investments.filter(item => /^Income Model\s+\d+$/i.test(String(item && item.name || ''))).length + 1;
-  const name = 'Income Model ' + modelCount;
   S.investments.push({
     id: uid('inc'),
-    name,
+    name: 'Income Model ' + modelCount,
     frequency: 'annual',
     amount: annualGross,
     taxable: false,
@@ -5242,11 +5983,15 @@ function addCashflowModelIncomeSource() {
     modelPrincipal: principal,
     modelRate: rate,
     modelAssets: rows.map(r => r.id),
+    modelAssetAllocations: allocations,
   });
   S.cashflowModelSelection = [];
+  S.cashflowModelAmounts = {};
   save();
   renderInvestments();
+  renderCashflowModelAssets();
   renderCashflowModelPreview();
+  renderCashflowModelTotal();
   recalc();
 }
 
@@ -5457,8 +6202,8 @@ function renderInvestments() {
     return `<div class="cashflow-row-wrap">
     <div class="cashflow-swipe-delete-bg">Swipe left to delete</div>
     <div class="cashflow-row${isModel ? ' cashflow-row-model' : ' cashflow-row-plain'}" data-inc-row="${rowKey}" onpointerdown="incPointerStart(event,${idx})" onpointermove="incPointerMove(event,${idx})" onpointerup="incPointerEnd(event,${idx})" onpointercancel="incPointerEnd(event,${idx})">
-      <div class="cashflow-title-wrap">${isModel ? `<div class="cashflow-model-title-row"><button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(headingWithGross)}</button><div class="cashflow-frequency-toggle"><span>Mon</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency) === 'annual' ? 'checked' : ''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>Ann</span></div></div>${i.plannedInvestmentType ? `<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate || 0).toFixed(1)}%</div>` : ''}${assetNames.length > 0 ? `<div class="cashflow-model-sublist">${assetNames.map(name => `<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>` : ''}${summaryGrid}` : `<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name || '')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/><div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><div class="cashflow-frequency-toggle"><span>M</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency) === 'annual' ? 'checked' : ''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>A</span></div><select class="cashflow-tax-select" style="flex:1;" onchange="updateInvestment(${idx},'taxBracket',this.value)"><option value="none" ${bracket === 'none' ? 'selected' : ''}>No Tax</option><option value="basic" ${bracket === 'basic' ? 'selected' : ''}>Basic 20%</option><option value="higher" ${bracket === 'higher' ? 'selected' : ''}>Higher 40%</option><option value="additional" ${bracket === 'additional' ? 'selected' : ''}>Additional 45%</option><option value="pa-taper" ${bracket === 'pa-taper' ? 'selected' : ''}>PA Taper 60%</option></select></div>`}</div>
-      ${isModel ? '' : `<div style="display:flex;gap:6px;align-items:flex-start;"><div style="min-width:110px;"><div style="font-size:9px;color:#484f58;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">Annual</div><div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-amount-input" type="text" inputmode="decimal" value="${fmt2(annualValue)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmt2(parseFloat(this.value||0))" onchange="updateInvestment(${idx},'amount',this.value)"/></div></div><div style="min-width:110px;"><div style="font-size:9px;color:#484f58;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;">Monthly</div><div class="cashflow-monthly-wrap"><span class="cashflow-pound">£</span><input class="cashflow-monthly-input ${monthly >= 0 ? 'amt-pos' : 'amt-neg'}" type="text" value="${fmt2(monthly)}" readonly/></div></div></div>`}
+      <div class="cashflow-title-wrap">${isModel ? `<div class="cashflow-model-title-row"><button type="button" class="cashflow-model-link" onpointerdown="event.stopPropagation()" onclick="openIncomeModelModal(${idx})">${escapeHtml(headingWithGross)}</button><div class="cashflow-frequency-toggle"><span>Mon</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency) === 'annual' ? 'checked' : ''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>Ann</span></div></div>${i.plannedInvestmentType ? `<div class="cashflow-model-meta">${escapeHtml(i.plannedInvestmentType)} • ${Number(i.modelRate || 0).toFixed(1)}%</div>` : ''}${assetNames.length > 0 ? `<div class="cashflow-model-sublist">${assetNames.map(name => `<div class="cashflow-model-subitem">${escapeHtml(name)}</div>`).join('')}</div>` : ''}${summaryGrid}` : `<input class="cashflow-name-input" type="text" value="${escapeHtml(i.name || '')}" onchange="updateInvestment(${idx},'name',this.value)" placeholder="Income source"/><div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><div class="cashflow-frequency-toggle"><span>M</span><label class="switch cashflow-mini-switch"><input type="checkbox" ${String(i.frequency) === 'annual' ? 'checked' : ''} onchange="updateInvestment(${idx},'frequency',this.checked)"/><span class="slider-round"></span></label><span>A</span></div><select class="cashflow-tax-select" style="flex:0 1 auto;max-width:160px;" onchange="updateInvestment(${idx},'taxBracket',this.value)"><option value="none" ${bracket === 'none' ? 'selected' : ''}>No Tax</option><option value="basic" ${bracket === 'basic' ? 'selected' : ''}>Basic 20%</option><option value="higher" ${bracket === 'higher' ? 'selected' : ''}>Higher 40%</option><option value="additional" ${bracket === 'additional' ? 'selected' : ''}>Additional 45%</option><option value="pa-taper" ${bracket === 'pa-taper' ? 'selected' : ''}>PA Taper 60%</option></select></div><div style="display:flex;gap:5px;height:56px;min-height:56px;max-height:56px;overflow:hidden;margin-top:8px;"><div class="cashflow-model-summary-item" style="flex:1;"><div class="k">Annual</div><div class="v" style="display:flex;align-items:baseline;gap:1px;overflow:hidden;"><span style="flex-shrink:0;">£</span><input type="text" inputmode="decimal" style="background:transparent;border:none;color:inherit;font-size:13px;font-weight:800;outline:none;width:100%;min-width:0;padding:0;line-height:1.15;" value="${fmt2(annualValue)}" onfocus="this.value=this.value.replace(/,/g,'')" onblur="this.value=fmt2(parseFloat(this.value.replace(/,/g,'')||0))" onchange="updateInvestment(${idx},'amount',this.value)"/></div></div><div class="cashflow-model-summary-item" style="flex:1;"><div class="k">Monthly</div><div class="v ${monthly >= 0 ? 'green' : ''}">£${fmt2(monthly)}</div></div></div>`}</div>
+
     </div>
   </div>`;
   }).join('');
@@ -5617,11 +6362,33 @@ function renderSpendSection(type, elId) {
   </div>`).join('');
 }
 
+function toggleSpendSection(type) {
+  _spendCollapsed[type] = !_spendCollapsed[type];
+  const body = document.getElementById('spend-' + type + '-body');
+  const btn = document.getElementById('spend-' + type + '-arrow');
+  if (body) body.style.display = _spendCollapsed[type] ? 'none' : '';
+  if (btn) btn.style.transform = _spendCollapsed[type] ? 'rotate(-90deg)' : 'rotate(0deg)';
+}
+
+function toggleSpendSection(type) {
+  _spendCollapsed[type] = !_spendCollapsed[type];
+  const body = document.getElementById('spend-' + type + '-body');
+  const btn = document.getElementById('spend-' + type + '-arrow');
+  if (body) body.style.display = _spendCollapsed[type] ? 'none' : '';
+  if (btn) btn.style.transform = _spendCollapsed[type] ? 'rotate(-90deg)' : 'rotate(0deg)';
+}
+
 function renderSpendAll() {
   renderSpendSection('monthly', 'spend-monthly-list');
   renderSpendSection('quarterly', 'spend-quarterly-list');
   renderSpendSection('annual', 'spend-annual-list');
   renderSpendSummary();
+  for (const type of ['monthly', 'quarterly', 'annual']) {
+    const body = document.getElementById('spend-' + type + '-body');
+    const btn = document.getElementById('spend-' + type + '-arrow');
+    if (body) body.style.display = _spendCollapsed[type] ? 'none' : '';
+    if (btn) btn.style.transform = _spendCollapsed[type] ? 'rotate(-90deg)' : 'rotate(0deg)';
+  }
 }
 
 /* ==========================================================================
@@ -5704,7 +6471,7 @@ function buildRunway() {
         <div class="rw-tax-line"><span class="lbl">Net Pension:</span><span class="val">£${fmtN(netDB)}</span></div>
         ${incomeAnnualNet > 0 ? `<div class="rw-tax-line"><span class="lbl">Net Income Sources (after tax):</span><span class="val green">£${fmtN(incomeAnnualNet)}</span></div>` : ''}
         ${S.useDrawdown ? `<div class="rw-tax-line"><span class="lbl">Drawdown (Tax-free capital):</span><span class="val green">£${fmtN(p.draw)}</span></div>` : ''}
-        <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #21262d;"><span class="lbl">Combined Net Income:</span><span class="val">£${fmtN(combined)} /yr</span></div>
+        <div class="rw-tax-line" style="padding-top:6px;margin-top:4px;border-top:1px solid #182035;"><span class="lbl">Combined Net Income:</span><span class="val">£${fmtN(combined)} /yr</span></div>
       </div>
       <div class="rw-net">
         <div class="rw-net-lbl">NET MONTHLY INCOME</div>
@@ -5739,7 +6506,7 @@ function showLedger(yr, btn) {
           <button class="row-arrow-btn" onclick="movePortfolioItem('${yr}',${idx},1)" ${idx === rows.length - 1 || r._draft ? 'disabled' : ''}>▼</button>
         </div>
         <div class="pf-title-wrap">
-          <input class="pf-name-input" type="text" value="${escapeHtml(r.name || '')}" onpointerdown="event.stopPropagation()" onchange="updatePortfolioItem('${yr}',${idx},'name',this.value)"/>
+          <input class="pf-name-input" type="text" value="${escapeHtml(r.name || '')}" ${isCarry ? '' : `readonly onclick="openPortfolioTypeModal('${yr}',${idx})" style="cursor:pointer;"`} onpointerdown="event.stopPropagation()"/>
           <button type="button" class="pf-type-button" onclick="openPortfolioTypeModal('${yr}',${idx});return false;">${escapeHtml(isShares ? 'Shares' : (r.type || 'Asset'))}</button>
         </div>
         <div>
@@ -6342,7 +7109,7 @@ function renderShareDetailMilestones(snap) {
   const milestones = Array.isArray(snap.milestones) ? snap.milestones : [];
   if (!milestones.length) return '<div style="color:#8b949e;padding:20px 0;text-align:center;">No milestones</div>';
   const sorted = [...milestones.filter(m => !m.done), ...milestones.filter(m => m.done)];
-  const html = sorted.map(m => `<div class="sro-ms-row"><div class="sro-ms-tick${m.done ? ' done' : ''}">${m.done ? '<span style="color:#0d1117;font-size:11px;font-weight:800;">✓</span>' : ''}</div><div class="sro-ms-content"><div class="sro-ms-name${m.done ? ' done' : ''}">${escapeHtml(m.name || '')}</div>${m.date ? `<div class="sro-ms-date">${escapeHtml(m.date)}</div>` : ''}</div></div>`).join('');
+  const html = sorted.map(m => `<div class="sro-ms-row"><div class="sro-ms-tick${m.done ? ' done' : ''}">${m.done ? '<span style="color:#080d1a;font-size:11px;font-weight:800;">✓</span>' : ''}</div><div class="sro-ms-content"><div class="sro-ms-name${m.done ? ' done' : ''}">${escapeHtml(m.name || '')}</div>${m.date ? `<div class="sro-ms-date">${escapeHtml(m.date)}</div>` : ''}</div></div>`).join('');
   const done = milestones.filter(m => m.done).length;
   return html + `<div class="sro-total"><div class="sro-total-lbl">Completed</div><div class="sro-total-val">${done} / ${milestones.length}</div></div>`;
 }
@@ -6375,6 +7142,79 @@ function moveTab(idx, dir) {
   refreshTabBar();
 }
 
+function getAllShareCodes() {
+  const codes = new Set();
+  for (const year of ['2026','2027','2028','2029','2030']) {
+    for (const row of portfolioRows(year)) {
+      if (String(row && row.type || '').trim().toLowerCase() === 'shares' && row.shareCode) {
+        codes.add(String(row.shareCode).trim().toUpperCase());
+      }
+    }
+  }
+  return Array.from(codes).sort();
+}
+
+function renderSettingsSharePrices() {
+  const el = document.getElementById('settings-share-prices');
+  if (!el) return;
+  const codes = getAllShareCodes();
+  if (codes.length === 0) {
+    el.innerHTML = '<div style="font-size:12px;color:#484f58;padding:4px 0;">No share codes in Portfolio yet. Add a portfolio item with type "Shares" and enter a share code.</div>';
+    return;
+  }
+  if (!S.sharePrices) S.sharePrices = {};
+  el.innerHTML = codes.map(code => {
+    const rawPrice = S.sharePrices[code];
+    const price = rawPrice !== undefined && rawPrice !== null && rawPrice !== ''
+      ? (Math.round((parseFloat(rawPrice) || 0) * 100) / 100).toFixed(2)
+      : '';
+    return `<div class="settings-share-price-row" style="display:flex;justify-content:space-between;align-items:center;background:#080d1a;border:1px solid #182035;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+      <div>
+        <div class="settings-share-price-code" style="font-size:14px;font-weight:600;color:#e6edf3;">${escapeHtml(code)}</div>
+        <div class="settings-share-price-sub" style="font-size:11px;color:#484f58;">FTSE Share Code</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="position:relative;">
+          <span class="settings-share-price-pound" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#8b949e;font-size:12px;font-weight:700;pointer-events:none;">\u00a3</span>
+          <input type="number" step="0.01" min="0" placeholder="0.00"
+            id="sp-price-${escapeHtml(code)}"
+            value="${price}"
+            oninput="document.getElementById('sp-btn-${escapeHtml(code)}').style.display='inline-flex'"
+            style="width:110px;padding:7px 8px 7px 22px;border-radius:8px;font-size:13px;font-weight:700;outline:none;border:1px solid #1f2d45;background:#080d1a;color:#e6edf3;"/>
+        </div>
+        <button id="sp-btn-${escapeHtml(code)}" onclick="saveSharePrice('${escapeHtml(code)}')" class="mini-action-btn" style="display:none;">Save</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveSharePrice(code) {
+  const input = document.getElementById('sp-price-' + code);
+  const btn = document.getElementById('sp-btn-' + code);
+  if (!input) return;
+  if (!S.sharePrices) S.sharePrices = {};
+  const roundedPrice = Math.round((parseFloat(input.value) || 0) * 100) / 100;
+  S.sharePrices[code] = roundedPrice;
+  input.value = roundedPrice.toFixed(2);
+  for (const year of ['2026','2027','2028','2029','2030']) {
+    for (const row of portfolioRows(year)) {
+      if (String(row.type || '').trim().toLowerCase() === 'shares' &&
+          String(row.shareCode || '').trim().toUpperCase() === code) {
+        row.amount = calcPortfolioShareAmount(row);
+      }
+    }
+  }
+  syncPortfolioCarryOvers();
+  save();
+  if (btn) { btn.textContent = '\u2713'; btn.style.background = '#00d17a'; btn.style.color = '#073b24'; setTimeout(() => { btn.style.display = 'none'; btn.textContent = 'Save'; btn.style.background = ''; btn.style.color = ''; }, 1000); }
+  const activePanel = document.querySelector('.tab-panel.active');
+  if (activePanel && activePanel.id === 'tab-ledger') {
+    showLedger(activeLedgerYear(), document.querySelector('.lyt.active'));
+  }
+  buildRunway();
+  renderHomeOverview();
+}
+
 function renderTabOrderSettings() {
   const el = document.getElementById('tab-order-list');
   if (!el) return;
@@ -6388,8 +7228,8 @@ function refreshTabBar() {
   _tabBar.destroy();
   _tabBar = new TabBar(orderedTabs(), {
     accentColor: S.theme === 'light' ? '#0ea86d' : '#00d17a',
-    bgColor: S.theme === 'light' ? '#ffffff' : '#161b22',
-    borderColor: S.theme === 'light' ? '#d8dee8' : '#21262d',
+    bgColor: S.theme === 'light' ? '#ffffff' : '#0d1525',
+    borderColor: S.theme === 'light' ? '#d8dee8' : '#182035',
     inactiveColor: '#484f58',
     contentEl: document.getElementById('content'),
     onTabChange: function (id) { switchTab(id); },
@@ -6406,8 +7246,8 @@ function initTabBar() {
   document.getElementById('tabbar').style.display = 'none';
   _tabBar = new TabBar(orderedTabs(), {
     accentColor: '#00d17a',
-    bgColor: '#161b22',
-    borderColor: '#21262d',
+    bgColor: '#0d1525',
+    borderColor: '#182035',
     inactiveColor: '#484f58',
     contentEl: document.getElementById('content'),
     onTabChange: function (id) { switchTab(id); },

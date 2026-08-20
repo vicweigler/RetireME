@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'vicweigler@gmail.com';
+    }
+
+    match /users/{uid}/{document=**} {
+      allow read, write, delete: if isAdmin() || isOwner(uid);
+    }
+
+    match /publicProfiles/{uid} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin() || isOwner(uid);
+      allow delete: if isAdmin() || isOwner(uid);
+    }
+
+    match /sharedPortfolios/{docId} {
+      allow read: if isAdmin() || (isSignedIn() && (resource.data.toUid == request.auth.uid || resource.data.fromUid == request.auth.uid));
+      allow create: if isAdmin() || (isSignedIn() && request.resource.data.fromUid == request.auth.uid);
+      allow update, delete: if isAdmin() || (isSignedIn() && (resource.data.fromUid == request.auth.uid || resource.data.toUid == request.auth.uid));
+    }
+  }
+}
