@@ -3591,7 +3591,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V11.9';
+const APP_VERSION = 'V12';
 
 /**
  * Tab bar variant selector:
@@ -5724,7 +5724,11 @@ function openIncomeModelModal(idx) {
   const row = S.investments[idx];
   if (!row) return;
   _incomeModelEditor = { idx };
-  S.cashflowModelSelection = Array.isArray(row.modelAssets) ? [...row.modelAssets] : [];
+  // Legacy models stored no per-asset allocations; backfill them from the full asset amounts.
+  if (!row.modelAssetAllocations) row.modelAssetAllocations = {};
+  for (const id of (Array.isArray(row.modelAssets) ? row.modelAssets : [])) {
+    if (id && row.modelAssetAllocations[id] === undefined) row.modelAssetAllocations[id] = incomeModelAssetAllocation(row, id);
+  }
   const modal = document.getElementById('income-model-modal');
   const title = document.getElementById('income-model-title-label');
   const typeEl = document.getElementById('income-model-type');
@@ -5758,30 +5762,50 @@ function renderIncomeModelAssetList() {
   const row = S.investments[_incomeModelEditor.idx];
   if (!row) return;
   const current = new Set(Array.isArray(row.modelAssets) ? row.modelAssets.filter(Boolean) : []);
-  const usedByOthers = new Set();
-  for (const item of S.investments) {
-    if (!item || item === row || !Array.isArray(item.modelAssets)) continue;
-    for (const id of item.modelAssets) { if (id) usedByOthers.add(id); }
-  }
-  const rows = portfolioModelAssets().filter(asset => !usedByOthers.has(asset.id) || current.has(asset.id));
+  const rows = portfolioModelAssets().filter(asset => current.has(asset.id) || getAssetAvailableAmount(asset.id, row) > 0);
   if (rows.length === 0) {
     list.innerHTML = '<div class="spend-type-row"><span>No portfolio assets available</span><span class="type-total">£0</span></div>';
     return;
   }
   list.innerHTML = rows.map(asset => {
     const checked = current.has(asset.id);
-    const disabled = usedByOthers.has(asset.id) && !checked;
+    const available = getAssetAvailableAmount(asset.id, row);
+    const allocAmt = checked ? Math.min(incomeModelAssetAllocation(row, asset.id), available) : available;
     return `<div class="cashflow-model-asset">
       <label>
-        <input type="checkbox" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} onchange="toggleIncomeModelAsset('${asset.id}',this.checked)"/>
+        <input type="checkbox" ${checked ? 'checked' : ''} ${(!checked && available <= 0) ? 'disabled' : ''} onchange="toggleIncomeModelAsset('${asset.id}',this.checked)"/>
         <span class="cashflow-model-label">
           <span class="cashflow-model-name">${escapeHtml(asset.name || 'Asset')}</span>
-          <span class="cashflow-model-type">${escapeHtml(asset.type || 'Portfolio Asset')}</span>
+          <span class="cashflow-model-type">${escapeHtml(asset.type || 'Portfolio Asset')} · £${fmtN(available)} avail</span>
         </span>
       </label>
-      <div class="amt">£${fmtN(parseFloat(asset.amount) || 0)}</div>
+      ${checked
+        ? `<div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
+             <span style="font-size:12px;color:#8b949e;font-weight:700;">£</span>
+             <input type="text" inputmode="decimal"
+               style="width:88px;background:#0d1525;border:1px solid #1f2d45;border-radius:6px;padding:4px 6px;color:#00d17a;font-size:12px;font-weight:700;text-align:right;outline:none;"
+               value="${fmtN(allocAmt)}"
+               onfocus="this.value=this.value.replace(/,/g,'')"
+               onblur="this.value=fmtN(parseFloat(this.value.replace(/,/g,'')||0))"
+               oninput="updateIncomeModelAssetAmount('${asset.id}',this.value)"/></div>`
+        : `<div class="amt">£${fmtN(available)}</div>`}
     </div>`;
   }).join('');
+}
+
+/**
+ * Updates the allocation this model claims from a linked asset.
+ * @param {string} id Unique asset ID
+ * @param {string} value Raw input value
+ */
+function updateIncomeModelAssetAmount(id, value) {
+  if (!_incomeModelEditor) return;
+  const row = S.investments[_incomeModelEditor.idx];
+  if (!row) return;
+  if (!row.modelAssetAllocations) row.modelAssetAllocations = {};
+  const available = getAssetAvailableAmount(id, row);
+  row.modelAssetAllocations[id] = Math.min(Math.max(0, parseFloat(String(value).replace(/,/g, '')) || 0), available);
+  updateIncomeModelModalPreview();
 }
 
 /**
@@ -5793,22 +5817,20 @@ function toggleIncomeModelAsset(id, checked) {
   if (!_incomeModelEditor) return;
   const row = S.investments[_incomeModelEditor.idx];
   if (!row) return;
-  const usedByOthers = new Set();
-  for (const item of S.investments) {
-    if (!item || item === row || !Array.isArray(item.modelAssets)) continue;
-    for (const assetId of item.modelAssets) { if (assetId) usedByOthers.add(assetId); }
-  }
-  if (checked && usedByOthers.has(id) && !Array.isArray(row.modelAssets) || checked && usedByOthers.has(id) && !row.modelAssets.includes(id)) {
-    return;
-  }
+  if (!row.modelAssetAllocations) row.modelAssetAllocations = {};
+  const available = getAssetAvailableAmount(id, row);
+  if (checked && available <= 0) return;
   const next = new Set(Array.isArray(row.modelAssets) ? row.modelAssets.filter(Boolean) : []);
-  if (checked) next.add(id); else next.delete(id);
+  if (checked) {
+    next.add(id);
+    if (row.modelAssetAllocations[id] === undefined) row.modelAssetAllocations[id] = available;
+  } else {
+    next.delete(id);
+    delete row.modelAssetAllocations[id];
+  }
   row.modelAssets = Array.from(next);
-  row.modelPrincipal = row.modelAssets.reduce((sum, id) => {
-    const asset = portfolioModelAssets().find(item => item.id === id);
-    return sum + (asset ? parseFloat(asset.amount) || 0 : 0);
-  }, 0);
   row.modelRate = parseFloat(document.getElementById('income-model-rate')?.value || 0) || 0;
+  row.modelPrincipal = incomeModelAllocatedPrincipal(row);
   row.amount = (parseFloat(row.modelPrincipal) || 0) * (parseFloat(row.modelRate) || 0) / 100;
   save();
   renderIncomeModelAssetList();
@@ -5828,10 +5850,7 @@ function updateIncomeModelModalPreview() {
   const taxKey = String(document.getElementById('income-model-tax-band')?.value || row.modelTaxBracket || row.taxBracket || 'none');
   row.modelTaxBracket = taxKey;
   row.taxBracket = taxKey;
-  const principal = Array.isArray(row.modelAssets) ? row.modelAssets.reduce((sum, id) => {
-    const asset = portfolioModelAssets().find(item => item.id === id);
-    return sum + (asset ? parseFloat(asset.amount) || 0 : 0);
-  }, 0) : 0;
+  const principal = incomeModelAllocatedPrincipal(row);
   row.modelPrincipal = principal;
   const annualGross = principal * (rate / 100);
   const annualNet = annualGross * (1 - incomeModelTaxRate({ ...row, modelTaxBracket: taxKey, taxBracket: taxKey }));
@@ -5856,10 +5875,7 @@ function saveIncomeModelModal() {
   row.modelRate = parseFloat(document.getElementById('income-model-rate')?.value || 0) || 0;
   row.modelTaxBracket = taxKey;
   row.taxBracket = taxKey;
-  row.modelPrincipal = Array.isArray(row.modelAssets) ? row.modelAssets.reduce((sum, id) => {
-    const asset = portfolioModelAssets().find(item => item.id === id);
-    return sum + (asset ? parseFloat(asset.amount) || 0 : 0);
-  }, 0) : 0;
+  row.modelPrincipal = incomeModelAllocatedPrincipal(row);
   const annualGross = (parseFloat(row.modelPrincipal) || 0) * (row.modelRate / 100);
   const annualNet = annualGross * (1 - incomeModelTaxRate({ ...row, modelTaxBracket: taxKey, taxBracket: taxKey }));
   row.amount = annualNet;
@@ -6102,10 +6118,10 @@ function portfolioModelAssets() {
 }
 
 /** Toggles selection of an asset in the cashflow model builder */
-function getAssetAllocatedAmount(assetId) {
+function getAssetAllocatedAmount(assetId, excludeRow) {
   let total = 0;
   for (const row of S.investments) {
-    if (!row) continue;
+    if (!row || (excludeRow && row === excludeRow)) continue;
     if (row.modelAssetAllocations && row.modelAssetAllocations[assetId] !== undefined) {
       total += parseFloat(row.modelAssetAllocations[assetId]) || 0;
     } else if (Array.isArray(row.modelAssets) && row.modelAssets.includes(assetId)) {
@@ -6116,10 +6132,29 @@ function getAssetAllocatedAmount(assetId) {
   return total;
 }
 
-function getAssetAvailableAmount(assetId) {
+function getAssetAvailableAmount(assetId, excludeRow) {
   const asset = portfolioRows('2026').find(r => r.id === assetId);
   if (!asset) return 0;
-  return Math.max(0, (parseFloat(asset.amount) || 0) - getAssetAllocatedAmount(assetId));
+  return Math.max(0, (parseFloat(asset.amount) || 0) - getAssetAllocatedAmount(assetId, excludeRow));
+}
+
+/** Allocation this model claims from an asset; legacy models without allocations claim the full amount */
+function incomeModelAssetAllocation(row, assetId) {
+  if (!row) return 0;
+  if (row.modelAssetAllocations && row.modelAssetAllocations[assetId] !== undefined) {
+    return parseFloat(row.modelAssetAllocations[assetId]) || 0;
+  }
+  const asset = portfolioRows('2026').find(r => r.id === assetId);
+  return asset ? (parseFloat(asset.amount) || 0) : 0;
+}
+
+/** Sums the allocations a model claims across its linked assets */
+function incomeModelAllocatedPrincipal(row) {
+  if (!row || !Array.isArray(row.modelAssets)) return 0;
+  return row.modelAssets.reduce((sum, id) => {
+    const cap = getAssetAvailableAmount(id, row);
+    return sum + Math.min(incomeModelAssetAllocation(row, id), cap);
+  }, 0);
 }
 
 function toggleCashflowModelAsset(id, checked) {
@@ -6357,6 +6392,7 @@ function normalizeIncomeSource(row) {
       modelPrincipal: row.modelPrincipal !== undefined ? parseFloat(row.modelPrincipal) || 0 : undefined,
       modelRate: row.modelRate !== undefined ? parseFloat(row.modelRate) || 0 : undefined,
       modelAssets: Array.isArray(row.modelAssets) ? row.modelAssets.slice() : undefined,
+      modelAssetAllocations: (row.modelAssetAllocations && typeof row.modelAssetAllocations === 'object') ? { ...row.modelAssetAllocations } : undefined,
     };
   }
   return null;
