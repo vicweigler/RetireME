@@ -1245,8 +1245,7 @@ input[type=range] { padding: 4px 0; accent-color: #00d17a; }
 }
 
 body.modal-open {
-  position: fixed;
-  width: 100%;
+  overflow: hidden;
 }
 
 /* iOS Safari auto-zooms when editable controls are under 16px. */
@@ -2543,6 +2542,8 @@ body.light-mode #portfolio-type-taxable {
   border: 1px solid #94a3b8;
   border-radius: 3px;
   position: relative;
+  display: grid;
+  place-items: center;
 }
 body.light-mode #portfolio-type-taxable:checked {
   background-color: #00d17a;
@@ -2551,13 +2552,13 @@ body.light-mode #portfolio-type-taxable:checked {
 body.light-mode #portfolio-type-taxable:checked::after {
   content: '';
   position: absolute;
-  left: 3px;
-  top: 0px;
+  left: 50%;
+  top: 50%;
   width: 5px;
   height: 9px;
   border: solid #080d1a;
   border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  transform: translate(-50%, -58%) rotate(45deg);
 }
 body.light-mode .share-modal-title { color: #0f172a; }
 body.light-mode .share-modal-close { color: #64748b; }
@@ -3588,7 +3589,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V11.2';
+const APP_VERSION = 'V11.4';
 
 /**
  * Tab bar variant selector:
@@ -4576,12 +4577,10 @@ let _modalScrollY = 0;
 function lockModalViewport() {
   _modalScrollY = window.scrollY || window.pageYOffset || 0;
   document.body.classList.add('modal-open');
-  document.body.style.top = `-${_modalScrollY}px`;
 }
 
 function unlockModalViewport() {
   document.body.classList.remove('modal-open');
-  document.body.style.top = '';
   window.scrollTo(0, _modalScrollY || 0);
 }
 
