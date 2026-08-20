@@ -1272,8 +1272,8 @@ body.modal-open {
   .share-modal {
     width: 100% !important;
     max-width: 460px !important;
-    height: 60svh !important;
-    max-height: 60svh !important;
+    height: 70svh !important;
+    max-height: 70svh !important;
     box-sizing: border-box;
     margin: 0 auto;
   }
@@ -2517,6 +2517,10 @@ body.light-mode .share-modal {
   border-color: #d8dee8;
 }
 body.light-mode #portfolio-type-modal .login-btn.secondary { color: #000000; }
+body.light-mode #portfolio-type-taxable {
+  background-color: #ffffff;
+  border: 1px solid #94a3b8;
+}
 body.light-mode .share-modal-title { color: #0f172a; }
 body.light-mode .share-modal-close { color: #64748b; }
 body.light-mode .income-model-metric {
@@ -3548,7 +3552,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V10.8';
+const APP_VERSION = 'V10.9';
 
 /**
  * Tab bar variant selector:
@@ -4502,7 +4506,7 @@ function renderAuthHeader() {
   const account = (liveAccount || storedAccount || auth.userKey || 'local').toString();
   const adminByEmail = isAdminEmail();
   if (idEl) idEl.textContent = 'Acct: ' + account;
-  if (adminBadge) adminBadge.style.display = auth.loggedIn && (auth.isAdmin || adminByEmail) ? 'block' : 'none';
+  if (adminBadge) adminBadge.style.display = auth.loggedIn && (auth.isAdmin || adminByEmail) && !adminByEmail ? 'block' : 'none';
   if (adminBtn) {
     adminBtn.style.display = auth.loggedIn && adminByEmail ? 'inline-flex' : 'none';
     adminBtn.disabled = !(auth.loggedIn && adminByEmail);
