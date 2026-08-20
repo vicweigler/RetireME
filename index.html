@@ -3591,7 +3591,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V11.7';
+const APP_VERSION = 'V11.8';
 
 /**
  * Tab bar variant selector:
@@ -5588,8 +5588,11 @@ function openPortfolioTypeModal(year, idx) {
   const shareFields = document.getElementById('portfolio-type-share-fields');
   if (shareFields) shareFields.classList.toggle('visible', rowType.toLowerCase() === 'shares');
   updatePortfolioTypeModalPreview();
+  if (modal) {
+    modal.style.display = 'flex';
+    void modal.offsetHeight;
+  }
   lockModalViewport();
-  if (modal) modal.style.display = 'flex';
 }
 
 /**
