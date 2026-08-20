@@ -52,12 +52,12 @@
         },
       },
 
-      // Reduced inner row height from h-16 (55px) to h-11 (64px)
+      // Reduced inner row height from h-16 (55px) to h-11 (64px) - change 22 to 24px
       h('div', { className: 'flex h-[71px] items-center' },
         tabs.map(function (tab) {
           return h('button', {
             key:       tab.id,
-            className: 'flex-1 flex flex-col items-center justify-center gap-0.5 pb-[22px]',
+            className: 'flex-1 flex flex-col items-center justify-center gap-0.5 pb-[24px]',
             style: {
               color:                    tab.id === activeId ? o.accentColor : o.inactiveColor,
               background:               'none',
