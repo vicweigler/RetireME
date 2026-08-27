@@ -1,4 +1,4 @@
-const CACHE = 'retireme-v60';
+const CACHE = 'retireme-v61';
 // Exclude HTML from pre-cache so the navigate handler always serves it fresh.
 const ASSETS = ['./icon.png', './apple-touch-icon.png', './manifest.json'];
 
