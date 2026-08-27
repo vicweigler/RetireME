@@ -1,4 +1,4 @@
-const CACHE = 'retireme-v64';
+const CACHE = 'retireme-v65';
 // Exclude HTML from pre-cache so the navigate handler always serves it fresh.
 const ASSETS = ['./icon.png', './apple-touch-icon.png', './manifest.json'];
 
@@ -19,6 +19,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Never intercept cross-origin calls (e.g. Cloud Functions) or non-GET requests -
+  // let the browser handle those natively.
+  const url = new URL(e.request.url);
+  if (url.origin !== self.location.origin || e.request.method !== 'GET') return;
+
   // Network-first for the HTML document so updates always come through
   if (e.request.mode === 'navigate') {
     // Append SW version to URL so every deploy busts the CDN cache.
@@ -31,9 +36,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   // For app shell assets, prefer network first so new versions land immediately.
-  const url = new URL(e.request.url);
-  const isSameOrigin = url.origin === self.location.origin;
-  const isAppShell = isSameOrigin && (
+  const isAppShell = (
     url.pathname.endsWith('/index.html') ||
     url.pathname.endsWith('/manifest.json') ||
     url.pathname.endsWith('/icon.png') ||
@@ -52,6 +55,7 @@ self.addEventListener('fetch', e => {
   // Cache-first fallback for everything else.
   e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request)));
 });
+
 
 self.addEventListener('message', e => {
   if (e.data && e.data.type === 'PURGE_CACHES') {
