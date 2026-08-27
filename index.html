@@ -3049,7 +3049,7 @@ body.light-mode .sro-lyt.active {
       
       <!-- Real-time Auth Status & Feedback Message -->
       <div class="login-status" id="login-status"></div>
-      <div class="login-version" id="version-login">V12.2</div>
+      <div class="login-version" id="version-login">V12.3</div>
       
       <!-- Deep Cache Purge & Force Refresh Button -->
       <button class="login-refresh-btn" type="button" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
@@ -3339,7 +3339,7 @@ body.light-mode .sro-lyt.active {
     <div>
       <div class="hdr-eyebrow">Personal Wealth Vault</div>
       <div class="hdr-logo">RetireMe <span class="hdr-badge">🔒 Secure</span></div>
-      <div class="hdr-version" id="version-header">V12.2</div>
+      <div class="hdr-version" id="version-header">V12.3</div>
     </div>
     <div class="hdr-right">
       <div style="font-size:12px;color:#00d17a;font-weight:600;"><span class="sync-dot"></span>Synced</div>
@@ -3427,7 +3427,7 @@ body.light-mode .sro-lyt.active {
       </select>
       <div id="milestones-list"></div>
     </div>
-    <div class="version-note home" id="version-home">V12.2</div>
+    <div class="version-note home" id="version-home">V12.3</div>
   </div>
 
   <!-- ======================================================================== -->
@@ -3445,7 +3445,7 @@ body.light-mode .sro-lyt.active {
     
     <!-- Dynamic Ledger Content Container -->
     <div id="ledger-content"></div>
-    <div class="version-note home" id="version-home-ledger">V12.2</div>
+    <div class="version-note home" id="version-home-ledger">V12.3</div>
   </div>
 
   <!-- ======================================================================== -->
@@ -3574,7 +3574,7 @@ body.light-mode .sro-lyt.active {
       <div style="font-size:12px;color:#484f58;line-height:1.6;margin-bottom:10px;">Data is saved to your Firebase account document when logged in. Local storage is used as offline cache.</div>
       <div id="cloud-sync-status" style="font-size:12px;color:#00d17a;margin-bottom:10px;">Sync status: checking...</div>
       <button class="btn-danger" onclick="forceRefreshApp()">Force Refresh To Latest Version</button>
-      <div class="version-note settings" id="version-settings">V12.2</div>
+      <div class="version-note settings" id="version-settings">V12.3</div>
     </div>
 
     <!-- About -->
@@ -3705,6 +3705,7 @@ const SW_CACHE_BUST = encodeURIComponent(APP_VERSION || 'dev');
 const ADMIN_EMAIL = 'vicweigler@gmail.com';
 const ADMIN_DELETE_USER_URL = (window.RETIREME_ADMIN_DELETE_USER_URL || '').toString().trim();
 const REGISTRATION_REQUEST_URL = (window.RETIREME_REGISTRATION_REQUEST_URL || '').toString().trim();
+const AUTHORIZE_REGISTRATION_URL = (window.RETIREME_AUTHORIZE_REGISTRATION_URL || '').toString().trim();
 
 function registrationEmailKey(email) {
   return encodeURIComponent(String(email || '').trim().toLowerCase());
@@ -4758,6 +4759,29 @@ async function adminAuthorizeRequest(email) {
   const normalized = String(email || '').trim().toLowerCase();
   if (!normalized || normalized === ADMIN_EMAIL) return;
   try {
+    if (AUTHORIZE_REGISTRATION_URL) {
+      const auth = safeFirebaseAuth();
+      const currentUser = auth && auth.currentUser;
+      if (!currentUser || typeof currentUser.getIdToken !== 'function') {
+        throw new Error('Current admin auth token unavailable.');
+      }
+      const idToken = await currentUser.getIdToken(true);
+      const res = await fetch(AUTHORIZE_REGISTRATION_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + idToken,
+        },
+        body: JSON.stringify({ email: normalized }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || payload.ok === false) {
+        throw new Error((payload && payload.error) || ('Authorize service failed (' + res.status + ')'));
+      }
+      adminStatus('Authorized ' + normalized + (payload.emailSent ? '. Notification email sent.' : '. Could not send notification email - let the user know to retry manually.'), '#00d17a');
+      await adminLoadRegistrationRequests();
+      return;
+    }
     const key = registrationEmailKey(normalized);
     await _db.collection('registrationRequests').doc(key).set({
       email: normalized,
@@ -4767,7 +4791,7 @@ async function adminAuthorizeRequest(email) {
       reviewedAt: Date.now(),
       reviewedBy: ADMIN_EMAIL,
     }, { merge: true });
-    adminStatus('Authorized ' + normalized + '.', '#00d17a');
+    adminStatus('Authorized ' + normalized + '. (No notification email sent - let the user know to re-enter their email/password and hit Create Account.)', '#d29922');
     await adminLoadRegistrationRequests();
   } catch (e) {
     adminStatus('Authorize failed: ' + ((e && e.message) || 'unknown error'), '#f85149');

@@ -11,3 +11,4 @@ window.RETIREME_FIREBASE_CONFIG = {
 // Example: https://europe-west2-retireme-prod.cloudfunctions.net/adminDeleteUser
 window.RETIREME_ADMIN_DELETE_USER_URL = '';
 window.RETIREME_REGISTRATION_REQUEST_URL = '';
+window.RETIREME_AUTHORIZE_REGISTRATION_URL = '';

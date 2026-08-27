@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "firebase emulators:start --only functions",
-    "deploy": "firebase deploy --only functions:adminDeleteUser"
+    "deploy": "firebase deploy --only functions:adminDeleteUser,functions:requestRegistration,functions:authorizeRegistration"
   },
   "dependencies": {
     "firebase-admin": "^12.6.0",

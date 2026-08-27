@@ -28,6 +28,20 @@ The production frontend is configured to call:
 https://us-central1-retireme-prod.cloudfunctions.net/requestRegistration
 ```
 
+## Registration Approval Email
+
+`authorizeRegistration` marks a `registrationRequests` doc as `authorized` and emails the applicant, telling them to return to RetireMe, re-enter the same email/password, and tap "Create Account" to finish. It requires the same `FUNCTIONS_CONFIG_EXPORT` Gmail secret as `requestRegistration`, plus the caller's Firebase ID token (admin only).
+
+```bash
+firebase deploy --only functions:authorizeRegistration --project retireme-prod
+```
+
+The production frontend is configured to call:
+
+```text
+https://us-central1-retireme-prod.cloudfunctions.net/authorizeRegistration
+```
+
 This function allows the RetireMe admin account (`vicweigler@gmail.com`) to delete:
 
 - Firebase Auth user account

@@ -39,7 +39,13 @@ jobs:
             messagingSenderId: '448172346101',
             appId: '1:448172346101:web:3d4f19118df9ae1aba13bc'
           };
-          fs.writeFileSync('firebase-config.js', `window.RETIREME_FIREBASE_CONFIG = ${JSON.stringify(config)};\n`);
+          const lines = [
+            `window.RETIREME_FIREBASE_CONFIG = ${JSON.stringify(config)};`,
+            `window.RETIREME_ADMIN_DELETE_USER_URL = 'https://us-central1-retireme-prod.cloudfunctions.net/adminDeleteUser';`,
+            `window.RETIREME_REGISTRATION_REQUEST_URL = 'https://us-central1-retireme-prod.cloudfunctions.net/requestRegistration';`,
+            `window.RETIREME_AUTHORIZE_REGISTRATION_URL = 'https://us-central1-retireme-prod.cloudfunctions.net/authorizeRegistration';`,
+          ];
+          fs.writeFileSync('firebase-config.js', lines.join('\n') + '\n');
           NODE
       - uses: actions/upload-pages-artifact@v3
         with:

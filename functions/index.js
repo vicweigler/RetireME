@@ -106,6 +106,74 @@ async function verifyAdminCaller(req) {
   return caller;
 }
 
+exports.authorizeRegistration = onRequest(
+  { cors: true, secrets: [FUNCTIONS_CONFIG_EXPORT] },
+  async (req, res) => {
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ ok: false, error: 'Method not allowed' });
+      return;
+    }
+
+    try {
+      await verifyAdminCaller(req);
+
+      const email = String((req.body && req.body.email) || '').trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        res.status(400).json({ ok: false, error: 'A valid email address is required.' });
+        return;
+      }
+      if (email === ADMIN_EMAIL) {
+        res.status(400).json({ ok: false, error: 'The admin account does not require approval.' });
+        return;
+      }
+
+      const db = admin.firestore();
+      const key = registrationEmailKey(email);
+      await db.collection('registrationRequests').doc(key).set({
+        email,
+        emailKey: key,
+        status: 'authorized',
+        updatedAt: Date.now(),
+        reviewedAt: Date.now(),
+        reviewedBy: ADMIN_EMAIL,
+      }, { merge: true });
+
+      let emailSent = false;
+      try {
+        const config = JSON.parse(FUNCTIONS_CONFIG_EXPORT.value() || '{}');
+        const gmailUser = config.gmail && config.gmail.user;
+        const gmailAppPassword = config.gmail && config.gmail.app_password;
+        if (!gmailUser || !gmailAppPassword) {
+          throw new Error('Gmail SMTP configuration is missing.');
+        }
+        const nodemailer = require('nodemailer');
+        const mailer = nodemailer.createTransport({
+          service: 'gmail',
+          auth: { user: gmailUser, pass: gmailAppPassword },
+        });
+        await mailer.sendMail({
+          from: `RetireMe <${gmailUser}>`,
+          to: email,
+          subject: 'RetireMe registration approved',
+          text: `Good news - your RetireMe registration has been approved.\n\nGo back to RetireMe, re-enter the same email address and password you used to request access, and tap "Create Account" to finish setting up your account.`,
+          html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:#1a1a1a"><h2>RetireMe registration approved</h2><p>Good news — your RetireMe registration has been approved.</p><p>Go back to RetireMe, re-enter the same email address and password you used to request access, and tap <strong>"Create Account"</strong> to finish setting up your account.</p></div>`,
+        });
+        emailSent = true;
+      } catch (mailErr) {
+        console.error('[authorizeRegistration] Email error:', mailErr);
+      }
+
+      res.status(200).json({ ok: true, emailSent });
+    } catch (err) {
+      res.status(403).json({ ok: false, error: String((err && err.message) || err || 'Request failed') });
+    }
+  }
+);
+
 async function deleteUserFirestoreData(targetUid) {
   const db = admin.firestore();
   const userDoc = db.collection('users').doc(targetUid);
