@@ -3648,7 +3648,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V12.4';
+const APP_VERSION = 'V12.5';
 
 /**
  * Tab bar variant selector:
@@ -3758,6 +3758,18 @@ async function submitRegistrationRequest(email) {
   } catch (e) {
     return false;
   }
+}
+
+/**
+ * Removes the registrationRequests doc once an account has actually been created,
+ * so a future signup with the same email requires fresh authorization.
+ */
+async function deleteRegistrationRequestDoc(email) {
+  if (!_db || !email) return;
+  try {
+    const key = registrationEmailKey(email);
+    await _db.collection('registrationRequests').doc(key).delete();
+  } catch (e) {}
 }
 
 /**
@@ -4270,6 +4282,7 @@ async function createAccountWithPassword() {
     loginStatus('Creating account...', '#d29922');
     const userCred = await auth.createUserWithEmailAndPassword(email, password);
     if (userCred && userCred.user) {
+      await deleteRegistrationRequestDoc(email);
       clearLegacyPortfolioCache();
       resetAppState({ preserveTheme: true });
       const emptySeed = {
@@ -4305,6 +4318,7 @@ async function createAccountWithPassword() {
           return;
         }
         await safeFirebaseAuth().signInWithEmailAndPassword(email, password);
+        await deleteRegistrationRequestDoc(email);
         loginStatus('Account already existed in Auth. Signed in successfully - your app data will be reinitialized.', '#00d17a');
         return;
       } catch (signInErr) {
@@ -4728,6 +4742,9 @@ async function adminLoadRegistrationRequests() {
         terminalDeletes.push(doc.ref.delete());
         return;
       }
+      // Authorized requests stay in Firestore until the user actually creates their
+      // account, but they're already actioned so don't clutter the pending list.
+      if (status === 'authorized') return;
       rows.push({ key: doc.id, email, status, updatedAt: Number(d.updatedAt || d.requestedAt || 0) });
     });
     if (terminalDeletes.length) await Promise.all(terminalDeletes);

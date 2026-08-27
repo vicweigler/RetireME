@@ -174,7 +174,7 @@ exports.authorizeRegistration = onRequest(
   }
 );
 
-async function deleteUserFirestoreData(targetUid) {
+async function deleteUserFirestoreData(targetUid, targetEmail) {
   const db = admin.firestore();
   const userDoc = db.collection('users').doc(targetUid);
 
@@ -198,6 +198,12 @@ async function deleteUserFirestoreData(targetUid) {
   sharedTo.forEach((d) => sharedToDeletes.push(d.ref.delete()));
 
   await Promise.all([...sharedFromDeletes, ...sharedToDeletes]);
+
+  // Require fresh admin authorization before this email can register again.
+  const normalizedEmail = String(targetEmail || '').trim().toLowerCase();
+  if (normalizedEmail) {
+    await db.collection('registrationRequests').doc(registrationEmailKey(normalizedEmail)).delete();
+  }
 }
 
 exports.adminDeleteUser = onRequest({ cors: true }, async (req, res) => {
@@ -219,13 +225,14 @@ exports.adminDeleteUser = onRequest({ cors: true }, async (req, res) => {
       res.status(400).json({ ok: false, error: 'Missing uid' });
       return;
     }
+    const targetEmail = String((req.body && req.body.email) || '').trim();
 
     if (targetUid === (await admin.auth().getUserByEmail(ADMIN_EMAIL)).uid) {
       res.status(400).json({ ok: false, error: 'Cannot delete admin account' });
       return;
     }
 
-    await deleteUserFirestoreData(targetUid);
+    await deleteUserFirestoreData(targetUid, targetEmail);
 
     try {
       await admin.auth().deleteUser(targetUid);
