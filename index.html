@@ -3661,7 +3661,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V12.13';
+const APP_VERSION = 'V12.14';
 
 /**
  * Tab bar variant selector:
@@ -7298,7 +7298,7 @@ async function loadShareUsers() {
 /** Builds serialized snapshot containing selected panels to share */
 function buildShareSnapshot(panels) {
   const snap = { sharedAt: new Date().toISOString(), dob: S.dob, retire: S.retire, career: S.career };
-  if (panels.includes('home') || panels.includes('portfolio')) { snap.portfolio = S.portfolio; snap.assets = S.assets; snap.pot = S.pot; snap.dbPension = S.dbPension; snap.targetMonthly = S.targetMonthly; }
+  if (panels.includes('home') || panels.includes('portfolio') || panels.includes('cashflow') || panels.includes('income')) { snap.portfolio = S.portfolio; snap.assets = S.assets; snap.homeAssets = S.homeAssets; snap.homeAssetsInPortfolio = S.homeAssetsInPortfolio; snap.sharePrices = S.sharePrices; snap.pot = S.pot; snap.dbPension = S.dbPension; snap.targetMonthly = S.targetMonthly; }
   if (panels.includes('spend')) snap.spend = S.spend;
   if (panels.includes('cashflow') || panels.includes('income')) snap.investments = S.investments;
   if (panels.includes('milestones')) { snap.milestones = S.milestones; snap.checklist = S.checklist; }
@@ -7558,6 +7558,11 @@ function sroSwitchYear(year, btn) {
   if (btn) btn.classList.add('active');
   const share = _receivedShares[_shareDetailState.idx];
   if (!share) return;
+  if (_shareDetailState.panel === 'home') {
+    const body = document.getElementById('sdm-home-content');
+    if (body) body.innerHTML = renderShareDetailHome(share.snapshot || {});
+    return;
+  }
   const body = document.getElementById('sdm-portfolio-rows');
   if (!body) return;
   body.innerHTML = renderSharePortfolioYear(share.snapshot || {}, year);
@@ -7576,12 +7581,107 @@ function sroSwitchSpendType(type, btn) {
 }
 
 function renderShareDetailPanel(snap, panel) {
-  if (panel === 'portfolio' || panel === 'home') return renderShareDetailPortfolio(snap);
+  if (panel === 'home') return renderShareDetailHome(snap);
+  if (panel === 'portfolio') return renderShareDetailPortfolio(snap);
   if (panel === 'spend') return renderShareDetailSpend(snap);
   if (panel === 'cashflow') return renderShareDetailCashflow(snap);
   if (panel === 'income') return renderShareDetailIncome(snap);
   if (panel === 'milestones') return renderShareDetailMilestones(snap);
   return '<div style="color:#8b949e;padding:20px 0;text-align:center;">No data</div>';
+}
+
+function sharedPortfolioRows(snap, year) {
+  return Array.isArray(snap.portfolio && snap.portfolio[year]) ? snap.portfolio[year] : [];
+}
+
+function sharedPortfolioAmount(snap, row) {
+  if (!row) return 0;
+  if (String(row.type || '').trim().toLowerCase() === 'shares') {
+    const code = row.shareCode ? String(row.shareCode).trim().toUpperCase() : '';
+    const price = code && snap.sharePrices && snap.sharePrices[code] !== undefined
+      ? parseFloat(snap.sharePrices[code]) || 0 : parseFloat(row.sharePrice) || 0;
+    const gross = (parseFloat(row.shares) || 0) * price;
+    return row.taxable ? gross * 0.55 : gross;
+  }
+  const gross = parseFloat(row.nonShareGross !== undefined ? row.nonShareGross : row.amount) || 0;
+  return row.taxable ? gross * 0.55 : gross;
+}
+
+function sharedAssetAvailableAmount(snap, assetId, currentRow) {
+  const asset = sharedPortfolioRows(snap, '2026').find(row => row && row.id === assetId);
+  if (!asset) return 0;
+  const allocated = sharedPortfolioRows(snap, '2026').reduce((sum, row) => {
+    if (!row || row === currentRow || !Array.isArray(row.modelAssets) || !row.modelAssets.includes(assetId)) return sum;
+    const allocation = row.modelAssetAllocations && row.modelAssetAllocations[assetId] !== undefined
+      ? parseFloat(row.modelAssetAllocations[assetId]) || 0 : sharedPortfolioAmount(snap, asset);
+    return sum + allocation;
+  }, 0);
+  return Math.max(0, sharedPortfolioAmount(snap, asset) - allocated);
+}
+
+function sharedIncomeModelPrincipal(snap, row) {
+  if (!row) return 0;
+  if (!Array.isArray(row.modelAssets) || !row.modelAssets.length) return parseFloat(row.modelPrincipal) || 0;
+  return row.modelAssets.reduce((sum, id) => {
+    const allocation = row.modelAssetAllocations && row.modelAssetAllocations[id] !== undefined
+      ? parseFloat(row.modelAssetAllocations[id]) || 0
+      : sharedPortfolioAmount(snap, sharedPortfolioRows(snap, '2026').find(asset => asset && asset.id === id));
+    return sum + Math.min(allocation, sharedAssetAvailableAmount(snap, id, row));
+  }, 0);
+}
+
+function sharedIncomeModelAnnualIncome(snap, row) {
+  if (!row) return 0;
+  if ((Array.isArray(row.modelAssets) && row.modelAssets.length) || (row.modelPrincipal !== undefined && row.modelRate !== undefined)) {
+    const gross = sharedIncomeModelPrincipal(snap, row) * (parseFloat(row.modelRate) || 0) / 100;
+    return gross * (1 - incomeModelTaxRate(row));
+  }
+  const amount = parseFloat(row.amount) || 0;
+  return String(row.frequency) === 'annual' ? amount : amount * 12;
+}
+
+function sharedIncomeSourceMonthlyValue(snap, row) {
+  if (row && Array.isArray(row.modelAssets) && row.modelAssets.length) {
+    if (String(row.frequency || 'monthly').toLowerCase() === 'annual') return 0;
+    return sharedIncomeModelAnnualIncome(snap, row) / 12;
+  }
+  const amount = parseFloat(row && row.amount) || 0;
+  return String(row && row.frequency) === 'annual' ? amount / 12 : amount;
+}
+
+function sharedHomeSummary(snap, year) {
+  const totals = new Map();
+  sharedPortfolioRows(snap, year).forEach(row => {
+    if (isPortfolioCarryOverRow(row)) return;
+    const amount = sharedPortfolioAmount(snap, row);
+    if (amount <= 0) return;
+    const label = String(row.type || '').trim() || 'Asset';
+    totals.set(label, (totals.get(label) || 0) + amount);
+  });
+  const homeAssets = snap.homeAssetsInPortfolio && Array.isArray(snap.homeAssets) ? snap.homeAssets : [];
+  if (homeAssets.length) totals.set('Other Assets', homeAssets.reduce((sum, asset) => sum + (parseFloat(asset.value) || 0), 0));
+  const palette = ['#00d17a', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#f97316', '#14b8a6', '#f43f5e'];
+  const entries = [...totals.entries()].map(([label, value], index) => ({ label, value, color: palette[index % palette.length] })).sort((a, b) => b.value - a.value);
+  return { entries, total: entries.reduce((sum, item) => sum + item.value, 0) };
+}
+
+function renderShareDetailHome(snap) {
+  const years = ['2026', '2027', '2028', '2029', '2030'];
+  const year = (_shareDetailState && _shareDetailState.year) || '2026';
+  if (_shareDetailState) _shareDetailState.year = year;
+  const tabs = years.map(y => `<div class="sro-lyt${y === year ? ' active' : ''}" onclick="sroSwitchYear('${y}',this)">${y}</div>`).join('');
+  const summary = sharedHomeSummary(snap, year);
+  const maxValue = Math.max(...summary.entries.map(item => item.value), 1);
+  const bars = summary.entries.map((item, index) => {
+    const width = Math.min(38, Math.max(18, (276 - 18 * (summary.entries.length - 1)) / Math.max(summary.entries.length, 1)));
+    const height = item.value / maxValue * 174;
+    const x = 24 + index * (width + 18);
+    const y = 192 - height;
+    return `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="8" fill="${item.color}" opacity="0.92"></rect><text x="${x + width / 2}" y="${Math.max(12, y - 8)}" text-anchor="middle" font-size="9" fill="#c9d1d9" font-weight="700">£${fmtN(item.value)}</text><text x="${x + width / 2}" y="214" text-anchor="middle" font-size="9" fill="#8b949e">${escapeHtml(item.label.slice(0, 7))}${item.label.length > 7 ? '...' : ''}</text>`;
+  }).join('');
+  const chart = summary.entries.length ? `<div class="home-chart-wrap" style="max-width:none;margin:12px 0 0;"><svg viewBox="0 0 320 220" role="img" aria-label="${year} portfolio chart"><line x1="24" y1="192" x2="302" y2="192" stroke="#1f2d45"/><line x1="24" y1="18" x2="24" y2="192" stroke="#1f2d45"/>${bars}</svg></div>` : '<div style="color:#8b949e;padding:20px 0;text-align:center;">No holdings yet</div>';
+  const legend = summary.entries.map(item => `<div class="home-legend-row"><div class="home-legend-label"><span class="home-legend-swatch" style="background:${item.color}"></span><span class="home-legend-name">${escapeHtml(item.label)}</span></div><span class="home-legend-value">£${fmtN(item.value)}</span></div>`).join('');
+  return `<div id="sdm-home-content"><div class="sro-year-tabs">${tabs}</div><div class="sro-summary"><div class="sro-summary-chip"><div class="k">${year} Total</div><div class="v green">£${fmtN(summary.total)}</div></div></div>${chart}<div class="home-legend" style="margin-top:12px;">${legend}</div></div>`;
 }
 
 function renderShareDetailPortfolio(snap) {
@@ -7602,7 +7702,7 @@ function renderSharePortfolioYear(snap, year) {
     if (!r) return '';
     const isCarry = String(r.type || '').trim().toLowerCase() === 'carry-over' || String(r.name || '').trim().toLowerCase().includes('carry');
     const isShares = String(r.type || '').trim().toLowerCase() === 'shares';
-    const amount = parseFloat(r.amount) || 0;
+    const amount = sharedPortfolioAmount(snap, r);
     if (!isCarry) total += amount;
     const amtColor = isCarry ? '#8b949e' : (amount >= 0 ? '#00d17a' : '#f85149');
     const sub = escapeHtml(isCarry ? 'Carry-Over' : (r.type || 'Asset')) + (isShares && r.shares ? ' · ' + r.shares + ' @ £' + (r.sharePrice || 0) : '') + (r.taxable ? ' · Taxable' : '');
@@ -7636,12 +7736,12 @@ function renderShareDetailCashflow(snap) {
     if (!row) return '';
     const isModel = Array.isArray(row.modelAssets) && row.modelAssets.length > 0;
     const bracket = String((row.modelTaxBracket !== undefined ? row.modelTaxBracket : row.taxBracket) || 'none');
-    const monthly = incomeSourceMonthlyValue(row);
+    const monthly = sharedIncomeSourceMonthlyValue(snap, row) * (Array.isArray(row.modelAssets) && row.modelAssets.length ? 1 : (1 - incomeModelTaxRate(row)));
     const freq = String(row.frequency || '') === 'annual' ? 'Annual' : 'Monthly';
     return `<div class="sro-row"><div class="sro-row-left"><div class="sro-row-name">${escapeHtml(row.name || 'Income source')}</div><div class="sro-row-sub">${freq} · ${escapeHtml(taxLabel(bracket))}${isModel ? ' · ' + Number(row.modelRate || 0).toFixed(1) + '%' : ''}</div></div><div><div class="sro-row-amt" style="color:#00d17a;">£${fmt2(monthly)}<span style="font-size:9px;color:#8b949e;">/mo</span></div></div></div>`;
   }).join('');
-  const totalMonthly = investments.reduce((s, r) => s + incomeSourceMonthlyValue(r), 0);
-  const totalAnnual = investments.reduce((s, r) => s + incomeSourceAnnualValue(r), 0);
+  const totalMonthly = investments.reduce((s, r) => s + sharedIncomeSourceMonthlyValue(snap, r) * (Array.isArray(r.modelAssets) && r.modelAssets.length ? 1 : (1 - incomeModelTaxRate(r))), 0);
+  const totalAnnual = investments.reduce((s, r) => s + sharedIncomeModelAnnualIncome(snap, r) * (1 - (Array.isArray(r.modelAssets) && r.modelAssets.length ? 0 : incomeModelTaxRate(r))), 0);
   return html + `<div class="sro-summary"><div class="sro-summary-chip"><div class="k">Sources</div><div class="v">${investments.length}</div></div><div class="sro-summary-chip"><div class="k">Monthly Income</div><div class="v green">£${fmtN(totalMonthly)}</div></div><div class="sro-summary-chip"><div class="k">Annual Income</div><div class="v green">£${fmtN(totalAnnual)}</div></div></div>`;
 }
 
@@ -7653,13 +7753,13 @@ function renderShareDetailIncome(snap) {
   const taxLabel = b => { const s = String(b || 'none').toLowerCase(); return s === 'basic' ? 'Basic 20%' : s === 'higher' ? 'Higher 40%' : s === 'additional' ? 'Additional 45%' : s === 'pa-taper' ? 'PA Taper 60%' : 'No Tax'; };
   const html = models.map(row => {
     const bracket = String((row.modelTaxBracket !== undefined ? row.modelTaxBracket : row.taxBracket) || 'none');
-    const annual = incomeModelAnnualIncome(row);
+    const annual = sharedIncomeModelAnnualIncome(snap, row);
     const monthly = annual / 12;
     const linkedIds = new Set(row.modelAssets);
     const linked = pf2026.filter(a => a && linkedIds.has(a.id));
     return `<div class="sro-model-card"><div class="sro-model-name">${escapeHtml(row.name || 'Income Model')} <span style="font-size:11px;color:#8b949e;">(£${fmtN(parseFloat(row.modelPrincipal) || 0)})</span></div><div class="sro-model-type">${escapeHtml(row.plannedInvestmentType || 'Pension')} · ${Number(row.modelRate || 0).toFixed(1)}% · ${escapeHtml(taxLabel(bracket))}</div><div class="sro-model-grid"><div class="sro-model-cell"><div class="k">Annual Income</div><div class="v green">£${fmtN(annual)}</div></div><div class="sro-model-cell"><div class="k">Monthly Income</div><div class="v green">£${fmt2(monthly)}</div></div></div>${linked.length ? `<div class="sro-model-assets">${linked.map(a => `<span class="sro-model-asset-chip">${escapeHtml(a.name || 'Asset')}</span>`).join('')}</div>` : ''}</div>`;
   }).join('');
-  const totalAnnual = models.reduce((s, r) => s + incomeModelAnnualIncome(r), 0);
+  const totalAnnual = models.reduce((s, r) => s + sharedIncomeModelAnnualIncome(snap, r), 0);
   return html + `<div class="sro-total"><div class="sro-total-lbl">Total Annual Income</div><div class="sro-total-val">£${fmtN(totalAnnual)}</div></div>`;
 }
 
