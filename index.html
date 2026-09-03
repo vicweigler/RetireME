@@ -3648,7 +3648,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V12.7';
+const APP_VERSION = 'V12.8';
 
 /**
  * Tab bar variant selector:
@@ -6286,7 +6286,7 @@ function getAssetAllocatedAmount(assetId, excludeRow) {
       total += parseFloat(row.modelAssetAllocations[assetId]) || 0;
     } else if (Array.isArray(row.modelAssets) && row.modelAssets.includes(assetId)) {
       const asset = portfolioRows('2026').find(r => r.id === assetId);
-      total += asset ? (parseFloat(asset.amount) || 0) : 0;
+      total += asset ? calcPortfolioRowAmount(asset) : 0;
     }
   }
   return total;
@@ -6295,17 +6295,17 @@ function getAssetAllocatedAmount(assetId, excludeRow) {
 function getAssetAvailableAmount(assetId, excludeRow) {
   const asset = portfolioRows('2026').find(r => r.id === assetId);
   if (!asset) return 0;
-  return Math.max(0, (parseFloat(asset.amount) || 0) - getAssetAllocatedAmount(assetId, excludeRow));
+  return Math.max(0, calcPortfolioRowAmount(asset) - getAssetAllocatedAmount(assetId, excludeRow));
 }
 
-/** Allocation this model claims from an asset; legacy models without allocations claim the full amount */
+/** Allocation this model claims from an asset; legacy models without allocations claim the full (net) amount */
 function incomeModelAssetAllocation(row, assetId) {
   if (!row) return 0;
   if (row.modelAssetAllocations && row.modelAssetAllocations[assetId] !== undefined) {
     return parseFloat(row.modelAssetAllocations[assetId]) || 0;
   }
   const asset = portfolioRows('2026').find(r => r.id === assetId);
-  return asset ? (parseFloat(asset.amount) || 0) : 0;
+  return asset ? calcPortfolioRowAmount(asset) : 0;
 }
 
 /** Sums the allocations a model claims across its linked assets */
