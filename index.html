@@ -3648,7 +3648,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V12.8';
+const APP_VERSION = 'V12.9';
 
 /**
  * Tab bar variant selector:
@@ -6681,10 +6681,11 @@ function renderCashflowSummary() {
   const spendMonthly = spendTotal('monthly');
   const spendQuarterly = spendTotal('quarterly');
   const spendAnnual = spendTotal('annual');
-  const spendMonthlyEquivalent = spendMonthly;
-  const spendAnnualEquivalent = spendAnnual;
+  // Normalize all three bill buckets onto a common monthly basis so Year is always Month x 12.
+  const spendMonthlyEquivalent = spendMonthly + (spendQuarterly / 3) + (spendAnnual / 12);
+  const spendAnnualEquivalent = spendMonthlyEquivalent * 12;
   const leftMonthly = incomeMonthly - spendMonthlyEquivalent;
-  const leftAnnual = incomeAnnual - spendAnnualEquivalent;
+  const leftAnnual = leftMonthly * 12;
   el.innerHTML = `
     <div class="summary-chip"><div class="k">Spend / Month</div><div class="v red">£${fmtN(spendMonthlyEquivalent)}</div></div>
     <div class="summary-chip"><div class="k">Spend / Quarter</div><div class="v red">£${fmtN(spendQuarterly)}</div></div>
