@@ -3111,6 +3111,21 @@ body.light-mode .sro-lyt.active {
       <label for="portfolio-type-taxable">Taxable</label>
       <input id="portfolio-type-taxable" type="checkbox" onchange="updatePortfolioTypeModalPreview()"/>
     </div>
+
+      <div id="portfolio-type-pension-fields" style="display:none;">
+        <div class="form-group">
+          <label>Employer</label>
+          <input id="portfolio-type-employer" type="text" placeholder="e.g. Acme Ltd"/>
+        </div>
+        <div class="form-group">
+          <label>Pension Provider</label>
+          <input id="portfolio-type-pension-provider" type="text" placeholder="e.g. Aviva"/>
+        </div>
+        <div class="form-group">
+          <label>Policy Number</label>
+          <input id="portfolio-type-policy-number" type="text" placeholder="Enter policy number"/>
+        </div>
+      </div>
     
     <!-- Dynamic Share Fields (Visible only when Type is 'Shares') -->
     <div class="form-group" id="portfolio-type-amount-group">
@@ -3661,7 +3676,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V12.14';
+const APP_VERSION = 'V12.15';
 
 /**
  * Tab bar variant selector:
@@ -5700,10 +5715,12 @@ function getPortfolioTypeValue() {
 function onPortfolioTypeSelect(val) {
   const customGroup = document.getElementById('portfolio-type-custom-group');
   const shareFields = document.getElementById('portfolio-type-share-fields');
+  const pensionFields = document.getElementById('portfolio-type-pension-fields');
   const amtGroup = document.getElementById('portfolio-type-amount-group');
   if (amtGroup) amtGroup.style.display = val === 'Shares' ? 'none' : '';
   if (customGroup) customGroup.style.display = val === 'Other' ? '' : 'none';
   if (shareFields) shareFields.classList.toggle('visible', val === 'Shares');
+  if (pensionFields) pensionFields.style.display = val === 'Pension' ? '' : 'none';
   if (val === 'Shares') onShareCodeInput();
   updatePortfolioTypeModalPreview();
 }
@@ -5741,6 +5758,9 @@ function openPortfolioTypeModal(year, idx) {
   const sharePriceEl = document.getElementById('portfolio-type-shareprice');
   const selectEl = document.getElementById('portfolio-type-select');
   const customGroupEl = document.getElementById('portfolio-type-custom-group');
+  const employerEl = document.getElementById('portfolio-type-employer');
+  const pensionProviderEl = document.getElementById('portfolio-type-pension-provider');
+  const policyNumberEl = document.getElementById('portfolio-type-policy-number');
   const rowType = String(row.type || 'Asset');
   const stdTypes = ['Asset', 'Investment', 'Pension', 'Shares'];
   if (title) title.textContent = row.name || 'Asset';
@@ -5748,6 +5768,9 @@ function openPortfolioTypeModal(year, idx) {
   if (taxableEl) taxableEl.checked = !!row.taxable;
   if (sharesEl) sharesEl.value = parseFloat(row.shares) || 0;
   if (shareCodeEl) shareCodeEl.value = row.shareCode || '';
+  if (employerEl) employerEl.value = row.employer || '';
+  if (pensionProviderEl) pensionProviderEl.value = row.pensionProvider || '';
+  if (policyNumberEl) policyNumberEl.value = row.policyNumber || '';
   if (selectEl) {
     if (stdTypes.includes(rowType)) {
       selectEl.value = rowType;
@@ -5769,6 +5792,8 @@ function openPortfolioTypeModal(year, idx) {
   if (amtGroupEl) amtGroupEl.style.display = rowType.toLowerCase() === 'shares' ? 'none' : '';
   const shareFields = document.getElementById('portfolio-type-share-fields');
   if (shareFields) shareFields.classList.toggle('visible', rowType.toLowerCase() === 'shares');
+  const pensionFields = document.getElementById('portfolio-type-pension-fields');
+  if (pensionFields) pensionFields.style.display = rowType.toLowerCase() === 'pension' ? '' : 'none';
   updatePortfolioTypeModalPreview();
   if (modal) {
     modal.style.display = 'flex';
@@ -5834,6 +5859,15 @@ function savePortfolioTypeModal() {
   const taxable = !!document.getElementById('portfolio-type-taxable')?.checked;
   row.type = typeVal;
   row.taxable = taxable;
+  if (String(typeVal).trim().toLowerCase() === 'pension') {
+    row.employer = (document.getElementById('portfolio-type-employer')?.value || '').trim();
+    row.pensionProvider = (document.getElementById('portfolio-type-pension-provider')?.value || '').trim();
+    row.policyNumber = (document.getElementById('portfolio-type-policy-number')?.value || '').trim();
+  } else {
+    delete row.employer;
+    delete row.pensionProvider;
+    delete row.policyNumber;
+  }
   if (String(typeVal).trim().toLowerCase() === 'shares') {
     row.shares = parseFloat(document.getElementById('portfolio-type-shares')?.value || row.shares || 0) || 0;
     row.shareCode = String(document.getElementById('portfolio-type-sharecode')?.value || row.shareCode || '').trim().toUpperCase();
