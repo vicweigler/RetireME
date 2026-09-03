@@ -2705,11 +2705,24 @@ body.light-mode .ms-add-select {
   margin-bottom: 10px;
 }
 .rcv-share-from {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 11px;
   color: #484f58;
   margin-bottom: 8px;
 }
 .rcv-share-from strong { color: #e6edf3; }
+.rcv-share-delete {
+  margin-left: auto;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: #f85149;
+  font: inherit;
+  cursor: pointer;
+}
+.rcv-share-delete:hover { color: #ff7b72; }
 .rcv-share-panels {
   display: flex;
   flex-wrap: wrap;
@@ -3612,8 +3625,6 @@ body.light-mode .sro-lyt.active {
       <div class="card-eyebrow">Shared With Me</div>
       <div id="shared-portfolios-list"><div style="font-size:13px;color:#484f58;text-align:center;padding:20px 0;">No shared portfolios yet</div></div>
       <button class="btn-danger" style="margin-top:8px;" onclick="refreshReceivedShares()">↻ Refresh</button>
-      <button class="btn-danger" style="margin-top:8px;" onclick="deleteOldReceivedShares()">Delete Old Shares</button>
-      <div class="share-status" id="received-share-status"></div>
     </div>
   </div>
 
@@ -3650,7 +3661,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V12.12';
+const APP_VERSION = 'V12.13';
 
 /**
  * Tab bar variant selector:
@@ -7336,43 +7347,18 @@ async function loadReceivedShares() {
 
 function refreshReceivedShares() { loadReceivedShares(); }
 
-async function deleteOldReceivedShares() {
+async function deleteReceivedShare(idx) {
   const uid = currentFirebaseUid();
-  const statusEl = document.getElementById('received-share-status');
-  if (!uid || !_db) {
-    if (statusEl) statusEl.textContent = 'Sign in to delete shared portfolios.';
-    return;
-  }
-  const ageInput = window.prompt('Delete shares older than how many days?', '30');
-  if (ageInput === null) return;
-  const ageDays = Number(ageInput);
-  if (!Number.isFinite(ageDays) || ageDays < 1) {
-    if (statusEl) statusEl.textContent = 'Enter a number of days greater than 0.';
-    return;
-  }
-  if (statusEl) statusEl.textContent = 'Finding old shares...';
+  const share = _receivedShares[idx];
+  if (!uid || !_db || !share || !share.id) return;
+  const confirmed = window.confirm('Delete this shared portfolio from ' + (share.fromEmail || 'the sender') + '?');
+  if (!confirmed) return;
   try {
-    const cutoff = Date.now() - (ageDays * 24 * 60 * 60 * 1000);
-    const snap = await _db.collection('sharedPortfolios').where('toUid', '==', uid).get();
-    const oldShares = [];
-    snap.forEach(doc => {
-      const createdAt = Number(doc.data().createdAt);
-      if (Number.isFinite(createdAt) && createdAt < cutoff) oldShares.push(doc);
-    });
-    if (!oldShares.length) {
-      if (statusEl) statusEl.textContent = 'No shared portfolios are older than ' + ageDays + ' days.';
-      return;
-    }
-    const confirmed = window.confirm('Delete ' + oldShares.length + ' shared portfolio' + (oldShares.length === 1 ? '' : 's') + ' older than ' + ageDays + ' days?');
-    if (!confirmed) {
-      if (statusEl) statusEl.textContent = 'Delete cancelled.';
-      return;
-    }
-    await Promise.all(oldShares.map(doc => doc.ref.delete()));
-    if (statusEl) statusEl.textContent = 'Deleted ' + oldShares.length + ' old shared portfolio' + (oldShares.length === 1 ? '' : 's') + '.';
+    await _db.collection('sharedPortfolios').doc(share.id).delete();
+    if (_shareDetailState && _shareDetailState.idx === idx) closeShareDetailModal();
     await loadReceivedShares();
   } catch (e) {
-    if (statusEl) statusEl.textContent = 'Error deleting old shares: ' + (e.message || String(e));
+    window.alert('Error deleting shared portfolio: ' + (e.message || String(e)));
   }
 }
 
@@ -7385,7 +7371,7 @@ function renderSharedPortfoliosList(shares) {
   list.innerHTML = _receivedShares.map((share, idx) => {
     const date = share.createdAt ? new Date(share.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
     const chips = (share.panels || []).map(p => `<button type="button" class="sro-chip-btn" onclick="openShareDetailModal(${idx},'${p}')">${panelLabels[p] || p}</button>`).join('');
-    return `<div class="rcv-share-card"><div class="rcv-share-from">Shared by <strong>${escapeHtml(share.fromEmail)}</strong> · ${date}</div><div class="rcv-share-panels" style="margin-bottom:0;">${chips}</div></div>`;
+    return `<div class="rcv-share-card"><div class="rcv-share-from"><span>Shared by <strong>${escapeHtml(share.fromEmail)}</strong> · ${date}</span><button type="button" class="rcv-share-delete" onclick="deleteReceivedShare(${idx})">Delete</button></div><div class="rcv-share-panels" style="margin-bottom:0;">${chips}</div></div>`;
   }).join('');
 }
 
