@@ -3648,7 +3648,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V12.10';
+const APP_VERSION = 'V12.11';
 
 /**
  * Tab bar variant selector:
@@ -5940,14 +5940,17 @@ function renderIncomeModelAssetList() {
         </span>
       </label>
       ${checked
-        ? `<div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
-             <span style="font-size:12px;color:#8b949e;font-weight:700;">£</span>
-             <input type="text" inputmode="decimal"
-               style="width:88px;background:#0d1525;border:1px solid #1f2d45;border-radius:6px;padding:4px 6px;color:#00d17a;font-size:12px;font-weight:700;text-align:right;outline:none;"
-               value="${fmtN(allocAmt)}"
-               onfocus="this.value=this.value.replace(/,/g,'')"
-               onblur="this.value=fmtN(parseFloat(this.value.replace(/,/g,'')||0))"
-               oninput="updateIncomeModelAssetAmount('${asset.id}',this.value)"/></div>`
+        ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
+             <div style="display:flex;align-items:center;gap:3px;">
+               <span style="font-size:12px;color:#8b949e;font-weight:700;">£</span>
+               <input type="text" inputmode="decimal"
+                 style="width:88px;background:#0d1525;border:1px solid #1f2d45;border-radius:6px;padding:4px 6px;color:#00d17a;font-size:12px;font-weight:700;text-align:right;outline:none;"
+                 value="${fmtN(allocAmt)}"
+                 onfocus="this.value=this.value.replace(/,/g,'')"
+                 onblur="this.value=fmtN(parseFloat(this.value.replace(/,/g,'')||0))"
+                 oninput="updateIncomeModelAssetAmount('${asset.id}',this.value)"/></div>
+             <div style="font-size:10px;color:#484f58;white-space:nowrap;">Savings avail: £${fmtN(available)} · Remaining: <span id="im-remain-${asset.id}" style="color:#00d17a;font-weight:700;">£${fmtN(Math.max(0, available - allocAmt))}</span></div>
+           </div>`
         : `<div class="amt">£${fmtN(available)}</div>`}
     </div>`;
   }).join('');
@@ -5964,7 +5967,10 @@ function updateIncomeModelAssetAmount(id, value) {
   if (!row) return;
   if (!row.modelAssetAllocations) row.modelAssetAllocations = {};
   const available = getAssetAvailableAmount(id, row);
-  row.modelAssetAllocations[id] = Math.min(Math.max(0, parseFloat(String(value).replace(/,/g, '')) || 0), available);
+  const clamped = Math.min(Math.max(0, parseFloat(String(value).replace(/,/g, '')) || 0), available);
+  row.modelAssetAllocations[id] = clamped;
+  const remainEl = document.getElementById('im-remain-' + id);
+  if (remainEl) remainEl.textContent = '£' + fmtN(Math.max(0, available - clamped));
   updateIncomeModelModalPreview();
 }
 
@@ -6364,7 +6370,10 @@ function clearCashflowModelSelection() {
 function updateModelAssetAmount(id, value) {
   if (!S.cashflowModelAmounts) S.cashflowModelAmounts = {};
   const available = getAssetAvailableAmount(id);
-  S.cashflowModelAmounts[id] = Math.min(Math.max(0, parseFloat(String(value).replace(/,/g, '')) || 0), available);
+  const clamped = Math.min(Math.max(0, parseFloat(String(value).replace(/,/g, '')) || 0), available);
+  S.cashflowModelAmounts[id] = clamped;
+  const remainEl = document.getElementById('cf-remain-' + id);
+  if (remainEl) remainEl.textContent = '£' + fmtN(Math.max(0, available - clamped));
   renderCashflowModelTotal();
 }
 
@@ -6443,14 +6452,17 @@ function renderCashflowModelAssets() {
         </span>
       </label>
       ${isChecked
-        ? `<div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
-             <span style="font-size:12px;color:#8b949e;font-weight:700;">£</span>
-             <input type="text" inputmode="decimal"
-               style="width:88px;background:#0d1525;border:1px solid #1f2d45;border-radius:6px;padding:4px 6px;color:#00d17a;font-size:12px;font-weight:700;text-align:right;outline:none;"
-               value="${fmtN(allocAmt)}"
-               onfocus="this.value=this.value.replace(/,/g,'')"
-               onblur="this.value=fmtN(parseFloat(this.value.replace(/,/g,'')||0))"
-               oninput="updateModelAssetAmount('${row.id}',this.value)"/></div>`
+        ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
+             <div style="display:flex;align-items:center;gap:3px;">
+               <span style="font-size:12px;color:#8b949e;font-weight:700;">£</span>
+               <input type="text" inputmode="decimal"
+                 style="width:88px;background:#0d1525;border:1px solid #1f2d45;border-radius:6px;padding:4px 6px;color:#00d17a;font-size:12px;font-weight:700;text-align:right;outline:none;"
+                 value="${fmtN(allocAmt)}"
+                 onfocus="this.value=this.value.replace(/,/g,'')"
+                 onblur="this.value=fmtN(parseFloat(this.value.replace(/,/g,'')||0))"
+                 oninput="updateModelAssetAmount('${row.id}',this.value)"/></div>
+             <div style="font-size:10px;color:#484f58;white-space:nowrap;">Savings avail: £${fmtN(available)} · Remaining: <span id="cf-remain-${row.id}" style="color:#00d17a;font-weight:700;">£${fmtN(Math.max(0, available - allocAmt))}</span></div>
+           </div>`
         : `<div class="amt">£${fmtN(available)}</div>`}
     </div>`;
   }).join('');
