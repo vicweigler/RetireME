@@ -3648,7 +3648,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V12.5';
+const APP_VERSION = 'V12.7';
 
 /**
  * Tab bar variant selector:
@@ -4671,10 +4671,23 @@ function isPortfolioEmpty() {
 }
 
 /**
+ * Per-device LocalStorage key tracking whether the welcome modal was dismissed.
+ * Written synchronously (unlike S.welcomeSeen, which round-trips through a debounced
+ * cloud save) so a refresh right after dismissal can never re-show the modal.
+ * @returns {string}
+ */
+function welcomeSeenStorageKey() {
+  const uid = currentFirebaseUid();
+  const safe = uid ? uid.replace(/[^a-zA-Z0-9_-]/g, '_') : 'local';
+  return 'retireme_welcome_seen_' + safe;
+}
+
+/**
  * Shows the one-time welcome modal for new users with an empty portfolio.
  */
 function maybeShowWelcomeModal() {
   if (S.welcomeSeen) return;
+  try { if (localStorage.getItem(welcomeSeenStorageKey()) === '1') return; } catch (e) {}
   if (!isPortfolioEmpty()) return;
   openWelcomeModal();
 }
@@ -4688,6 +4701,7 @@ function openWelcomeModal() {
 function closeWelcomeModal() {
   unlockModalViewport();
   S.welcomeSeen = true;
+  try { localStorage.setItem(welcomeSeenStorageKey(), '1'); } catch (e) {}
   save();
   const modal = document.getElementById('welcome-modal');
   if (modal) modal.style.display = 'none';
@@ -6509,10 +6523,8 @@ function incomeModelHeading(idx) {
 
 function incomeModelGrossPrincipal(row) {
   if (!row) return 0;
-  if (row.modelPrincipal !== undefined && row.modelPrincipal !== null) return parseFloat(row.modelPrincipal) || 0;
-  if (!Array.isArray(row.modelAssets) || row.modelAssets.length === 0) return 0;
-  const selectedIds = new Set(row.modelAssets);
-  return portfolioModelAssets().reduce((sum, asset) => sum + (selectedIds.has(asset.id) ? (parseFloat(asset.amount) || 0) : 0), 0);
+  if (Array.isArray(row.modelAssets) && row.modelAssets.length > 0) return incomeModelAllocatedPrincipal(row);
+  return parseFloat(row.modelPrincipal) || 0;
 }
 
 /** Normalizes income source item */
@@ -6567,6 +6579,11 @@ function incomeModelTaxRate(row) {
 /** Computes annual net income after applying tax bracket deduction */
 function incomeModelAnnualIncome(row) {
   if (!row) return 0;
+  if (Array.isArray(row.modelAssets) && row.modelAssets.length > 0 && row.modelRate !== undefined) {
+    const principal = incomeModelAllocatedPrincipal(row);
+    const gross = principal * (parseFloat(row.modelRate) || 0) / 100;
+    return gross * (1 - incomeModelTaxRate(row));
+  }
   if (row.modelPrincipal !== undefined && row.modelRate !== undefined) {
     const principal = parseFloat(row.modelPrincipal) || 0;
     const gross = principal * (parseFloat(row.modelRate) || 0) / 100;
@@ -6618,7 +6635,7 @@ function incomeSourceMonthlyValue(row) {
   const rate = incomeModelTaxRate(row);
   if (row && Array.isArray(row.modelAssets) && row.modelAssets.length > 0) {
     if (String(row.frequency || 'monthly').toLowerCase() === 'annual') return 0;
-    const annualGross = (parseFloat(row.modelPrincipal) || 0) * (parseFloat(row.modelRate) || 0) / 100;
+    const annualGross = incomeModelAllocatedPrincipal(row) * (parseFloat(row.modelRate) || 0) / 100;
     const annualNet = annualGross * (1 - rate);
     return annualNet / 12;
   }
@@ -6645,6 +6662,9 @@ function cashflowIncomeAnnualTotal() {
 
 function cashflowIncomeAnnualGrossTotal() {
   return S.investments.reduce((sum, row) => {
+    if (row && Array.isArray(row.modelAssets) && row.modelAssets.length > 0 && row.modelRate !== undefined) {
+      return sum + (incomeModelAllocatedPrincipal(row) * (parseFloat(row.modelRate) || 0) / 100);
+    }
     if (row && row.modelPrincipal !== undefined && row.modelRate !== undefined) {
       return sum + ((parseFloat(row.modelPrincipal) || 0) * (parseFloat(row.modelRate) || 0) / 100);
     }
@@ -7189,7 +7209,7 @@ function updatePortfolioItem(year, idx, key, val) {
   if (year === '2026' && row.key && key === 'amount') { S.assets[row.key] = parseFloat(row.amount) || 0; }
   save();
   showLedger(year, document.querySelector('.lyt.active') || undefined);
-  buildRunway();
+  recalc();
 }
 
 function deletePortfolioItem(year, idx) {
@@ -7201,7 +7221,7 @@ function deletePortfolioItem(year, idx) {
   if (year === '2026' && removed.key) { S.assets[removed.key] = 0; }
   save();
   showLedger(year, document.querySelector('.lyt.active') || undefined);
-  buildRunway();
+  recalc();
 }
 
 function updateAsset(k, v) {
