@@ -3612,6 +3612,8 @@ body.light-mode .sro-lyt.active {
       <div class="card-eyebrow">Shared With Me</div>
       <div id="shared-portfolios-list"><div style="font-size:13px;color:#484f58;text-align:center;padding:20px 0;">No shared portfolios yet</div></div>
       <button class="btn-danger" style="margin-top:8px;" onclick="refreshReceivedShares()">↻ Refresh</button>
+      <button class="btn-danger" style="margin-top:8px;" onclick="deleteOldReceivedShares()">Delete Old Shares</button>
+      <div class="share-status" id="received-share-status"></div>
     </div>
   </div>
 
@@ -3648,7 +3650,7 @@ body.light-mode .sro-lyt.active {
    ========================================================================== */
 
 /** Current release version of RetireMe */
-const APP_VERSION = 'V12.11';
+const APP_VERSION = 'V12.12';
 
 /**
  * Tab bar variant selector:
@@ -7333,6 +7335,46 @@ async function loadReceivedShares() {
 }
 
 function refreshReceivedShares() { loadReceivedShares(); }
+
+async function deleteOldReceivedShares() {
+  const uid = currentFirebaseUid();
+  const statusEl = document.getElementById('received-share-status');
+  if (!uid || !_db) {
+    if (statusEl) statusEl.textContent = 'Sign in to delete shared portfolios.';
+    return;
+  }
+  const ageInput = window.prompt('Delete shares older than how many days?', '30');
+  if (ageInput === null) return;
+  const ageDays = Number(ageInput);
+  if (!Number.isFinite(ageDays) || ageDays < 1) {
+    if (statusEl) statusEl.textContent = 'Enter a number of days greater than 0.';
+    return;
+  }
+  if (statusEl) statusEl.textContent = 'Finding old shares...';
+  try {
+    const cutoff = Date.now() - (ageDays * 24 * 60 * 60 * 1000);
+    const snap = await _db.collection('sharedPortfolios').where('toUid', '==', uid).get();
+    const oldShares = [];
+    snap.forEach(doc => {
+      const createdAt = Number(doc.data().createdAt);
+      if (Number.isFinite(createdAt) && createdAt < cutoff) oldShares.push(doc);
+    });
+    if (!oldShares.length) {
+      if (statusEl) statusEl.textContent = 'No shared portfolios are older than ' + ageDays + ' days.';
+      return;
+    }
+    const confirmed = window.confirm('Delete ' + oldShares.length + ' shared portfolio' + (oldShares.length === 1 ? '' : 's') + ' older than ' + ageDays + ' days?');
+    if (!confirmed) {
+      if (statusEl) statusEl.textContent = 'Delete cancelled.';
+      return;
+    }
+    await Promise.all(oldShares.map(doc => doc.ref.delete()));
+    if (statusEl) statusEl.textContent = 'Deleted ' + oldShares.length + ' old shared portfolio' + (oldShares.length === 1 ? '' : 's') + '.';
+    await loadReceivedShares();
+  } catch (e) {
+    if (statusEl) statusEl.textContent = 'Error deleting old shares: ' + (e.message || String(e));
+  }
+}
 
 function renderSharedPortfoliosList(shares) {
   _receivedShares = shares || [];
